@@ -32,14 +32,20 @@
       right: 20px;
       z-index: 3;
       background: rgba(0, 0, 0, 0.7);
-      padding: 15px;
+      padding: 20px;
       border-radius: 8px;
+      min-width: 250px;
+    }
+
+    .control-group {
+      margin-bottom: 15px;
     }
 
     .controls label {
       color: white;
       font-size: 14px;
       margin-bottom: 5px;
+      display: block;
     }
 
     .controls select {
@@ -49,6 +55,19 @@
       border: none;
       font-size: 14px;
       cursor: pointer;
+      width: 100%;
+    }
+
+    .controls input[type="range"] {
+      width: 100%;
+      margin-top: 5px;
+    }
+
+    .controls .value-display {
+      color: white;
+      font-size: 12px;
+      text-align: right;
+      margin-top: 2px;
     }
 
     .vibration-demo {
@@ -78,7 +97,6 @@
     }
 
     .vibration span.vibrate {
-      filter: blur(2px);
       animation: vibrate 50ms linear infinite forwards;
     }
 
@@ -98,25 +116,44 @@
   </video>
 
   <div class="controls">
-    <label for="text-blend">Blend Mode:</label>
-    <select id="text-blend">
-      <option value="normal">Normal</option>
-      <option value="multiply">Multiply</option>
-      <option value="screen">Screen</option>
-      <option value="overlay">Overlay</option>
-      <option value="darken">Darken</option>
-      <option value="lighten">Lighten</option>
-      <option value="color-dodge">Color Dodge</option>
-      <option value="color-burn">Color Burn</option>
-      <option value="hard-light">Hard Light</option>
-      <option value="soft-light">Soft Light</option>
-      <option value="difference" selected>Difference</option>
-      <option value="exclusion">Exclusion</option>
-      <option value="hue">Hue</option>
-      <option value="saturation">Saturation</option>
-      <option value="color">Color</option>
-      <option value="luminosity">Luminosity</option>
-    </select>
+    <div class="control-group">
+      <label for="text-blend">Blend Mode:</label>
+      <select id="text-blend">
+        <option value="normal">Normal</option>
+        <option value="multiply">Multiply</option>
+        <option value="screen">Screen</option>
+        <option value="overlay">Overlay</option>
+        <option value="darken">Darken</option>
+        <option value="lighten">Lighten</option>
+        <option value="color-dodge">Color Dodge</option>
+        <option value="color-burn">Color Burn</option>
+        <option value="hard-light">Hard Light</option>
+        <option value="soft-light">Soft Light</option>
+        <option value="difference" selected>Difference</option>
+        <option value="exclusion">Exclusion</option>
+        <option value="hue">Hue</option>
+        <option value="saturation">Saturation</option>
+        <option value="color">Color</option>
+        <option value="luminosity">Luminosity</option>
+      </select>
+    </div>
+
+    <div class="control-group">
+      <label for="hue-rotate">Hue Rotation:</label>
+      <input type="range" id="hue-rotate" min="0" max="360" value="0">
+      <div class="value-display" id="hue-value">0°</div>
+    </div>
+
+    <div class="control-group">
+      <label for="color-picker">Text Color:</label>
+      <input type="color" id="color-picker" value="#ffffff" style="width: 100%">
+    </div>
+
+    <div class="control-group">
+      <label for="opacity">Opacity:</label>
+      <input type="range" id="opacity" min="0" max="100" value="100">
+      <div class="value-display" id="opacity-value">100%</div>
+    </div>
   </div>
 
   <div class="vibration-demo">
@@ -128,8 +165,27 @@
   <script>
     const video = document.getElementById('background-video');
     const textBlendSelect = document.getElementById('text-blend');
+    const hueRotateSlider = document.getElementById('hue-rotate');
+    const opacitySlider = document.getElementById('opacity');
+    const colorPicker = document.getElementById('color-picker');
+    const hueValue = document.getElementById('hue-value');
+    const opacityValue = document.getElementById('opacity-value');
 
-    // Apply initial blend mode
+    function updateTextStyles() {
+      const hue = hueRotateSlider.value;
+      const opacity = opacitySlider.value;
+      const color = colorPicker.value;
+
+      document.querySelectorAll('.vibration span').forEach(span => {
+        span.style.filter = `hue-rotate(${hue}deg)`;
+        span.style.opacity = opacity / 100;
+        span.style.color = color;
+      });
+
+      hueValue.textContent = `${hue}°`;
+      opacityValue.textContent = `${opacity}%`;
+    }
+
     function applyBlendMode(mode) {
       document.querySelectorAll('.vibration span').forEach(span => {
         span.style.mixBlendMode = mode;
@@ -141,10 +197,14 @@
       console.log("Video autoplay failed:", error);
     });
 
-    // Blend mode control
+    // Event listeners for controls
     textBlendSelect.addEventListener('change', (e) => {
       applyBlendMode(e.target.value);
     });
+
+    hueRotateSlider.addEventListener('input', updateTextStyles);
+    opacitySlider.addEventListener('input', updateTextStyles);
+    colorPicker.addEventListener('input', updateTextStyles);
 
     // Text animation setup
     const vibrationBlocks = document.querySelectorAll('.vibration');
@@ -161,8 +221,9 @@
       }
     });
 
-    // Apply initial blend mode
+    // Apply initial styles
     applyBlendMode(textBlendSelect.value);
+    updateTextStyles();
 
     function randomVibrate() {
       vibrationBlocks.forEach(block => {
