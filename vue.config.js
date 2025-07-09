@@ -1,5 +1,7 @@
 module.exports = {
   // Configure webpack to copy video files to public directory
+    publicPath: process.env.NODE_ENV === 'production'  ? '/insert/' : '/',
+
   chainWebpack: config => {
     // Remove default processing for video files
     config.module.rules.delete('video');
