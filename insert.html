@@ -34,11 +34,76 @@
       background: rgba(0, 0, 0, 0.7);
       padding: 20px;
       border-radius: 8px;
+      max-height: 90vh;
+      overflow-y: auto;
+      transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
       min-width: 250px;
+    }
+
+    .controls.hidden {
+      transform: translateX(calc(100% + 20px));
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .toggle-controls {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 4;
+      background: rgba(0, 0, 0, 0.7);
+      color: white;
+      border: none;
+      padding: 8px 15px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: background-color 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .toggle-controls:hover {
+      background: rgba(0, 0, 0, 0.8);
+    }
+
+    .toggle-controls .icon {
+      transition: transform 0.3s ease;
+    }
+
+    .toggle-controls.hidden .icon {
+      transform: rotate(180deg);
+    }
+
+    .shortcut-hint {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: rgba(0, 0, 0, 0.7);
+      color: white;
+      padding: 8px 15px;
+      border-radius: 4px;
+      font-size: 12px;
+      opacity: 0;
+      transition: opacity 0.3s;
+      pointer-events: none;
+    }
+
+    .shortcut-hint.visible {
+      opacity: 1;
     }
 
     .control-group {
       margin-bottom: 15px;
+    }
+
+    .control-group h3 {
+      color: #fff;
+      font-size: 16px;
+      margin-bottom: 10px;
+      border-bottom: 1px solid rgba(255,255,255,0.2);
+      padding-bottom: 5px;
     }
 
     .controls label {
@@ -70,6 +135,20 @@
       margin-top: 2px;
     }
 
+    .sub-controls {
+      margin-left: 10px;
+    }
+
+    .dual-slider {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .dual-slider input[type="range"] {
+      flex: 1;
+    }
+
     .vibration-demo {
       position: relative;
       display: flex;
@@ -97,15 +176,18 @@
     }
 
     .vibration span.vibrate {
-      animation: vibrate 50ms linear infinite forwards;
+      animation: vibrate var(--vibrate-speed) linear infinite forwards;
+      filter: blur(var(--blur-amount));
     }
 
     @keyframes vibrate {
       0% {
-        transform: translateX(-1px) translateY(1px);
+        transform: translateX(calc(-1px * var(--vibrate-intensity)))
+                  translateY(calc(1px * var(--vibrate-intensity)));
       }
       100% {
-        transform: translateX(1px) translateY(-2px);
+        transform: translateX(calc(1px * var(--vibrate-intensity)))
+                  translateY(calc(-2px * var(--vibrate-intensity)));
       }
     }
   </style>
@@ -115,8 +197,18 @@
     <source src="back.mp4" type="video/mp4">
   </video>
 
+  <button class="toggle-controls">
+    <span class="icon">◀</span>
+    <span class="text">Hide Controls</span>
+  </button>
+
+  <div class="shortcut-hint">
+    Double-click anywhere to toggle controls
+  </div>
+
   <div class="controls">
     <div class="control-group">
+      <h3>Blend Settings</h3>
       <label for="text-blend">Blend Mode:</label>
       <select id="text-blend">
         <option value="normal">Normal</option>
@@ -139,20 +231,54 @@
     </div>
 
     <div class="control-group">
-      <label for="hue-rotate">Hue Rotation:</label>
-      <input type="range" id="hue-rotate" min="0" max="360" value="0">
-      <div class="value-display" id="hue-value">0°</div>
+      <h3>Color Settings</h3>
+      <div class="sub-controls">
+        <label for="hue-rotate">Hue Rotation:</label>
+        <input type="range" id="hue-rotate" min="0" max="360" value="0">
+        <div class="value-display" id="hue-value">0°</div>
+
+        <label for="color-picker">Text Color:</label>
+        <input type="color" id="color-picker" value="#ffffff" style="width: 100%">
+
+        <label for="opacity">Opacity:</label>
+        <input type="range" id="opacity" min="0" max="100" value="100">
+        <div class="value-display" id="opacity-value">100%</div>
+      </div>
     </div>
 
     <div class="control-group">
-      <label for="color-picker">Text Color:</label>
-      <input type="color" id="color-picker" value="#ffffff" style="width: 100%">
-    </div>
+      <h3>Animation Settings</h3>
+      <div class="sub-controls">
+        <label for="vibrate-speed">Animation Speed:</label>
+        <div class="dual-slider">
+          <input type="range" id="vibrate-speed" min="10" max="500" value="50">
+          <div class="value-display" id="speed-value">50ms</div>
+        </div>
 
-    <div class="control-group">
-      <label for="opacity">Opacity:</label>
-      <input type="range" id="opacity" min="0" max="100" value="100">
-      <div class="value-display" id="opacity-value">100%</div>
+        <label for="vibrate-intensity">Vibration Intensity:</label>
+        <div class="dual-slider">
+          <input type="range" id="vibrate-intensity" min="1" max="10" value="1">
+          <div class="value-display" id="intensity-value">1x</div>
+        </div>
+
+        <label for="blur-amount">Blur Amount:</label>
+        <div class="dual-slider">
+          <input type="range" id="blur-amount" min="0" max="10" value="2" step="0.5">
+          <div class="value-display" id="blur-value">2px</div>
+        </div>
+
+        <label for="random-amount">Random Letters (%):</label>
+        <div class="dual-slider">
+          <input type="range" id="random-amount" min="1" max="100" value="50">
+          <div class="value-display" id="random-value">50%</div>
+        </div>
+
+        <label for="interval-speed">Effect Interval:</label>
+        <div class="dual-slider">
+          <input type="range" id="interval-speed" min="50" max="1000" value="200">
+          <div class="value-display" id="interval-value">200ms</div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -170,6 +296,22 @@
     const colorPicker = document.getElementById('color-picker');
     const hueValue = document.getElementById('hue-value');
     const opacityValue = document.getElementById('opacity-value');
+    const vibrateSpeedSlider = document.getElementById('vibrate-speed');
+    const vibrateIntensitySlider = document.getElementById('vibrate-intensity');
+    const blurAmountSlider = document.getElementById('blur-amount');
+    const randomAmountSlider = document.getElementById('random-amount');
+    const intervalSpeedSlider = document.getElementById('interval-speed');
+    const controlsPanel = document.querySelector('.controls');
+    const toggleButton = document.querySelector('.toggle-controls');
+    const shortcutHint = document.querySelector('.shortcut-hint');
+
+    const speedValue = document.getElementById('speed-value');
+    const intensityValue = document.getElementById('intensity-value');
+    const blurValue = document.getElementById('blur-value');
+    const randomValue = document.getElementById('random-value');
+    const intervalValue = document.getElementById('interval-value');
+
+    let animationInterval;
 
     function updateTextStyles() {
       const hue = hueRotateSlider.value;
@@ -192,12 +334,66 @@
       });
     }
 
-    // Video autoplay
+    function updateAnimationSettings() {
+      const root = document.documentElement;
+      const speed = vibrateSpeedSlider.value;
+      const intensity = vibrateIntensitySlider.value;
+      const blur = blurAmountSlider.value;
+
+      root.style.setProperty('--vibrate-speed', `${speed}ms`);
+      root.style.setProperty('--vibrate-intensity', intensity);
+      root.style.setProperty('--blur-amount', `${blur}px`);
+
+      speedValue.textContent = `${speed}ms`;
+      intensityValue.textContent = `${intensity}x`;
+      blurValue.textContent = `${blur}px`;
+      randomValue.textContent = `${randomAmountSlider.value}%`;
+      intervalValue.textContent = `${intervalSpeedSlider.value}ms`;
+    }
+
+    function restartRandomization() {
+      clearInterval(animationInterval);
+      animationInterval = setInterval(randomVibrate, intervalSpeedSlider.value);
+    }
+
+    function randomVibrate() {
+      vibrationBlocks.forEach(block => {
+        const spans = block.querySelectorAll('span');
+        spans.forEach(span => span.classList.remove('vibrate'));
+
+        const totalLetters = spans.length;
+        const lettersToAnimate = Math.floor(totalLetters * (randomAmountSlider.value / 100));
+
+        const indices = Array.from({length: totalLetters}, (_, i) => i);
+        for (let i = indices.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [indices[i], indices[j]] = [indices[j], indices[i]];
+        }
+
+        for (let i = 0; i < lettersToAnimate; i++) {
+          spans[indices[i]].classList.add('vibrate');
+        }
+      });
+    }
+
+    function toggleControls() {
+      const isHidden = controlsPanel.classList.toggle('hidden');
+      toggleButton.classList.toggle('hidden');
+
+      const buttonText = toggleButton.querySelector('.text');
+      buttonText.textContent = isHidden ? 'Show Controls' : 'Hide Controls';
+
+      shortcutHint.classList.add('visible');
+      setTimeout(() => {
+        shortcutHint.classList.remove('visible');
+      }, 2000);
+    }
+
+    // Event listeners
     video.play().catch(function(error) {
       console.log("Video autoplay failed:", error);
     });
 
-    // Event listeners for controls
     textBlendSelect.addEventListener('change', (e) => {
       applyBlendMode(e.target.value);
     });
@@ -205,6 +401,28 @@
     hueRotateSlider.addEventListener('input', updateTextStyles);
     opacitySlider.addEventListener('input', updateTextStyles);
     colorPicker.addEventListener('input', updateTextStyles);
+    vibrateSpeedSlider.addEventListener('input', updateAnimationSettings);
+    vibrateIntensitySlider.addEventListener('input', updateAnimationSettings);
+    blurAmountSlider.addEventListener('input', updateAnimationSettings);
+    randomAmountSlider.addEventListener('input', updateAnimationSettings);
+    intervalSpeedSlider.addEventListener('input', () => {
+      updateAnimationSettings();
+      restartRandomization();
+    });
+
+    toggleButton.addEventListener('click', toggleControls);
+
+    document.addEventListener('dblclick', (e) => {
+      if (!e.target.closest('.controls') && !e.target.closest('.toggle-controls')) {
+        toggleControls();
+      }
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'h' || e.key === 'H') {
+        toggleControls();
+      }
+    });
 
     // Text animation setup
     const vibrationBlocks = document.querySelectorAll('.vibration');
@@ -221,33 +439,19 @@
       }
     });
 
-    // Apply initial styles
+    // Initialize
+    updateAnimationSettings();
     applyBlendMode(textBlendSelect.value);
     updateTextStyles();
+    restartRandomization();
 
-    function randomVibrate() {
-      vibrationBlocks.forEach(block => {
-        const spans = block.querySelectorAll('span');
-        spans.forEach(span => span.classList.remove('vibrate'));
-
-        const count = Math.floor(Math.random() * spans.length / 2) + 1;
-        for (let i = 0; i < count; i++) {
-          const index = Math.floor(Math.random() * spans.length);
-          spans[index].classList.add('vibrate');
-        }
-      });
-    }
-
-    setInterval(randomVibrate, 200);
-
-    // Double-click to toggle video play/pause
-    document.addEventListener('dblclick', () => {
-      if (video.paused) {
-        video.play();
-      } else {
-        video.pause();
-      }
-    });
+    // Show initial shortcut hint
+    setTimeout(() => {
+      shortcutHint.classList.add('visible');
+      setTimeout(() => {
+        shortcutHint.classList.remove('visible');
+      }, 3000);
+    }, 1000);
   </script>
 </body>
 </html>
