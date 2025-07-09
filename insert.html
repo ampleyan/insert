@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Centered Vibrating Text on Video</title>
+  <title>Video Blend Text Effect</title>
   <style>
     * {
       box-sizing: border-box;
@@ -14,9 +14,9 @@
       height: 100%;
       font-family: Helvetica, sans-serif;
       overflow: hidden;
+      background: black;
     }
 
-    /* Video background */
     #background-video {
       position: fixed;
       top: 0;
@@ -24,11 +24,35 @@
       width: 100vw;
       height: 100vh;
       object-fit: cover;
-      z-index: -1;
     }
 
-    /* Centered section */
+    .controls {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 3;
+      background: rgba(0, 0, 0, 0.7);
+      padding: 15px;
+      border-radius: 8px;
+    }
+
+    .controls label {
+      color: white;
+      font-size: 14px;
+      margin-bottom: 5px;
+    }
+
+    .controls select {
+      padding: 8px;
+      border-radius: 4px;
+      background: rgba(255, 255, 255, 0.9);
+      border: none;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
     .vibration-demo {
+      position: relative;
       display: flex;
       flex-direction: column;
       justify-content: center;
@@ -37,19 +61,24 @@
       text-align: center;
     }
 
-    /* Vibrating text style */
+    .vibration {
+      margin: 20px 0;
+      position: relative;
+    }
+
     .vibration span {
-      transition: all 500ms;
-      color: rgba(255, 255, 255, 0.7); /* <-- opacity */
+      font-size: 120px;
+      font-weight: 900;
       display: inline-block;
       margin-right: 10px;
-      text-shadow: 1px 2px 3px #999;
-      font-size: 80px;
-      font-weight: bold;
+      transition: all 500ms;
+      text-transform: uppercase;
+      color: white;
+      mix-blend-mode: difference;
     }
 
     .vibration span.vibrate {
-      filter: blur(3px);
+      filter: blur(2px);
       animation: vibrate 50ms linear infinite forwards;
     }
 
@@ -64,24 +93,63 @@
   </style>
 </head>
 <body>
-
-  <!-- Video background (must be local or mp4 hosted somewhere) -->
-  <video autoplay muted loop id="background-video">
+  <video id="background-video" autoplay loop muted playsinline>
     <source src="back.mp4" type="video/mp4">
-    Your browser does not support the video tag.
   </video>
 
-  <section class="vibration-demo">
+  <div class="controls">
+    <label for="text-blend">Blend Mode:</label>
+    <select id="text-blend">
+      <option value="normal">Normal</option>
+      <option value="multiply">Multiply</option>
+      <option value="screen">Screen</option>
+      <option value="overlay">Overlay</option>
+      <option value="darken">Darken</option>
+      <option value="lighten">Lighten</option>
+      <option value="color-dodge">Color Dodge</option>
+      <option value="color-burn">Color Burn</option>
+      <option value="hard-light">Hard Light</option>
+      <option value="soft-light">Soft Light</option>
+      <option value="difference" selected>Difference</option>
+      <option value="exclusion">Exclusion</option>
+      <option value="hue">Hue</option>
+      <option value="saturation">Saturation</option>
+      <option value="color">Color</option>
+      <option value="luminosity">Luminosity</option>
+    </select>
+  </div>
+
+  <div class="vibration-demo">
     <div class="vibration">INSERT</div>
     <div class="vibration">SUN'O3.08</div>
     <div class="vibration">BAR OOST</div>
-  </section>
+  </div>
 
   <script>
+    const video = document.getElementById('background-video');
+    const textBlendSelect = document.getElementById('text-blend');
+
+    // Apply initial blend mode
+    function applyBlendMode(mode) {
+      document.querySelectorAll('.vibration span').forEach(span => {
+        span.style.mixBlendMode = mode;
+      });
+    }
+
+    // Video autoplay
+    video.play().catch(function(error) {
+      console.log("Video autoplay failed:", error);
+    });
+
+    // Blend mode control
+    textBlendSelect.addEventListener('change', (e) => {
+      applyBlendMode(e.target.value);
+    });
+
+    // Text animation setup
     const vibrationBlocks = document.querySelectorAll('.vibration');
 
     vibrationBlocks.forEach(block => {
-      // If no spans, wrap each character
       if (![...block.childNodes].some(n => n.nodeName === 'SPAN')) {
         const text = block.textContent.trim();
         block.textContent = '';
@@ -92,6 +160,9 @@
         });
       }
     });
+
+    // Apply initial blend mode
+    applyBlendMode(textBlendSelect.value);
 
     function randomVibrate() {
       vibrationBlocks.forEach(block => {
@@ -107,6 +178,15 @@
     }
 
     setInterval(randomVibrate, 200);
+
+    // Double-click to toggle video play/pause
+    document.addEventListener('dblclick', () => {
+      if (video.paused) {
+        video.play();
+      } else {
+        video.pause();
+      }
+    });
   </script>
 </body>
 </html>
