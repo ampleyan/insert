@@ -1,0 +1,47 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  height: 100%;
+  font-family: Helvetica, sans-serif;
+  overflow: hidden;
+  background: black;
+}
+
+#background-video {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  object-fit: cover;
+}
+
+.vibration-demo {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  text-align: center;
+}
+
+.vibration {
+  margin: 20px 0;
+  position: relative;
+}
+
+.vibration span {
+  font-size: 120px;
+  font-weight: 900;
+  display: inline-block;
+  margin-right: 10px;
+  transition: all 500ms;
+  text-transform: uppercase;
+  color: white;
+  mix-blend-mode: difference;
+}

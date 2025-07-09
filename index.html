@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Video Blend Text Effect</title>
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/controls.css">
+  <link rel="stylesheet" href="css/animation.css">
+</head>
+<body>
+  <video id="background-video" autoplay loop muted playsinline>
+    <source src="video/back.mp4" type="video/mp4">
+  </video>
+
+  <button class="toggle-controls">
+    <span class="icon">◀</span>
+    <span class="text">Hide Controls</span>
+  </button>
+
+  <div class="shortcut-hint">
+    Double-click anywhere to toggle controls
+  </div>
+
+  <div class="controls">
+    <div class="control-group">
+      <h3>Blend Settings</h3>
+      <label for="text-blend">Blend Mode:</label>
+      <select id="text-blend">
+        <option value="normal">Normal</option>
+        <option value="multiply">Multiply</option>
+        <option value="screen">Screen</option>
+        <option value="overlay">Overlay</option>
+        <option value="darken">Darken</option>
+        <option value="lighten">Lighten</option>
+        <option value="color-dodge">Color Dodge</option>
+        <option value="color-burn">Color Burn</option>
+        <option value="hard-light">Hard Light</option>
+        <option value="soft-light">Soft Light</option>
+        <option value="difference" selected>Difference</option>
+        <option value="exclusion">Exclusion</option>
+        <option value="hue">Hue</option>
+        <option value="saturation">Saturation</option>
+        <option value="color">Color</option>
+        <option value="luminosity">Luminosity</option>
+      </select>
+    </div>
+
+    <div class="control-group">
+      <h3>Color Settings</h3>
+      <div class="sub-controls">
+        <label for="hue-rotate">Hue Rotation:</label>
+        <input type="range" id="hue-rotate" min="0" max="360" value="0">
+        <div class="value-display" id="hue-value">0°</div>
+
+        <label for="color-picker">Text Color:</label>
+        <input type="color" id="color-picker" value="#ffffff" style="width: 100%">
+
+        <label for="opacity">Opacity:</label>
+        <input type="range" id="opacity" min="0" max="100" value="100">
+        <div class="value-display" id="opacity-value">100%</div>
+      </div>
+    </div>
+
+    <div class="control-group">
+      <h3>Animation Settings</h3>
+      <div class="sub-controls">
+        <label for="vibrate-speed">Animation Speed:</label>
+        <div class="dual-slider">
+          <input type="range" id="vibrate-speed" min="10" max="500" value="50">
+          <div class="value-display" id="speed-value">50ms</div>
+        </div>
+
+        <label for="vibrate-intensity">Vibration Intensity:</label>
+        <div class="dual-slider">
+          <input type="range" id="vibrate-intensity" min="1" max="10" value="1">
+          <div class="value-display" id="intensity-value">1x</div>
+        </div>
+
+        <label for="blur-amount">Blur Amount:</label>
+        <div class="dual-slider">
+          <input type="range" id="blur-amount" min="0" max="10" value="2" step="0.5">
+          <div class="value-display" id="blur-value">2px</div>
+        </div>
+
+        <label for="random-amount">Random Letters (%):</label>
+        <div class="dual-slider">
+          <input type="range" id="random-amount" min="1" max="100" value="50">
+          <div class="value-display" id="random-value">50%</div>
+        </div>
+
+        <label for="interval-speed">Effect Interval:</label>
+        <div class="dual-slider">
+          <input type="range" id="interval-speed" min="50" max="1000" value="200">
+          <div class="value-display" id="interval-value">200ms</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="vibration-demo">
+    <div class="vibration">INSERT</div>
+    <div class="vibration">SUN'O3.08</div>
+    <div class="vibration">BAR OOST</div>
+  </div>
+
+  <script src="js/utils.js"></script>
+  <script src="js/animation.js"></script>
+  <script src="js/controls.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>

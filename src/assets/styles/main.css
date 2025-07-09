@@ -1,0 +1,43 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  height: 100%;
+  font-family: Helvetica, sans-serif;
+  overflow: hidden;
+  background: black;
+}
+
+#app {
+  height: 100%;
+  width: 100%;
+}
+
+.vibration-demo {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  text-align: center;
+}
+
+.vibration {
+  margin: 20px 0;
+  position: relative;
+}
+
+.vibration span {
+  font-size: 120px;
+  font-weight: 900;
+  display: inline-block;
+  margin-right: 10px;
+  transition: all 500ms;
+  text-transform: uppercase;
+  color: white;
+  mix-blend-mode: difference;
+}

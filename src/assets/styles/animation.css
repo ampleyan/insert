@@ -1,0 +1,23 @@
+/*!* Animation styles *!*/
+/*.vibration span.vibrate {*/
+/*  animation: vibrate var(--vibrate-speed) linear infinite forwards;*/
+/*  filter: blur(var(--blur-amount));*/
+/*}*/
+
+/*@keyframes vibrate {*/
+/*  0% {*/
+/*    transform: translateX(calc(-1px * var(--vibrate-intensity)))*/
+/*              translateY(calc(1px * var(--vibrate-intensity)));*/
+/*  }*/
+/*  100% {*/
+/*    transform: translateX(calc(1px * var(--vibrate-intensity)))*/
+/*              translateY(calc(-2px * var(--vibrate-intensity)));*/
+/*  }*/
+/*}*/
+
+/* Default CSS variables */
+:root {
+  --vibrate-speed: 50ms;
+  --vibrate-intensity: 1;
+  --blur-amount: 2px;
+}
