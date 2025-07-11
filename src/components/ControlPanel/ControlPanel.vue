@@ -1,5 +1,9 @@
 <template>
   <div class="controls">
+    <select v-model="settings.effectType" @change="onEffectChoice(settings)">
+      <option value="vibration">Vibration</option>
+      <option value="goo">Gooey</option>
+    </select>
     <BlendControls @update="onUpdate" />
     <ColorControls @update="onUpdate" />
     <AnimationControls @update="onUpdate" />
@@ -118,7 +122,7 @@
         isAudioMuted: false,
         settings: {
           blendMode: 'difference',
-
+          effectType: 'vibration',
           // Color settings
           hue: 0,
           color: '#ffffff',
@@ -177,6 +181,10 @@
       handleUrlInput() {
         if (!this.videoUrl) return;
         this.$emit('urlInput', this.videoUrl);
+      },
+      onEffectChoice() {
+        console.log(this.settings.effectType);
+        this.$emit('changeEffect', this.settings);
       },
       onUpdate(val) {
         console.log(val);

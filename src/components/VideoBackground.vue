@@ -10,7 +10,15 @@
       class="background-video"
     ></iframe>
     <!-- Local Video Player -->
-    <video v-else id="background-video" autoplay loop playsinline ref="videoElement">
+    <video
+      v-else
+      id="background-video"
+      autoplay
+      loop
+      playsinline
+      :muted="isMuted"
+      ref="videoElement"
+    >
       <source :src="videoSource" type="video/mp4" />
     </video>
   </div>

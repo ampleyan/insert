@@ -15,7 +15,7 @@
 
 <script>
   export default {
-    name: 'TextEffect',
+    name: 'TextVibration',
     props: {
       settings: {
         type: Object,
@@ -126,7 +126,6 @@
       },
       randomVibrate() {
         this.vibratingLetters = {};
-
         this.textLinesVar.forEach((text, lineIndex) => {
           const totalLetters = text.length;
           const lettersToAnimate = Math.floor(totalLetters * (this.settings.randomAmount / 100));

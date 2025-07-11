@@ -21,13 +21,13 @@
       @audio-file-upload="audioFileBlob = $event"
       @audio-url-input="startAudio($event)"
       @audio-mute-change="isAudioMuted = $event"
+      @change-effect="onUpdate"
     />
 
-    <TextEffect :settings="settings" />
+    <TextVibration v-if="settings.effectType === 'vibration'" :settings="settings" />
+    <TextGoo v-if="settings.effectType === 'goo'" :settings="settings" />
+
     <!--    <audio ref="audio" autoplay :src="audioSrc" :muted="isAudioMuted" controls></audio>-->
-    <div style="width: 0; height: 0; overflow: hidden">
-      <div id="yt-audio-player"></div>
-    </div>
     <div style="width: 0; height: 0; overflow: hidden">
       <iframe
         v-if="youtubeEmbedUrl"
@@ -44,14 +44,16 @@
 <script>
   import VideoBackground from './components/VideoBackground.vue';
   import ControlPanel from './components/ControlPanel/ControlPanel.vue';
-  import TextEffect from './components/TextEffect.vue';
+  import TextVibration from './components/Effects/TextVibration.vue';
+  import TextGoo from './components/Effects/TextGoo.vue';
 
   export default {
     name: 'App',
     components: {
       VideoBackground,
       ControlPanel,
-      TextEffect,
+      TextVibration,
+      TextGoo,
     },
     data() {
       return {
@@ -69,7 +71,7 @@
         settings: {
           // Blend settings
           blendMode: 'difference',
-
+          effectType: 'vibration',
           // Color settings
           hue: 0,
           color: '#ffffff',
@@ -139,22 +141,6 @@
         if (audioUrlId) {
           this.youtubeEmbedUrl = `https://www.youtube.com/embed/${audioUrlId}?autoplay=1&loop=1&playlist=${audioUrlId}&mute=0`;
         }
-        //         this.$nextTick(() => {
-        //   if (this.$refs.audio) {
-        //     this.$refs.audio.load();
-        //     this.$refs.audio.play().catch((error) => {
-        //       console.log('audio playback failed:', error);
-        //     });
-        //   }
-        // });
-        // this.$nextTick(() => {
-        //   if (this.$refs.audio) {
-        //     this.$refs.audio.load();
-        //     this.$refs.audio.play().catch((error) => {
-        //       console.log('Audio playback failed:', error);
-        //     });
-        //   }
-        // });
       },
       onPlay(val) {
         this.isPlaying = val;
