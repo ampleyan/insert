@@ -8,6 +8,7 @@
       allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
       allowfullscreen
       class="background-video"
+      :style="filterStyle"
     ></iframe>
     <!-- Local Video Player -->
     <video
@@ -18,6 +19,7 @@
       playsinline
       :muted="isMuted"
       ref="videoElement"
+      :style="filterStyle"
     >
       <source :src="videoSource" type="video/mp4" />
     </video>
@@ -43,10 +45,19 @@
         type: Boolean,
         default: false,
       },
+      settings: {
+        type: Object,
+        default: () => ({
+          backdropBlur: 0,
+          backdropBrightness: 100,
+          backdropContrast: 100,
+          backdropSaturate: 100,
+        }),
+      },
     },
     data() {
       return {
-        isMuted: false,
+        isMuted: true,
         isPlayingVar: this.isPlaying,
 
         videoSource: require('@/assets/video/back.mp4'),
@@ -59,7 +70,12 @@
     watch: {
       isPlaying(newValue) {
         this.isPlayingVar = newValue;
-        this.startVideo();
+        if (newValue) {
+          this.startVideo();
+        } else {
+          this.$refs.videoElement.pause();
+        }
+        // this.startVideo();
       },
       inputUrl(newValue) {
         this.videoUrl = newValue;
@@ -135,6 +151,28 @@
         }
       },
     },
+    computed: {
+      filterStyle() {
+        const filters = [];
+        if (this.settings.backdropBlur > 0) {
+          filters.push(`blur(${this.settings.backdropBlur}px)`);
+        }
+        if (this.settings.backdropBrightness !== 100) {
+          filters.push(`brightness(${this.settings.backdropBrightness}%)`);
+        }
+        if (this.settings.backdropContrast !== 100) {
+          filters.push(`contrast(${this.settings.backdropContrast}%)`);
+        }
+        if (this.settings.backdropSaturate !== 100) {
+          filters.push(`saturate(${this.settings.backdropSaturate}%)`);
+        }
+
+        return {
+          filter: filters.join(' '),
+        };
+      },
+    },
+
     mounted() {
       this.$nextTick(() => {
         if (this.$refs.videoElement) {

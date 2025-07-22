@@ -1,4 +1,7 @@
 <template>
+  <!--  <div class="vibration-wrapper">-->
+  <!--    <div class="backdrop-layer" :style="backdropFilterStyle"></div>-->
+
   <div class="vibration-demo">
     <div class="vibration" v-for="(text, index) in textLinesVar" :key="index" :style="rootStyles">
       <span
@@ -11,6 +14,7 @@
       </span>
     </div>
   </div>
+  <!--  </div>-->
 </template>
 
 <script>
@@ -31,6 +35,10 @@
           vibrateSpeed: 200,
           textLines: ['TEXT'],
           fontSize: 80,
+          backdropBlur: 0,
+          backdropBrightness: 100,
+          backdropContrast: 100,
+          backdropSaturate: 100,
         }),
       },
     },
@@ -42,6 +50,8 @@
           : this.settings.textLines.map(() => this.settings.fontSize),
         vibratingLetters: {},
         animationInterval: null,
+        translateX: '2px',
+        translateY: '2px',
       };
     },
     computed: {
@@ -50,6 +60,7 @@
           '--translate-x': `${this.settings.vibrateIntensity}px`,
           '--translate-y': `${this.settings.vibrateIntensity}px`,
           '--vibrate-speed': `${this.settings.vibrateSpeed}ms`,
+          mixBlendMode: this.settings.blendMode, // Fixed property name
         };
       },
     },
@@ -105,7 +116,7 @@
         return {
           fontSize: `${fontSize}px`,
           color: this.settings.color,
-          mixBlendMode: this.settings.blendMode,
+          // mixBlendMode: this.settings.blendMode,
           opacity: this.settings.opacity / 100,
           filter,
           transform: `scale(${scale})`,

@@ -1,6 +1,12 @@
 <template>
   <div class="app">
-    <VideoBackground :file="file" :isMute="isMute" :inputUrl="inputUrl" :isPlaying="isPlaying" />
+    <VideoBackground
+      :settings="settings"
+      :file="file"
+      :isMute="isMute"
+      :inputUrl="inputUrl"
+      :isPlaying="isPlaying"
+    />
 
     <button class="toggle-controls" @click="toggleControls" v-show="!isControlsHidden">
       <span class="icon" :class="{ hidden: isControlsHidden }">◀</span>
@@ -18,15 +24,25 @@
       @mute-change="onMute"
       @url-input="onInput"
       @start-video="onPlay"
+      @stop-video="onStop"
       @audio-file-upload="audioFileBlob = $event"
       @audio-url-input="startAudio($event)"
       @audio-mute-change="isAudioMuted = $event"
       @change-effect="onUpdate"
+      @reset="resetToDefaults"
     />
 
     <TextVibration v-if="settings.effectType === 'vibration'" :settings="settings" />
-    <TextGoo v-if="settings.effectType === 'goo'" :settings="settings" />
-
+    <!--    <TextGoo v-if="settings.effectType === 'goo'" :settings="settings" />-->
+    <TextDistort
+      v-if="settings.effectType === 'goo'"
+      :settings="settings"
+      text="Wavy Text"
+      baseFrequency="0.02 0.02"
+      scale="30"
+      fontSize="12vw"
+      color="#ff0"
+    />
     <!--    <audio ref="audio" autoplay :src="audioSrc" :muted="isAudioMuted" controls></audio>-->
     <div style="width: 0; height: 0; overflow: hidden">
       <iframe
@@ -45,7 +61,8 @@
   import VideoBackground from './components/VideoBackground.vue';
   import ControlPanel from './components/ControlPanel/ControlPanel.vue';
   import TextVibration from './components/Effects/TextVibration.vue';
-  import TextGoo from './components/Effects/TextGoo.vue';
+  // import TextGoo from './components/Effects/TextGoo.vue';
+  import TextDistort from './components/Effects/TextDistort.vue';
 
   export default {
     name: 'App',
@@ -53,43 +70,77 @@
       VideoBackground,
       ControlPanel,
       TextVibration,
-      TextGoo,
+      // TextGoo,
+      TextDistort,
     },
     data() {
-      return {
+      // Get stored settings or use defaults
+      const storedSettings = localStorage.getItem('appSettings');
+      const defaultSettings = {
+        // Blend settings
+        blendMode: 'difference',
+        effectType: 'vibration',
+        // Color settings
+        hue: 0,
+        color: '#ffffff',
+        opacity: 100,
+
+        // Animation settings
+        vibrateSpeed: 50,
+        vibrateIntensity: 1,
+        blurAmount: 2,
+        randomAmount: 50,
+        intervalSpeed: 200,
+
+        textLines: ['INSERT', "SUN'O3.08", 'BAR OOST'],
+        fontSize: [120, 120, 120],
+
+        // Backdrop settings
+        backdropBlur: 0,
+        backdropBrightness: 100,
+        backdropContrast: 100,
+        backdropSaturate: 100,
+      };
+
+      // Get stored state or use defaults
+      const storedState = localStorage.getItem('appState');
+      const defaultState = {
         audioSrc: '',
         isAudioMuted: false,
         youtubeEmbedUrl: '',
         isControlsHidden: false,
         isPlaying: false,
+        isMute: true,
+        inputUrl: '',
+      };
+
+      return {
+        ...JSON.parse(storedState || JSON.stringify(defaultState)),
+        settings: JSON.parse(storedSettings || JSON.stringify(defaultSettings)),
         isShortcutHintVisible: false,
         audioUrlLink: '',
         audioFileBlob: '',
         file: null,
-        isMute: false,
-        inputUrl: '',
-        settings: {
-          // Blend settings
-          blendMode: 'difference',
-          effectType: 'vibration',
-          // Color settings
-          hue: 0,
-          color: '#ffffff',
-          opacity: 100,
-
-          // Animation settings
-          vibrateSpeed: 50,
-          vibrateIntensity: 1,
-          blurAmount: 2,
-          randomAmount: 50,
-          intervalSpeed: 200,
-
-          textLines: ['INSERT', "SUN'O3.08", 'BAR OOST'],
-          fontSize: [120, 120, 120],
-        },
       };
     },
+
     watch: {
+      settings: {
+        handler(newSettings) {
+          localStorage.setItem('appSettings', JSON.stringify(newSettings));
+        },
+        deep: true,
+      },
+      inputUrl(val) {
+        this.updateStoredState('inputUrl', val);
+      },
+      youtubeEmbedUrl(val) {
+        this.updateStoredState('youtubeEmbedUrl', val);
+      },
+      audioSrc(val) {
+        this.updateStoredState('audioSrc', val);
+      },
+
       audioUrlLink(newUrl) {
         console.log(newUrl);
 
@@ -108,6 +159,8 @@
         this.$refs.audio.load();
       },
       isAudioMuted(val) {
+        this.updateStoredState('isAudioMuted', val);
+
         this.$refs.audio.muted = val;
       },
     },
@@ -131,6 +184,46 @@
       document.removeEventListener('keydown', this.handleKeyDown);
     },
     methods: {
+      resetToDefaults() {
+        localStorage.removeItem('appSettings');
+        localStorage.removeItem('appState');
+        this.settings = {
+          blendMode: 'difference',
+          effectType: 'vibration',
+          hue: 0,
+          color: '#ffffff',
+          opacity: 100,
+          vibrateSpeed: 50,
+          vibrateIntensity: 1,
+          blurAmount: 2,
+          randomAmount: 50,
+          intervalSpeed: 200,
+          textLines: ['INSERT', "SUN'O3.08", 'BAR OOST'],
+          fontSize: [120, 120, 120],
+          backdropBlur: 0,
+          backdropBrightness: 100,
+          backdropContrast: 100,
+          backdropSaturate: 100,
+        };
+
+        // Reset state
+        this.audioSrc = '';
+        this.isAudioMuted = false;
+        this.youtubeEmbedUrl = '';
+        this.isControlsHidden = false;
+        this.isPlaying = false;
+        this.isMute = true;
+        this.inputUrl = '';
+
+        // window.location.reload();
+      },
+
+      updateStoredState(key, value) {
+        const currentState = JSON.parse(localStorage.getItem('appState') || '{}');
+        currentState[key] = value;
+        localStorage.setItem('appState', JSON.stringify(currentState));
+      },
+
       getYoutubeVideoId(url) {
         const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
         const match = url.match(regExp);
@@ -144,6 +237,9 @@
       },
       onPlay(val) {
         this.isPlaying = val;
+      },
+      onStop() {
+        this.isPlaying = false;
       },
       onUpload(val) {
         this.file = val;
