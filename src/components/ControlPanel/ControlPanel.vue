@@ -38,6 +38,28 @@
               />
               <span>{{ settings.fontSize[index] }}px</span>
             </label>
+            <label class="margin-control">
+              Horizontal position:
+              <input
+                type="range"
+                v-model.number="settings.margin[index]"
+                min="-1000"
+                max="1000"
+                @input="onUpdate(settings)"
+              />
+              <span>{{ settings.margin[index] }}px</span>
+            </label>
+            <label class="margin-control">
+              Vertical position:
+              <input
+                type="range"
+                v-model.number="settings.marginTop[index]"
+                min="-1000"
+                max="1000"
+                @input="onUpdate(settings)"
+              />
+              <span>{{ settings.marginTop[index] }}px</span>
+            </label>
           </div>
           <button @click="removeLine(index)" v-if="settings.textLines.length > 1">✕</button>
         </div>
@@ -175,7 +197,8 @@
 
           textLines: ['INSERT', "SUN'O3.08", 'BAR OOST'],
           fontSize: [120, 120, 120],
-
+          margin: [0, 0, 0],
+          marginTop: [0, 0, 0],
           backdropBlur: 0,
           backdropBrightness: 100,
           backdropContrast: 100,
@@ -212,10 +235,16 @@
 
       addLine() {
         this.settings.textLines.push('');
+        this.settings.margin.push(0); // default margin
+        this.settings.marginTop.push(0); // default margin
+
         this.onUpdate(this.settings);
       },
       removeLine(index) {
         this.settings.textLines.splice(index, 1);
+        this.settings.margin.splice(index, 1);
+        this.settings.marginTop.splice(index, 1);
+
         this.onUpdate(this.settings);
       },
       startVideo() {
@@ -262,6 +291,24 @@
 </script>
 
 <style scoped>
+  .margin-control {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: white;
+    font-size: 14px;
+  }
+
+  .margin-control input[type='range'] {
+    flex: 1;
+    accent-color: #ffffff;
+  }
+
+  .margin-control span {
+    min-width: 50px;
+    text-align: right;
+  }
+
   .control-header {
     display: flex;
     justify-content: flex-start;

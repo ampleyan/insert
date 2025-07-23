@@ -3,7 +3,12 @@
   <!--    <div class="backdrop-layer" :style="backdropFilterStyle"></div>-->
 
   <div class="vibration-demo">
-    <div class="vibration" v-for="(text, index) in textLinesVar" :key="index" :style="rootStyles">
+    <div
+      class="vibration"
+      v-for="(text, index) in textLinesVar"
+      :key="index"
+      :style="[rootStyles, getMarginStyle(index)]"
+    >
       <span
         v-for="(letter, letterIndex) in text.split('')"
         :key="`${index}-${letterIndex}`"
@@ -100,6 +105,13 @@
       this.stopRandomization();
     },
     methods: {
+      getMarginStyle(index) {
+        return {
+          marginRight: `${this.settings.margin?.[index] || 0}px`,
+          marginTop: `${this.settings.marginTop?.[index] || 0}px`,
+        };
+      },
+
       getFullStyle(lineIndex, letterIndex) {
         const isVibrating = this.isLetterVibrating(lineIndex, letterIndex);
         const fontSize = this.textLineFontSize[lineIndex] || this.settings.fontSize;
@@ -169,9 +181,9 @@
   }
 
   .vibration {
-    margin: 20px 0;
     position: relative;
     overflow: visible;
+    transition: margin 0.3s ease;
   }
 
   .vibration span {

@@ -94,6 +94,8 @@
 
         textLines: ['INSERT', "SUN'O3.08", 'BAR OOST'],
         fontSize: [120, 120, 120],
+        margin: [0, 0, 0],
+        marginTop: [0, 0, 0],
 
         // Backdrop settings
         backdropBlur: 0,
@@ -200,6 +202,8 @@
           intervalSpeed: 200,
           textLines: ['INSERT', "SUN'O3.08", 'BAR OOST'],
           fontSize: [120, 120, 120],
+          margin: [0, 0, 0],
+
           backdropBlur: 0,
           backdropBrightness: 100,
           backdropContrast: 100,
@@ -251,7 +255,7 @@
         this.inputUrl = val;
       },
       onUpdate(val) {
-        Object.keys(this.settings).forEach((key) => {
+        Object.keys(val).forEach((key) => {
           if (key in val) {
             this.settings[key] = val[key];
           }
