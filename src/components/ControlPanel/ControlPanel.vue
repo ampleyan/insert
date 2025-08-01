@@ -9,78 +9,124 @@
 
     <select v-model="settings.effectType" @change="onEffectChoice(settings)">
       <option value="vibration">Vibration</option>
-      <!--      <option value="goo">Gooey</option>-->
     </select>
-    <BackdropControls @update="onUpdate" />
 
+    <BackdropControls @update="onUpdate" />
     <BlendControls @update="onUpdate" />
     <ColorControls @update="onUpdate" />
     <AnimationControls @update="onUpdate" />
+
     <div class="control-group text-control">
       <h3>Text Settings</h3>
       <div class="text-input-group">
         <div class="text-line" v-for="(line, index) in settings.textLines" :key="index">
-          <input
-            type="text"
-            v-model="settings.textLines[index]"
-            @input="onUpdate(settings)"
-            placeholder="Enter line of text"
-          />
-          <div class="text-options">
-            <label class="text-size">
-              Font Size:
-              <input
-                type="range"
-                v-model.number="settings.fontSize[index]"
-                min="12"
-                max="200"
-                @input="onUpdate(settings)"
-              />
-              <span>{{ settings.fontSize[index] }}px</span>
-            </label>
-            <label class="letter-spacing-control">
-    Letter Spacing:
-    <input
-      type="range"
-      v-model.number="settings.letterSpacing[index]"
-      min="-20"
-      max="100"
-      @input="onUpdate(settings)"
-    />
-    <span>{{ settings.letterSpacing[index] }}px</span>
-  </label>
+          <div class="text-block">
+            <div class="text-header">
+              <div class="text-type-controls">
+                <button
+                  :class="{ active: !settings.textTypes?.[index] }"
+                  @click="setTextType(index, 'line')"
+                  title="Single line"
+                >
+                  ⟶
+                </button>
+                <button
+                  :class="{ active: settings.textTypes?.[index] === 'paragraph' }"
+                  @click="setTextType(index, 'paragraph')"
+                  title="Paragraph"
+                >
+                  ¶
+                </button>
+              </div>
+              <button class="remove-button" @click="removeLine(index)" v-if="settings.textLines.length > 1">✕</button>
+            </div>
 
-            <label class="margin-control">
-              Horizontal position:
-              <input
-                type="range"
-                v-model.number="settings.margin[index]"
-                min="-1000"
-                max="1000"
-                @input="onUpdate(settings)"
-              />
-              <span>{{ settings.margin[index] }}px</span>
-            </label>
-            <label class="margin-control">
-              Vertical position:
-              <input
-                type="range"
-                v-model.number="settings.marginTop[index]"
-                min="-1000"
-                max="1000"
-                @input="onUpdate(settings)"
-              />
-              <span>{{ settings.marginTop[index] }}px</span>
-            </label>
+            <div class="text-input-container">
+              <template v-if="settings.textTypes?.[index] === 'paragraph'">
+                <textarea
+                  v-model="settings.textLines[index]"
+                  @input="onUpdate(settings)"
+                  placeholder="Enter paragraph text"
+                  rows="4"
+                ></textarea>
+              </template>
+              <template v-else>
+                <input
+                  type="text"
+                  v-model="settings.textLines[index]"
+                  @input="onUpdate(settings)"
+                  placeholder="Enter line of text"
+                />
+              </template>
+            </div>
+
+            <div class="text-options">
+              <div class="options-grid">
+                <div class="option-item">
+                  <label>Font Size</label>
+                  <div class="slider-container">
+                    <input
+                      type="range"
+                      v-model.number="settings.fontSize[index]"
+                      min="12"
+                      max="200"
+                      @input="onUpdate(settings)"
+                    />
+                    <span class="value">{{ settings.fontSize[index] }}px</span>
+                  </div>
+                </div>
+
+                <div class="option-item">
+                  <label>Letter Spacing</label>
+                  <div class="slider-container">
+                    <input
+                      type="range"
+                      v-model.number="settings.letterSpacing[index]"
+                      min="-20"
+                      max="100"
+                      @input="onUpdate(settings)"
+                    />
+                    <span class="value">{{ settings.letterSpacing[index] }}px</span>
+                  </div>
+                </div>
+
+                <div class="option-item">
+                  <label>Horizontal Position</label>
+                  <div class="slider-container">
+                    <input
+                      type="range"
+                      v-model.number="settings.margin[index]"
+                      min="-1000"
+                      max="1000"
+                      @input="onUpdate(settings)"
+                    />
+                    <span class="value">{{ settings.margin[index] }}px</span>
+                  </div>
+                </div>
+
+                <div class="option-item">
+                  <label>Vertical Position</label>
+                  <div class="slider-container">
+                    <input
+                      type="range"
+                      v-model.number="settings.marginTop[index]"
+                      min="-1000"
+                      max="1000"
+                      @input="onUpdate(settings)"
+                    />
+                    <span class="value">{{ settings.marginTop[index] }}px</span>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
-          <button @click="removeLine(index)" v-if="settings.textLines.length > 1">✕</button>
         </div>
       </div>
-      <button @click="addLine">Add Line</button>
+      <button class="add-line-button" @click="addLine">Add Line</button>
     </div>
+
     <div class="control-group">
       <h3>Video Controls</h3>
-
       <div class="source-control">
         <input
           type="text"
@@ -109,12 +155,12 @@
         <button class="play-button" @click="startVideo">Play Video</button>
         <button class="play-button" @click="stopVideo">Stop Video</button>
       </div>
-      <div class="play-overlay"></div>
       <label class="mute-control">
         <input type="checkbox" v-model="isMuted" @change="handleMuteChange" />
         Mute video
       </label>
     </div>
+
     <div class="control-group">
       <h3>Audio Controls</h3>
       <div class="source-control">
@@ -152,6 +198,7 @@
     <RecordingControls />
   </div>
 </template>
+
 
 <script>
   import BlendControls from './BlendControls.vue';
@@ -194,6 +241,8 @@
         isAudioMuted: false,
         settings: {
           blendMode: 'difference',
+                textTypes: [], // Will store 'line' or 'paragraph' for each text entry
+
           effectType: 'vibration',
                 letterSpacing: [0, 0, 0], // Initialize with default values for each line
 
@@ -247,19 +296,31 @@
         this.$emit('audioMuteChange', this.isAudioMuted);
       },
 
-        addLine() {
-    this.settings.textLines.push('');
-    this.settings.margin.push(0);
-    this.settings.marginTop.push(0);
-    this.settings.letterSpacing.push(0); // Add default letter spacing for new line
+  setTextType(index, type) {
+    if (!this.settings.textTypes) {
+      this.settings.textTypes = [];
+    }
+    this.settings.textTypes[index] = type === 'paragraph' ? 'paragraph' : null;
     this.onUpdate(this.settings);
   },
 
-        removeLine(index) {
+  addLine() {
+    this.settings.textLines.push('');
+    this.settings.margin.push(0);
+    this.settings.marginTop.push(0);
+    this.settings.letterSpacing.push(0);
+    if (!this.settings.textTypes) {
+      this.$set(this.settings, 'textTypes', []);
+    }
+    this.settings.textTypes.push(null); // null means 'line' type
+    this.onUpdate(this.settings);
+  },
+  removeLine(index) {
     this.settings.textLines.splice(index, 1);
     this.settings.margin.splice(index, 1);
     this.settings.marginTop.splice(index, 1);
-    this.settings.letterSpacing.splice(index, 1); // Remove letter spacing for removed line
+    this.settings.letterSpacing.splice(index, 1);
+    this.settings.textTypes.splice(index, 1);
     this.onUpdate(this.settings);
   },
 
@@ -307,6 +368,61 @@
 </script>
 
 <style scoped>
+
+.text-input-container {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+}
+
+.input-type-toggle {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.input-type-toggle button {
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: white;
+  width: 30px;
+  height: 30px;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.input-type-toggle button.active {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+.input-wrapper {
+  flex: 1;
+}
+
+textarea {
+  width: 100%;
+  min-height: 100px;
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 8px 15px;
+  border-radius: 4px;
+  font-size: 14px;
+  resize: vertical;
+  font-family: inherit;
+}
+
+textarea:focus {
+  outline: none;
+  border-color: rgba(255, 255, 255, 0.4);
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.2);
+}
+
 .letter-spacing-control {
   display: flex;
   align-items: center;
@@ -631,4 +747,106 @@
     border-color: rgba(255, 255, 255, 0.4);
     box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.2);
   }
+
+  .text-block {
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 20px;
+}
+
+.text-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.text-type-controls {
+  display: flex;
+  gap: 8px;
+}
+
+.text-type-controls button {
+  min-width: 36px;
+  height: 36px;
+  padding: 0;
+}
+
+.text-input-container {
+  margin-bottom: 15px;
+}
+
+.text-options {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 6px;
+  padding: 15px;
+  margin-top: 10px;
+}
+
+.options-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 15px;
+}
+
+.option-item {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.option-item label {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.slider-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.slider-container input[type="range"] {
+  flex: 1;
+}
+
+.slider-container .value {
+  min-width: 60px;
+  text-align: right;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.remove-button {
+  background: rgba(255, 59, 48, 0.5);
+  border: none;
+  width: 36px;
+  height: 36px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.remove-button:hover {
+  background: rgba(255, 59, 48, 0.7);
+}
+
+.add-line-button {
+  width: 100%;
+  margin-top: 10px;
+  background: rgba(0, 122, 255, 0.5);
+  border: none;
+  padding: 10px;
+  border-radius: 4px;
+  color: white;
+  transition: all 0.2s ease;
+}
+
+.add-line-button:hover {
+  background: rgba(0, 122, 255, 0.7);
+}
 </style>
