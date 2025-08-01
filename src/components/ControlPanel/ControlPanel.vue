@@ -75,7 +75,6 @@
                     <span class="value">{{ settings.fontSize[index] }}px</span>
                   </div>
                 </div>
-
                 <div class="option-item">
                   <label>Letter Spacing</label>
                   <div class="slider-container">
@@ -89,7 +88,6 @@
                     <span class="value">{{ settings.letterSpacing[index] }}px</span>
                   </div>
                 </div>
-
                 <div class="option-item">
                   <label>Horizontal Position</label>
                   <div class="slider-container">
@@ -103,7 +101,6 @@
                     <span class="value">{{ settings.margin[index] }}px</span>
                   </div>
                 </div>
-
                 <div class="option-item">
                   <label>Vertical Position</label>
                   <div class="slider-container">
@@ -117,6 +114,20 @@
                     <span class="value">{{ settings.marginTop[index] }}px</span>
                   </div>
                 </div>
+                <div class="option-item">
+      <label>Random Amount</label>
+      <div class="slider-container">
+        <input
+          type="range"
+          v-model.number="settings.randomAmount[index]"
+          min="0"
+          max="100"
+          @input="onUpdate(settings)"
+        />
+        <span class="value">{{ settings.randomAmount[index] }}%</span>
+      </div>
+    </div>
+
               </div>
             </div>
           </div>
@@ -240,6 +251,7 @@
         audioUrl: '',
         isAudioMuted: false,
         settings: {
+
           blendMode: 'difference',
                 textTypes: [], // Will store 'line' or 'paragraph' for each text entry
 
@@ -255,7 +267,7 @@
           vibrateSpeed: 50,
           vibrateIntensity: 1,
           blurAmount: 2,
-          randomAmount: 50,
+  randomAmount: [50, 50, 50], // Initialize with default values for each line
           intervalSpeed: 200,
 
           textLines: ['INSERT', "SUN'O3.08", 'BAR OOST'],
@@ -304,25 +316,28 @@
     this.onUpdate(this.settings);
   },
 
-  addLine() {
-    this.settings.textLines.push('');
-    this.settings.margin.push(0);
-    this.settings.marginTop.push(0);
-    this.settings.letterSpacing.push(0);
-    if (!this.settings.textTypes) {
-      this.$set(this.settings, 'textTypes', []);
-    }
-    this.settings.textTypes.push(null); // null means 'line' type
-    this.onUpdate(this.settings);
-  },
-  removeLine(index) {
-    this.settings.textLines.splice(index, 1);
-    this.settings.margin.splice(index, 1);
-    this.settings.marginTop.splice(index, 1);
-    this.settings.letterSpacing.splice(index, 1);
-    this.settings.textTypes.splice(index, 1);
-    this.onUpdate(this.settings);
-  },
+addLine() {
+  this.settings.textLines.push('');
+  this.settings.margin.push(0);
+  this.settings.marginTop.push(0);
+  this.settings.letterSpacing.push(0);
+  this.settings.randomAmount.push(0); // Initialize with 0 to use global amount
+  if (!this.settings.textTypes) {
+    this.$set(this.settings, 'textTypes', []);
+  }
+  this.settings.textTypes.push(null);
+  this.onUpdate(this.settings);
+},
+
+ removeLine(index) {
+  this.settings.textLines.splice(index, 1);
+  this.settings.margin.splice(index, 1);
+  this.settings.marginTop.splice(index, 1);
+  this.settings.letterSpacing.splice(index, 1);
+  this.settings.randomAmount.splice(index, 1); // Add this line
+  this.settings.textTypes.splice(index, 1);
+  this.onUpdate(this.settings);
+},
 
       startVideo() {
         this.$emit('startVideo', true);
@@ -354,11 +369,10 @@
         console.log(val);
         // this.blendMode = val;
         // this.controlSettings.blendMode = val;
-        Object.keys(this.settings).forEach((key) => {
-          if (key in val) {
-            this.settings[key] = val[key];
-          }
-        });
+          Object.keys(val).forEach((key) => {
+    this.settings[key] = val[key];
+  });
+
         console.log(this.settings);
 
         this.$emit('update', this.settings);

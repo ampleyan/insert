@@ -11,7 +11,14 @@
           min="10"
           max="500"
         />
-        <div class="value-display" id="speed-value">{{ controlSettings.vibrateSpeed }}ms</div>
+<input
+          type="number"
+          v-model.number="controlSettings.vibrateSpeed"
+          min="10"
+          max="500"
+          class="number-input"
+        />
+        <div class="value-display">ms</div>
       </div>
 
       <label for="vibrate-intensity">Vibration Intensity:</label>
@@ -23,9 +30,14 @@
           min="1"
           max="10"
         />
-        <div class="value-display" id="intensity-value">
-          {{ controlSettings.vibrateIntensity }}x
-        </div>
+        <input
+          type="number"
+          v-model.number="controlSettings.vibrateIntensity"
+          min="1"
+          max="10"
+          class="number-input"
+        />
+        <div class="value-display">x</div>
       </div>
 
       <label for="blur-amount">Blur Amount:</label>
@@ -38,7 +50,15 @@
           max="10"
           step="0.5"
         />
-        <div class="value-display" id="blur-value">{{ controlSettings.blurAmount }}px</div>
+        <input
+          type="number"
+          v-model.number="controlSettings.blurAmount"
+          min="0"
+          max="10"
+          step="0.5"
+          class="number-input"
+        />
+        <div class="value-display">px</div>
       </div>
 
       <label for="random-amount">Random Letters (%):</label>
@@ -46,11 +66,18 @@
         <input
           type="range"
           id="random-amount"
-          v-model.number="controlSettings.randomAmount"
+          v-model.number="controlSettings.globalRandomAmount"
           min="1"
           max="100"
         />
-        <div class="value-display" id="random-value">{{ controlSettings.randomAmount }}%</div>
+        <input
+          type="number"
+          v-model.number="controlSettings.globalRandomAmount"
+          min="1"
+          max="100"
+          class="number-input"
+        />
+        <div class="value-display">%</div>
       </div>
 
       <label for="interval-speed">Effect Interval:</label>
@@ -62,8 +89,15 @@
           min="50"
           max="1000"
         />
-        <div class="value-display" id="interval-value">{{ controlSettings.intervalSpeed }}ms</div>
-      </div>
+        <input
+          type="number"
+          v-model.number="controlSettings.intervalSpeed"
+          min="50"
+          max="1000"
+          class="number-input"
+        />
+        <div class="value-display">ms</div>
+</div>
     </div>
   </div>
 </template>
@@ -79,21 +113,29 @@
           vibrateSpeed: 50,
           vibrateIntensity: 1,
           blurAmount: 2,
-          randomAmount: 50,
+          globalRandomAmount: 50,
           intervalSpeed: 200,
         },
       };
     },
     watch: {
       controlSettings: {
-        handler(newValue) {
-          if (this.animationInterval) {
-            clearInterval(this.animationInterval);
-          }
-          this.$emit('update', newValue);
-        },
-        deep: true,
-      },
+    handler(newValue) {
+      if (this.animationInterval) {
+        clearInterval(this.animationInterval);
+      }
+      // Ensure we're emitting the globalRandomAmount
+      this.$emit('update', {
+        vibrateSpeed: newValue.vibrateSpeed,
+        vibrateIntensity: newValue.vibrateIntensity,
+        blurAmount: newValue.blurAmount,
+        globalRandomAmount: newValue.globalRandomAmount,
+        intervalSpeed: newValue.intervalSpeed
+      });
+    },
+    deep: true,
+  },
+
     },
     methods: {
       updateSettings() {
@@ -105,3 +147,33 @@
     },
   };
 </script>
+
+<style scoped>
+.dual-slider {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.dual-slider input[type="range"] {
+  flex: 1;
+}
+
+.dual-slider input[type="number"] {
+  width: 70px;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+.dual-slider input[type="number"]:focus {
+  outline: none;
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+.value-display {
+  min-width: 30px;
+}
+</style>

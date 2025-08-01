@@ -46,7 +46,7 @@
           opacity: 100,
           color: '#ffffff',
           blendMode: 'difference',
-          randomAmount: 50,
+      randomAmount: [50, 50, 50], // Change to array with default values
           intervalSpeed: 200,
           blurAmount: 2,
           vibrateIntensity: 2,
@@ -139,45 +139,73 @@
   splitIntoParagraphLines(text) {
     return text.split('\n').filter(line => line.trim());
   },
-  randomVibrate() {
-    this.vibratingLetters = {};
-    this.textLinesVar.forEach((text, lineIndex) => {
-      if (this.isParagraph(lineIndex)) {
-        const lines = this.splitIntoParagraphLines(text);
-        lines.forEach((line, pLineIndex) => {
-          const words = this.splitIntoWords(line).filter(word => word.trim()); // Filter out spaces
-          const totalWords = words.length;
-          const wordsToAnimate = Math.floor(totalWords * (this.settings.randomAmount / 100));
+randomVibrate() {
+  this.vibratingLetters = {};
+  this.textLinesVar.forEach((text, lineIndex) => {
+    if (this.isParagraph(lineIndex)) {
+      // Get all words from all lines in the paragraph
+      const allWords = [];
+      const lines = this.splitIntoParagraphLines(text);
 
-          const indices = Array.from({ length: totalWords }, (_, i) => i);
-          for (let i = indices.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [indices[i], indices[j]] = [indices[j], indices[i]];
-          }
-
-          for (let i = 0; i < wordsToAnimate; i++) {
-            const key = `${lineIndex}-${pLineIndex}-${indices[i]}`;
-            this.vibratingLetters[key] = true;
+      lines.forEach((line, pLineIndex) => {
+        const words = this.splitIntoWords(line);
+        words.forEach((word, wordIndex) => {
+          if (word.trim()) { // Only include non-empty words
+            allWords.push({
+              pLineIndex,
+              wordIndex,
+              key: `${lineIndex}-${pLineIndex}-${wordIndex}`,
+              word: word
+            });
           }
         });
-      } else {
-        // Existing single line logic remains the same
-        const totalLetters = text.length;
-        const lettersToAnimate = Math.floor(totalLetters * (this.settings.randomAmount / 100));
+      });
 
-        const indices = Array.from({ length: totalLetters }, (_, i) => i);
-        for (let i = indices.length - 1; i > 0; i--) {
-          const j = Math.floor(Math.random() * (i + 1));
-          [indices[i], indices[j]] = [indices[j], indices[i]];
-        }
+      // Calculate how many words to animate
+      const randomAmount = (!this.settings.randomAmount[lineIndex] || this.settings.randomAmount[lineIndex] === 0)
+        ? (this.settings.globalRandomAmount || 50)
+        : this.settings.randomAmount[lineIndex];
 
-        for (let i = 0; i < lettersToAnimate; i++) {
-          const key = `${lineIndex}-${indices[i]}`;
-          this.vibratingLetters[key] = true;
+      const wordsToAnimate = Math.ceil(allWords.length * (randomAmount / 100));
+
+      // Create an array of indices and shuffle it
+      const indices = Array.from({ length: allWords.length }, (_, i) => i);
+      for (let i = indices.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [indices[i], indices[j]] = [indices[j], indices[i]];
+      }
+
+      // Mark selected words for vibration
+      for (let i = 0; i < wordsToAnimate; i++) {
+        if (i < indices.length) {
+          const selectedWord = allWords[indices[i]];
+          this.vibratingLetters[selectedWord.key] = true;
         }
       }
-    });
-  },
+    } else {
+      // Existing single-line logic remains the same
+      const totalLetters = text.length;
+      const randomAmount = this.settings.randomAmount[lineIndex] === 0
+        ? this.settings.globalRandomAmount
+        : this.settings.randomAmount[lineIndex];
+      const lettersToAnimate = Math.floor(totalLetters * (randomAmount / 100));
+
+      const indices = Array.from({ length: totalLetters }, (_, i) => i);
+      for (let i = indices.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [indices[i], indices[j]] = [indices[j], indices[i]];
+      }
+
+      for (let i = 0; i < lettersToAnimate; i++) {
+        const key = `${lineIndex}-${indices[i]}`;
+        this.vibratingLetters[key] = true;
+      }
+    }
+  });
+}
+,
+
+
 
 
       getMarginStyle(index) {

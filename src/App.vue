@@ -89,7 +89,6 @@
         vibrateSpeed: 50,
         vibrateIntensity: 1,
         blurAmount: 2,
-        randomAmount: 50,
         intervalSpeed: 200,
 
         textLines: ['INSERT', "SUN'O3.08", 'BAR OOST'],
@@ -102,6 +101,10 @@
         backdropBrightness: 100,
         backdropContrast: 100,
         backdropSaturate: 100,
+         globalRandomAmount: 50,
+  randomAmount: [0, 0, 0],
+
+
       };
 
       // Get stored state or use defaults
@@ -118,6 +121,7 @@
 
       return {
         ...JSON.parse(storedState || JSON.stringify(defaultState)),
+
         settings: JSON.parse(storedSettings || JSON.stringify(defaultSettings)),
         isShortcutHintVisible: false,
         audioUrlLink: '',
@@ -198,7 +202,8 @@
           vibrateSpeed: 50,
           vibrateIntensity: 1,
           blurAmount: 2,
-          randomAmount: 50,
+globalRandomAmount: 50,
+    randomAmount: [0, 0, 0], // Reset to use global amount
           intervalSpeed: 200,
           textLines: ['INSERT', "SUN'O3.08", 'BAR OOST'],
           fontSize: [120, 120, 120],
