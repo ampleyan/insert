@@ -38,6 +38,18 @@
               />
               <span>{{ settings.fontSize[index] }}px</span>
             </label>
+            <label class="letter-spacing-control">
+    Letter Spacing:
+    <input
+      type="range"
+      v-model.number="settings.letterSpacing[index]"
+      min="-20"
+      max="100"
+      @input="onUpdate(settings)"
+    />
+    <span>{{ settings.letterSpacing[index] }}px</span>
+  </label>
+
             <label class="margin-control">
               Horizontal position:
               <input
@@ -183,6 +195,8 @@
         settings: {
           blendMode: 'difference',
           effectType: 'vibration',
+                letterSpacing: [0, 0, 0], // Initialize with default values for each line
+
           // Color settings
           hue: 0,
           color: '#ffffff',
@@ -233,20 +247,22 @@
         this.$emit('audioMuteChange', this.isAudioMuted);
       },
 
-      addLine() {
-        this.settings.textLines.push('');
-        this.settings.margin.push(0); // default margin
-        this.settings.marginTop.push(0); // default margin
+        addLine() {
+    this.settings.textLines.push('');
+    this.settings.margin.push(0);
+    this.settings.marginTop.push(0);
+    this.settings.letterSpacing.push(0); // Add default letter spacing for new line
+    this.onUpdate(this.settings);
+  },
 
-        this.onUpdate(this.settings);
-      },
-      removeLine(index) {
-        this.settings.textLines.splice(index, 1);
-        this.settings.margin.splice(index, 1);
-        this.settings.marginTop.splice(index, 1);
+        removeLine(index) {
+    this.settings.textLines.splice(index, 1);
+    this.settings.margin.splice(index, 1);
+    this.settings.marginTop.splice(index, 1);
+    this.settings.letterSpacing.splice(index, 1); // Remove letter spacing for removed line
+    this.onUpdate(this.settings);
+  },
 
-        this.onUpdate(this.settings);
-      },
       startVideo() {
         this.$emit('startVideo', true);
       },
@@ -291,6 +307,23 @@
 </script>
 
 <style scoped>
+.letter-spacing-control {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: white;
+  font-size: 14px;
+}
+
+.letter-spacing-control input[type='range'] {
+  flex: 1;
+  accent-color: #ffffff;
+}
+
+.letter-spacing-control span {
+  min-width: 50px;
+  text-align: right;
+}
   .margin-control {
     display: flex;
     align-items: center;

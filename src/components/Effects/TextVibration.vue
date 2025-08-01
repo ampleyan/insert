@@ -9,14 +9,15 @@
       :key="index"
       :style="[rootStyles, getMarginStyle(index)]"
     >
-      <span
-        v-for="(letter, letterIndex) in text.split('')"
-        :key="`${index}-${letterIndex}`"
-        :class="{ vibrate: isLetterVibrating(index, letterIndex) }"
-        :style="getFullStyle(index, letterIndex)"
-      >
-        {{ letter }}
-      </span>
+        <span
+    v-for="(letter, letterIndex) in text.split('')"
+    :key="`${index}-${letterIndex}`"
+    :class="{ vibrate: isLetterVibrating(index, letterIndex) }"
+    :style="getFullStyle(index, letterIndex)"
+  >
+    {{ letter }}
+  </span>
+
     </div>
   </div>
   <!--  </div>-->
@@ -44,6 +45,9 @@
           backdropBrightness: 100,
           backdropContrast: 100,
           backdropSaturate: 100,
+          letterSpacing: [0, 0, 0], // Add default letter spacing for each line
+
+
         }),
       },
     },
@@ -113,28 +117,30 @@
       },
 
       getFullStyle(lineIndex, letterIndex) {
-        const isVibrating = this.isLetterVibrating(lineIndex, letterIndex);
-        const fontSize = this.textLineFontSize[lineIndex] || this.settings.fontSize;
+      const isVibrating = this.isLetterVibrating(lineIndex, letterIndex);
+      const fontSize = this.textLineFontSize[lineIndex] || this.settings.fontSize;
+      const letterSpacing = `${this.settings.letterSpacing?.[lineIndex] || 0}px`;
 
-        const hue = `hue-rotate(${this.settings.hue}deg)`;
-        const blur = isVibrating ? `blur(${this.settings.blurAmount}px)` : '';
-        const glow = isVibrating
-          ? `drop-shadow(0 0 ${this.settings.blurAmount * 1.5}px ${this.settings.color})`
-          : '';
-        const filter = [hue, blur, glow].filter(Boolean).join(' ');
+      const hue = `hue-rotate(${this.settings.hue}deg)`;
+      const blur = isVibrating ? `blur(${this.settings.blurAmount}px)` : '';
+      const glow = isVibrating
+        ? `drop-shadow(0 0 ${this.settings.blurAmount * 1.5}px ${this.settings.color})`
+        : '';
+      const filter = [hue, blur, glow].filter(Boolean).join(' ');
 
-        const scale = isVibrating ? 1.05 : 1;
+      const scale = isVibrating ? 1.05 : 1;
 
-        return {
-          fontSize: `${fontSize}px`,
-          color: this.settings.color,
-          // mixBlendMode: this.settings.blendMode,
-          opacity: this.settings.opacity / 100,
-          filter,
-          transform: `scale(${scale})`,
-          transition: 'all 300ms ease',
-        };
-      },
+      return {
+        fontSize: `${fontSize}px`,
+        color: this.settings.color,
+        opacity: this.settings.opacity / 100,
+        filter,
+        transform: `scale(${scale})`,
+        transition: 'all 300ms ease',
+        letterSpacing,
+      };
+    },
+
       isLetterVibrating(lineIndex, letterIndex) {
         const key = `${lineIndex}-${letterIndex}`;
         return this.vibratingLetters[key] || false;
