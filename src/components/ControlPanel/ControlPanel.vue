@@ -9,6 +9,15 @@
 
     <select v-model="settings.effectType" @change="onEffectChoice(settings)">
       <option value="vibration">Vibration</option>
+      <option value="glitch">Glitch</option>
+      <option value="wave">Wave</option>
+      <option value="particle">Particle Burst</option>
+      <option value="rotation3d">3D Rotation</option>
+      <option value="neon">Neon Glow</option>
+      <option value="liquid">Liquid Distortion</option>
+      <option value="typewriter">Typewriter</option>
+      <option value="chromatic">Chromatic Aberration</option>
+      <option value="goo">SVG Distort</option>
     </select>
 
     <BackdropControls @update="onUpdate" />
@@ -18,6 +27,13 @@
 
     <div class="control-group text-control">
       <h3>Text Settings</h3>
+      <div class="positioning-mode">
+        <label class="drag-mode-toggle">
+          <input type="checkbox" v-model="settings.dragMode" @change="onUpdate(settings)" />
+          <span>Enable Drag Mode</span>
+          <span class="help-text">Click and drag text to reposition. Hold Shift for grid snap.</span>
+        </label>
+      </div>
       <div class="text-input-group">
         <div class="text-line" v-for="(line, index) in settings.textLines" :key="index">
           <div class="text-block">
@@ -862,5 +878,38 @@ textarea:focus {
 
 .add-line-button:hover {
   background: rgba(0, 122, 255, 0.7);
+}
+
+.positioning-mode {
+  background: rgba(0, 122, 255, 0.1);
+  border: 1px solid rgba(0, 122, 255, 0.3);
+  border-radius: 4px;
+  padding: 15px;
+  margin-bottom: 15px;
+}
+
+.drag-mode-toggle {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.drag-mode-toggle input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+  margin-right: 10px;
+}
+
+.drag-mode-toggle span {
+  color: white;
+  font-size: 14px;
+}
+
+.drag-mode-toggle .help-text {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.6);
+  margin-top: 5px;
 }
 </style>

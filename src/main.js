@@ -1,7 +1,12 @@
-import { createApp } from 'vue'
-import App from './App.vue'
-import './assets/styles/main.css'
-import './assets/styles/controls.css'
-import './assets/styles/animation.css'
+import { createApp } from 'vue';
+import { createPinia } from 'pinia';
+import App from './App.vue';
+import './assets/styles/main.css';
+import './assets/styles/controls.css';
+import './assets/styles/animation.css';
 
-createApp(App).mount('#app')
+const app = createApp(App);
+const pinia = createPinia();
+
+app.use(pinia);
+app.mount('#app');
