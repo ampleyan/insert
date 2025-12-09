@@ -24,7 +24,7 @@ export const useSettingsStore = defineStore('settings', {
     backdropContrast: 100,
     backdropSaturate: 100,
     textTypes: [],
-    dragMode: false,
+    dragMode: true,
   }),
 
   actions: {

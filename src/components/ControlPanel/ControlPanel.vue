@@ -18,8 +18,14 @@
       <option value="typewriter">Typewriter</option>
       <option value="chromatic">Chromatic Aberration</option>
       <option value="goo">SVG Distort</option>
+      <option value="split">Split Text</option>
+      <option value="wavy">Wavy Text</option>
+      <option value="flicker">Flicker Text</option>
+      <option value="stroke">Stroke Text</option>
+      <option value="gradient">Gradient Text</option>
     </select>
 
+    <VideoLayerControls />
     <BackdropControls @update="onUpdate" />
     <BlendControls @update="onUpdate" />
     <ColorControls @update="onUpdate" />
@@ -105,32 +111,6 @@
                   </div>
                 </div>
                 <div class="option-item">
-                  <label>Horizontal Position</label>
-                  <div class="slider-container">
-                    <input
-                      type="range"
-                      v-model.number="settings.margin[index]"
-                      min="-1000"
-                      max="1000"
-                      @input="onUpdate(settings)"
-                    />
-                    <span class="value">{{ settings.margin[index] }}px</span>
-                  </div>
-                </div>
-                <div class="option-item">
-                  <label>Vertical Position</label>
-                  <div class="slider-container">
-                    <input
-                      type="range"
-                      v-model.number="settings.marginTop[index]"
-                      min="-1000"
-                      max="1000"
-                      @input="onUpdate(settings)"
-                    />
-                    <span class="value">{{ settings.marginTop[index] }}px</span>
-                  </div>
-                </div>
-                <div class="option-item">
       <label>Random Amount</label>
       <div class="slider-container">
         <input
@@ -152,75 +132,6 @@
       <button class="add-line-button" @click="addLine">Add Line</button>
     </div>
 
-    <div class="control-group">
-      <h3>Video Controls</h3>
-      <div class="source-control">
-        <input
-          type="text"
-          v-model="videoUrl"
-          placeholder="Enter YouTube URL or video link"
-          @keyup.enter="handleUrlInput"
-        />
-        <button @click="handleUrlInput">Load Video</button>
-      </div>
-
-      <div class="source-control">
-        <div class="file-input-wrapper">
-          <input
-            type="file"
-            @change="handleFileUpload"
-            accept="video/mp4,video/webm"
-            ref="fileInput"
-            id="file-input"
-          />
-          <label for="file-input" class="file-input-label">Choose File</label>
-          <span class="file-name">{{ selectedFileName || 'No file chosen' }}</span>
-        </div>
-      </div>
-
-      <div class="play-overlay">
-        <button class="play-button" @click="startVideo">Play Video</button>
-        <button class="play-button" @click="stopVideo">Stop Video</button>
-      </div>
-      <label class="mute-control">
-        <input type="checkbox" v-model="isMuted" @change="handleMuteChange" />
-        Mute video
-      </label>
-    </div>
-
-    <div class="control-group">
-      <h3>Audio Controls</h3>
-      <div class="source-control">
-        <input
-          type="text"
-          v-model="audioUrl"
-          placeholder="Enter audio URL or YouTube link"
-          @keyup.enter="emitAudioUrl"
-        />
-        <button @click="emitAudioUrl">Load Audio</button>
-      </div>
-
-      <div class="source-control">
-        <div class="file-input-wrapper">
-          <input
-            type="file"
-            @change="emitAudioFile"
-            accept="audio/*"
-            ref="audioFileInput"
-            id="audio-file-input"
-          />
-          <label for="audio-file-input" class="file-input-label">Choose Audio</label>
-          <span class="file-name">{{ selectedAudioFileName || 'No audio file chosen' }}</span>
-        </div>
-      </div>
-
-      <div class="mute-control">
-        <label>
-          <input type="checkbox" v-model="isAudioMuted" @change="emitAudioMute" />
-          <span>Mute Audio</span>
-        </label>
-      </div>
-    </div>
 
     <RecordingControls />
   </div>
@@ -231,10 +142,9 @@
   import BlendControls from './BlendControls.vue';
   import ColorControls from './ColorControls.vue';
   import AnimationControls from './AnimationControls.vue';
-  // import controlsMixin from '@/mixins/controlsMixin';
-  // import animationMixin from '@/mixins/animationMixin';
   import BackdropControls from './BackdropFilterControls.vue';
   import RecordingControls from './RecordingControls.vue';
+  import VideoLayerControls from '../VideoLayerControls.vue';
 
   export default {
     name: 'ControlPanel',
@@ -244,6 +154,7 @@
       AnimationControls,
       BackdropControls,
       RecordingControls,
+      VideoLayerControls,
     },
     // mixins: [controlsMixin, animationMixin],
     emits: [
