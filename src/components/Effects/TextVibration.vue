@@ -14,6 +14,12 @@
       @touchstart="handleTouchStart($event, index)"
     >
       <span class="drag-handle" v-if="settings.dragMode">⋮⋮</span>
+      <span
+        class="resize-handle"
+        v-if="settings.dragMode"
+        @mousedown="handleResizeStart($event, index)"
+        @touchstart="handleResizeStart($event, index)"
+      >◢</span>
 
       <template v-if="isParagraph(index)">
         <p
@@ -48,6 +54,7 @@
 <script>
 import { useTextAnimation } from '@/composables/useTextAnimation';
 import { useDraggable } from '@/composables/useDraggable';
+import { useResizable } from '@/composables/useResizable';
 import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue';
 
 export default {
@@ -68,6 +75,7 @@ export default {
     );
 
     const { dragging, startDrag, onDrag } = useDraggable(emit);
+    const { resizing, startResize, onResize } = useResizable(emit);
 
     watch(
       () => props.settings.textLines,
@@ -94,18 +102,38 @@ export default {
       startDrag(event, index, props.settings.margin, props.settings.marginTop);
     };
 
+    const handleResizeStart = (event, index) => {
+      if (!props.settings.dragMode) return;
+      startResize(event, index, props.settings.fontSize);
+    };
+
     const handleMouseMove = (event) => {
       if (!props.settings.dragMode) return;
-      onDrag(event, props.settings.margin, props.settings.marginTop, true);
+      if (resizing.value.active) {
+        onResize(event, props.settings.fontSize);
+      } else {
+        onDrag(event, props.settings.margin, props.settings.marginTop, true);
+      }
     };
 
     const handleTouchMove = (event) => {
       if (!props.settings.dragMode) return;
-      onDrag(event, props.settings.margin, props.settings.marginTop, true);
+      if (resizing.value.active) {
+        onResize(event, props.settings.fontSize);
+      } else {
+        onDrag(event, props.settings.margin, props.settings.marginTop, true);
+      }
     };
 
     const getDraggableStyle = (index) => {
       if (props.settings.dragMode) {
+        let cursor = 'grab';
+        if (dragging.value.active && dragging.value.index === index) {
+          cursor = 'grabbing';
+        } else if (resizing.value.active && resizing.value.index === index) {
+          cursor = 'nwse-resize';
+        }
+
         return {
           position: 'absolute',
           left: '50%',
@@ -113,7 +141,7 @@ export default {
           transform: `translate(calc(-50% + ${props.settings.margin[index]}px), calc(-50% + ${
             props.settings.marginTop[index]
           }px))`,
-          cursor: dragging.value.active && dragging.value.index === index ? 'grabbing' : 'grab',
+          cursor,
           userSelect: 'none',
         };
       } else {
@@ -128,8 +156,10 @@ export default {
       textLinesVar,
       vibratingItems,
       dragging,
+      resizing,
       handleMouseDown,
       handleTouchStart,
+      handleResizeStart,
       handleMouseMove,
       handleTouchMove,
       getDraggableStyle,
@@ -260,6 +290,26 @@ export default {
 }
 
 .vibration.draggable:hover .drag-handle {
+  opacity: 1;
+}
+
+.resize-handle {
+  position: absolute;
+  bottom: -25px;
+  right: -25px;
+  background: rgba(0, 0, 0, 0.7);
+  padding: 6px 8px;
+  border-radius: 4px;
+  opacity: 0;
+  transition: opacity 0.2s;
+  font-size: 16px;
+  cursor: nwse-resize;
+  color: white;
+  pointer-events: all;
+  z-index: 10;
+}
+
+.vibration.draggable:hover .resize-handle {
   opacity: 1;
 }
 

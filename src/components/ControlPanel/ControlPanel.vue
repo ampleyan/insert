@@ -7,133 +7,190 @@
       </button>
     </div>
 
-    <select v-model="settings.effectType" @change="onEffectChoice(settings)">
-      <option value="vibration">Vibration</option>
-      <option value="glitch">Glitch</option>
-      <option value="wave">Wave</option>
-      <option value="particle">Particle Burst</option>
-      <option value="rotation3d">3D Rotation</option>
-      <option value="neon">Neon Glow</option>
-      <option value="liquid">Liquid Distortion</option>
-      <option value="typewriter">Typewriter</option>
-      <option value="chromatic">Chromatic Aberration</option>
-      <option value="goo">SVG Distort</option>
-      <option value="split">Split Text</option>
-      <option value="wavy">Wavy Text</option>
-      <option value="flicker">Flicker Text</option>
-      <option value="stroke">Stroke Text</option>
-      <option value="gradient">Gradient Text</option>
-    </select>
+    <TabContainer :tabs="tabs" default-tab="effects">
+      <template #effects>
+        <div class="tab-section">
+          <div class="control-group">
+            <label class="control-label">Effect Type</label>
+            <select v-model="settings.effectType" @change="onEffectChoice(settings)" class="effect-select">
+              <option value="vibration">Vibration</option>
+              <option value="glitch">Glitch</option>
+              <option value="wave">Wave</option>
+              <option value="particle">Particle Burst</option>
+              <option value="rotation3d">3D Rotation</option>
+              <option value="neon">Neon Glow</option>
+              <option value="liquid">Liquid Distortion</option>
+              <option value="typewriter">Typewriter</option>
+              <option value="chromatic">Chromatic Aberration</option>
+              <option value="goo">SVG Distort</option>
+              <option value="split">Split Text</option>
+              <option value="wavy">Wavy Text</option>
+              <option value="flicker">Flicker Text</option>
+              <option value="stroke">Stroke Text</option>
+              <option value="gradient">Gradient Text</option>
+            </select>
+          </div>
 
-    <VideoLayerControls />
-    <BackdropControls @update="onUpdate" />
-    <BlendControls @update="onUpdate" />
-    <ColorControls @update="onUpdate" />
-    <AnimationControls @update="onUpdate" />
+          <BlendControls @update="onUpdate" />
 
-    <div class="control-group text-control">
-      <h3>Text Settings</h3>
-      <div class="positioning-mode">
-        <label class="drag-mode-toggle">
-          <input type="checkbox" v-model="settings.dragMode" @change="onUpdate(settings)" />
-          <span>Enable Drag Mode</span>
-          <span class="help-text">Click and drag text to reposition. Hold Shift for grid snap.</span>
-        </label>
-      </div>
-      <div class="text-input-group">
-        <div class="text-line" v-for="(line, index) in settings.textLines" :key="index">
-          <div class="text-block">
-            <div class="text-header">
-              <div class="text-type-controls">
-                <button
-                  :class="{ active: !settings.textTypes?.[index] }"
-                  @click="setTextType(index, 'line')"
-                  title="Single line"
-                >
-                  ⟶
-                </button>
-                <button
-                  :class="{ active: settings.textTypes?.[index] === 'paragraph' }"
-                  @click="setTextType(index, 'paragraph')"
-                  title="Paragraph"
-                >
-                  ¶
-                </button>
+          <div class="collapsible-section">
+            <div class="section-header" @click="toggleSection('animation')">
+              <span class="section-title">Animation Settings</span>
+              <span class="section-summary" v-if="!expanded.animation">
+                Speed: {{ settings.vibrateSpeed }}ms, Intensity: {{ settings.vibrateIntensity }}x
+              </span>
+              <span class="toggle-icon">{{ expanded.animation ? '▼' : '▶' }}</span>
+            </div>
+            <transition name="expand">
+              <div v-show="expanded.animation" class="section-content">
+                <AnimationControls @update="onUpdate" />
               </div>
-              <button class="remove-button" @click="removeLine(index)" v-if="settings.textLines.length > 1">✕</button>
-            </div>
+            </transition>
+          </div>
+        </div>
+      </template>
 
-            <div class="text-input-container">
-              <template v-if="settings.textTypes?.[index] === 'paragraph'">
-                <textarea
-                  v-model="settings.textLines[index]"
-                  @input="onUpdate(settings)"
-                  placeholder="Enter paragraph text"
-                  rows="4"
-                ></textarea>
-              </template>
-              <template v-else>
-                <input
-                  type="text"
-                  v-model="settings.textLines[index]"
-                  @input="onUpdate(settings)"
-                  placeholder="Enter line of text"
-                />
-              </template>
-            </div>
+      <template #text>
+        <div class="tab-section">
+          <div class="positioning-mode">
+            <label class="drag-mode-toggle">
+              <input type="checkbox" v-model="settings.dragMode" @change="onUpdate(settings)" />
+              <span>Enable Drag Mode</span>
+              <span class="help-text">Click and drag text to reposition. Hold Shift for grid snap.</span>
+            </label>
+          </div>
 
-            <div class="text-options">
-              <div class="options-grid">
-                <div class="option-item">
-                  <label>Font Size</label>
-                  <div class="slider-container">
-                    <input
-                      type="range"
-                      v-model.number="settings.fontSize[index]"
-                      min="12"
-                      max="200"
-                      @input="onUpdate(settings)"
-                    />
-                    <span class="value">{{ settings.fontSize[index] }}px</span>
+          <div class="text-input-group">
+            <div class="text-line" v-for="(line, index) in settings.textLines" :key="index">
+              <div class="text-block">
+                <div class="text-header">
+                  <div class="text-type-controls">
+                    <button
+                      :class="{ active: !settings.textTypes?.[index] }"
+                      @click="setTextType(index, 'line')"
+                      title="Single line"
+                    >
+                      ⟶
+                    </button>
+                    <button
+                      :class="{ active: settings.textTypes?.[index] === 'paragraph' }"
+                      @click="setTextType(index, 'paragraph')"
+                      title="Paragraph"
+                    >
+                      ¶
+                    </button>
                   </div>
+                  <button class="remove-button" @click="removeLine(index)" v-if="settings.textLines.length > 1">✕</button>
                 </div>
-                <div class="option-item">
-                  <label>Letter Spacing</label>
-                  <div class="slider-container">
-                    <input
-                      type="range"
-                      v-model.number="settings.letterSpacing[index]"
-                      min="-20"
-                      max="100"
-                      @input="onUpdate(settings)"
-                    />
-                    <span class="value">{{ settings.letterSpacing[index] }}px</span>
-                  </div>
-                </div>
-                <div class="option-item">
-      <label>Random Amount</label>
-      <div class="slider-container">
-        <input
-          type="range"
-          v-model.number="settings.randomAmount[index]"
-          min="0"
-          max="100"
-          @input="onUpdate(settings)"
-        />
-        <span class="value">{{ settings.randomAmount[index] }}%</span>
-      </div>
-    </div>
 
+                <div class="text-input-container">
+                  <template v-if="settings.textTypes?.[index] === 'paragraph'">
+                    <textarea
+                      v-model="settings.textLines[index]"
+                      @input="onUpdate(settings)"
+                      placeholder="Enter paragraph text"
+                      rows="4"
+                    ></textarea>
+                  </template>
+                  <template v-else>
+                    <input
+                      type="text"
+                      v-model="settings.textLines[index]"
+                      @input="onUpdate(settings)"
+                      placeholder="Enter line of text"
+                    />
+                  </template>
+                </div>
+
+                <div class="text-line-collapsible">
+                  <div class="text-options-header" @click="toggleTextOptions(index)">
+                    <span class="options-title">Typography</span>
+                    <span class="options-summary" v-if="!expanded.textOptions[index]">
+                      {{ settings.fontSize[index] }}px, {{ settings.letterSpacing[index] }}px spacing
+                    </span>
+                    <span class="toggle-icon">{{ expanded.textOptions[index] ? '▼' : '▶' }}</span>
+                  </div>
+                  <transition name="expand">
+                    <div v-show="expanded.textOptions[index]" class="text-options">
+                      <div class="options-grid">
+                        <div class="option-item">
+                          <label>Font Size</label>
+                          <div class="slider-container">
+                            <input
+                              type="range"
+                              v-model.number="settings.fontSize[index]"
+                              min="12"
+                              max="200"
+                              @input="onUpdate(settings)"
+                            />
+                            <span class="value">{{ settings.fontSize[index] }}px</span>
+                          </div>
+                        </div>
+                        <div class="option-item">
+                          <label>Letter Spacing</label>
+                          <div class="slider-container">
+                            <input
+                              type="range"
+                              v-model.number="settings.letterSpacing[index]"
+                              min="-20"
+                              max="100"
+                              @input="onUpdate(settings)"
+                            />
+                            <span class="value">{{ settings.letterSpacing[index] }}px</span>
+                          </div>
+                        </div>
+                        <div class="option-item">
+                          <label>Random Amount</label>
+                          <div class="slider-container">
+                            <input
+                              type="range"
+                              v-model.number="settings.randomAmount[index]"
+                              min="0"
+                              max="100"
+                              @input="onUpdate(settings)"
+                            />
+                            <span class="value">{{ settings.randomAmount[index] }}%</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </transition>
+                </div>
               </div>
             </div>
           </div>
+          <button class="add-line-button" @click="addLine">Add Line</button>
         </div>
-      </div>
-      <button class="add-line-button" @click="addLine">Add Line</button>
-    </div>
+      </template>
 
+      <template #appearance>
+        <div class="tab-section">
+          <ColorControls @update="onUpdate" />
 
-    <RecordingControls />
+          <div class="collapsible-section">
+            <div class="section-header" @click="toggleSection('backdrop')">
+              <span class="section-title">Backdrop Filters</span>
+              <span class="section-summary" v-if="!expanded.backdrop">
+                Blur: {{ settings.backdropBlur }}px, Brightness: {{ settings.backdropBrightness }}%
+              </span>
+              <span class="toggle-icon">{{ expanded.backdrop ? '▼' : '▶' }}</span>
+            </div>
+            <transition name="expand">
+              <div v-show="expanded.backdrop" class="section-content">
+                <BackdropControls @update="onUpdate" />
+              </div>
+            </transition>
+          </div>
+        </div>
+      </template>
+
+      <template #settings>
+        <div class="tab-section">
+          <VideoLayerControls />
+          <RecordingControls />
+        </div>
+      </template>
+    </TabContainer>
   </div>
 </template>
 
@@ -145,6 +202,8 @@
   import BackdropControls from './BackdropFilterControls.vue';
   import RecordingControls from './RecordingControls.vue';
   import VideoLayerControls from '../VideoLayerControls.vue';
+  import TabContainer from './TabContainer.vue';
+  import { useSettingsStore } from '@/stores/settings';
 
   export default {
     name: 'ControlPanel',
@@ -155,8 +214,8 @@
       BackdropControls,
       RecordingControls,
       VideoLayerControls,
+      TabContainer,
     },
-    // mixins: [controlsMixin, animationMixin],
     emits: [
       'update',
       'fileUpload',
@@ -168,6 +227,10 @@
       'audioUrlInput',
       'audioMuteChange',
     ],
+    setup() {
+      const settingsStore = useSettingsStore();
+      return { settingsStore };
+    },
     data() {
       return {
         selectedFileName: '',
@@ -177,43 +240,39 @@
         videoUrl: '',
         audioUrl: '',
         isAudioMuted: false,
-        settings: {
-
-          blendMode: 'difference',
-                textTypes: [], // Will store 'line' or 'paragraph' for each text entry
-
-          effectType: 'vibration',
-                letterSpacing: [0, 0, 0], // Initialize with default values for each line
-
-          // Color settings
-          hue: 0,
-          color: '#ffffff',
-          opacity: 100,
-
-          // Animation settings (will be merged with animation settings from useAnimation)
-          vibrateSpeed: 50,
-          vibrateIntensity: 1,
-          blurAmount: 2,
-  randomAmount: [50, 50, 50], // Initialize with default values for each line
-          intervalSpeed: 200,
-
-          textLines: ['INSERT', "SUN'O3.08", 'BAR OOST'],
-          fontSize: [120, 120, 120],
-          margin: [0, 0, 0],
-          marginTop: [0, 0, 0],
-          backdropBlur: 0,
-          backdropBrightness: 100,
-          backdropContrast: 100,
-          backdropSaturate: 100,
+        expanded: {
+          backdrop: false,
+          animation: false,
+          textOptions: [],
         },
+        tabs: [
+          { name: 'effects', label: 'Effects', icon: '✨' },
+          { name: 'text', label: 'Text', icon: 'T' },
+          { name: 'appearance', label: 'Style', icon: '🎨' },
+          { name: 'settings', label: 'Settings', icon: '⚙' },
+        ],
       };
+    },
+    computed: {
+      settings() {
+        return this.settingsStore.$state;
+      },
     },
     // provide() {
     //   return {
     //     animationSettings: this.mergedSettings
     //   };
     // },
+    mounted() {
+      this.expanded.textOptions = this.settingsStore.textLines.map(() => false);
+    },
     methods: {
+      toggleSection(section) {
+        this.expanded[section] = !this.expanded[section];
+      },
+      toggleTextOptions(index) {
+        this.$set(this.expanded.textOptions, index, !this.expanded.textOptions[index]);
+      },
       handleReset() {
         if (confirm('Are you sure you want to reset all settings to defaults?')) {
           this.$emit('reset');
@@ -236,34 +295,17 @@
       },
 
   setTextType(index, type) {
-    if (!this.settings.textTypes) {
-      this.settings.textTypes = [];
-    }
-    this.settings.textTypes[index] = type === 'paragraph' ? 'paragraph' : null;
-    this.onUpdate(this.settings);
+    this.settingsStore.setTextType(index, type);
   },
 
 addLine() {
-  this.settings.textLines.push('');
-  this.settings.margin.push(0);
-  this.settings.marginTop.push(0);
-  this.settings.letterSpacing.push(0);
-  this.settings.randomAmount.push(0); // Initialize with 0 to use global amount
-  if (!this.settings.textTypes) {
-    this.$set(this.settings, 'textTypes', []);
-  }
-  this.settings.textTypes.push(null);
-  this.onUpdate(this.settings);
+  this.settingsStore.addTextLine();
+  this.expanded.textOptions.push(false);
 },
 
  removeLine(index) {
-  this.settings.textLines.splice(index, 1);
-  this.settings.margin.splice(index, 1);
-  this.settings.marginTop.splice(index, 1);
-  this.settings.letterSpacing.splice(index, 1);
-  this.settings.randomAmount.splice(index, 1); // Add this line
-  this.settings.textTypes.splice(index, 1);
-  this.onUpdate(this.settings);
+  this.settingsStore.removeTextLine(index);
+  this.expanded.textOptions.splice(index, 1);
 },
 
       startVideo() {
@@ -293,16 +335,7 @@ addLine() {
         this.$emit('changeEffect', this.settings);
       },
       onUpdate(val) {
-        console.log(val);
-        // this.blendMode = val;
-        // this.controlSettings.blendMode = val;
-          Object.keys(val).forEach((key) => {
-    this.settings[key] = val[key];
-  });
-
-        console.log(this.settings);
-
-        this.$emit('update', this.settings);
+        this.$emit('update', val);
       },
     },
   };
@@ -822,5 +855,134 @@ textarea:focus {
   font-size: 12px;
   color: rgba(255, 255, 255, 0.6);
   margin-top: 5px;
+}
+
+.collapsible-section {
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  margin-bottom: 15px;
+  overflow: hidden;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 15px;
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.2s ease;
+}
+
+.section-header:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.section-title {
+  font-size: 14px;
+  font-weight: 500;
+  color: white;
+}
+
+.section-summary {
+  flex: 1;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.6);
+  text-align: right;
+}
+
+.toggle-icon {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 12px;
+  transition: transform 0.2s ease;
+}
+
+.section-content {
+  padding: 0 15px 15px 15px;
+}
+
+.expand-enter-active, .expand-leave-active {
+  transition: all 0.3s ease;
+  max-height: 500px;
+  overflow: hidden;
+}
+
+.expand-enter-from, .expand-leave-to {
+  max-height: 0;
+  opacity: 0;
+}
+
+.text-line-collapsible {
+  margin-top: 10px;
+}
+
+.text-options-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  cursor: pointer;
+  user-select: none;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 6px;
+  transition: background 0.2s ease;
+}
+
+.text-options-header:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.options-title {
+  font-size: 13px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.options-summary {
+  flex: 1;
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.5);
+  text-align: right;
+}
+
+.tab-section {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.control-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.control-label {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.effect-select {
+  width: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 10px 15px;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.effect-select:focus {
+  outline: none;
+  border-color: rgba(255, 255, 255, 0.4);
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.1);
+}
+
+.effect-select:hover {
+  border-color: rgba(255, 255, 255, 0.3);
 }
 </style>
