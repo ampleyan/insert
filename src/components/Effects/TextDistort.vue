@@ -1,20 +1,39 @@
 <template>
-  <div class="vibration-demo">
+  <div class="vibration-demo" @mousemove="handleMouseMove" @touchmove="handleTouchMove">
+    <div class="position-guides" v-if="settings.dragMode">
+      <div class="position-guide x-axis"></div>
+      <div class="position-guide y-axis"></div>
+    </div>
     <h1
       v-for="(text, index) in textLinesVar"
       :key="index"
-      :style="rootStyles"
+      class="distort-text"
+      :class="{ 'draggable': settings.dragMode }"
+      :style="[rootStyles, getDraggableStyle(index)]"
       contenteditable
       :data-heading="`${text}`"
+      @mousedown="handleMouseDown($event, index)"
+      @touchstart="handleTouchStart($event, index)"
     >
+      <span class="drag-handle" v-if="settings.dragMode">⋮⋮</span>
+      <span
+        class="resize-handle"
+        v-if="settings.dragMode"
+        @mousedown="handleResizeStart($event, index)"
+        @touchstart="handleResizeStart($event, index)"
+      >◢</span>
       {{ text }}
     </h1>
   </div>
 </template>
 
 <script>
+  import draggableTextMixin from '@/mixins/draggableTextMixin';
+
   export default {
     name: 'TextDistort',
+    mixins: [draggableTextMixin],
+    emits: ['update'],
     props: {
       settings: {
         type: Object,
@@ -106,5 +125,85 @@
     50% {
       transform: translate(var(--translate-x), var(--translate-y));
     }
+  }
+
+  .distort-text.draggable {
+    transition: none;
+  }
+
+  .distort-text.draggable:hover {
+    outline: 2px dashed rgba(255, 255, 255, 0.3);
+    outline-offset: 10px;
+  }
+
+  .drag-handle {
+    position: absolute;
+    top: -35px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.7);
+    padding: 4px 8px;
+    border-radius: 4px;
+    opacity: 0;
+    transition: opacity 0.2s;
+    font-size: 12px;
+    cursor: grab;
+    pointer-events: none;
+    color: white;
+    z-index: 10;
+  }
+
+  .distort-text.draggable:hover .drag-handle {
+    opacity: 1;
+  }
+
+  .resize-handle {
+    position: absolute;
+    bottom: -25px;
+    right: -25px;
+    background: rgba(0, 0, 0, 0.7);
+    padding: 6px 8px;
+    border-radius: 4px;
+    opacity: 0;
+    transition: opacity 0.2s;
+    font-size: 16px;
+    cursor: nwse-resize;
+    color: white;
+    pointer-events: all;
+    z-index: 10;
+  }
+
+  .distort-text.draggable:hover .resize-handle {
+    opacity: 1;
+  }
+
+  .position-guides {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .position-guide {
+    position: fixed;
+    pointer-events: none;
+    border: 1px dashed rgba(255, 255, 255, 0.2);
+  }
+
+  .position-guide.x-axis {
+    width: 100%;
+    height: 1px;
+    top: 50%;
+    left: 0;
+  }
+
+  .position-guide.y-axis {
+    height: 100%;
+    width: 1px;
+    left: 50%;
+    top: 0;
   }
 </style>

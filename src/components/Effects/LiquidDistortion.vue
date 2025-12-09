@@ -1,5 +1,5 @@
 <template>
-  <div class="liquid-container">
+  <div class="liquid-container" @mousemove="handleMouseMove" @touchmove="handleTouchMove">
     <svg width="0" height="0" style="position: absolute">
       <defs>
         <filter :id="`liquid-${uid}`">
@@ -16,22 +16,40 @@
         </filter>
       </defs>
     </svg>
+    <div class="position-guides" v-if="settings.dragMode">
+      <div class="position-guide x-axis"></div>
+      <div class="position-guide y-axis"></div>
+    </div>
     <div
       v-for="(text, index) in settings.textLines"
       :key="index"
       class="liquid-text"
-      :style="getTextStyle(index)"
+      :class="{ 'draggable': settings.dragMode }"
+      :style="[getTextStyle(index), getDraggableStyle(index)]"
+      @mousedown="handleMouseDown($event, index)"
+      @touchstart="handleTouchStart($event, index)"
     >
+      <span class="drag-handle" v-if="settings.dragMode">⋮⋮</span>
+      <span
+        class="resize-handle"
+        v-if="settings.dragMode"
+        @mousedown="handleResizeStart($event, index)"
+        @touchstart="handleResizeStart($event, index)"
+      >◢</span>
       {{ text }}
     </div>
   </div>
 </template>
 
 <script>
+import draggableTextMixin from '@/mixins/draggableTextMixin';
+
 let uidCounter = 0;
 
 export default {
   name: 'LiquidDistortion',
+  mixins: [draggableTextMixin],
+  emits: ['update'],
   props: {
     settings: {
       type: Object,
@@ -48,16 +66,12 @@ export default {
   methods: {
     getTextStyle(index) {
       const fontSize = this.settings.fontSize?.[index] || 120;
-      const marginRight = this.settings.margin?.[index] || 0;
-      const marginTop = this.settings.marginTop?.[index] || 0;
       const letterSpacing = this.settings.letterSpacing?.[index] || 0;
 
       return {
         fontSize: `${fontSize}px`,
         color: this.settings.color,
         opacity: this.settings.opacity / 100,
-        marginRight: `${marginRight}px`,
-        marginTop: `${marginTop}px`,
         letterSpacing: `${letterSpacing}px`,
         mixBlendMode: this.settings.blendMode,
         filter: `url(#liquid-${this.uid}) hue-rotate(${this.settings.hue}deg)`,
@@ -82,5 +96,85 @@ export default {
   font-weight: 900;
   text-transform: uppercase;
   will-change: filter;
+}
+
+.liquid-text.draggable {
+  transition: none;
+}
+
+.liquid-text.draggable:hover {
+  outline: 2px dashed rgba(255, 255, 255, 0.3);
+  outline-offset: 10px;
+}
+
+.drag-handle {
+  position: absolute;
+  top: -35px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.7);
+  padding: 4px 8px;
+  border-radius: 4px;
+  opacity: 0;
+  transition: opacity 0.2s;
+  font-size: 12px;
+  cursor: grab;
+  pointer-events: none;
+  color: white;
+  z-index: 10;
+}
+
+.liquid-text.draggable:hover .drag-handle {
+  opacity: 1;
+}
+
+.resize-handle {
+  position: absolute;
+  bottom: -25px;
+  right: -25px;
+  background: rgba(0, 0, 0, 0.7);
+  padding: 6px 8px;
+  border-radius: 4px;
+  opacity: 0;
+  transition: opacity 0.2s;
+  font-size: 16px;
+  cursor: nwse-resize;
+  color: white;
+  pointer-events: all;
+  z-index: 10;
+}
+
+.liquid-text.draggable:hover .resize-handle {
+  opacity: 1;
+}
+
+.position-guides {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.position-guide {
+  position: fixed;
+  pointer-events: none;
+  border: 1px dashed rgba(255, 255, 255, 0.2);
+}
+
+.position-guide.x-axis {
+  width: 100%;
+  height: 1px;
+  top: 50%;
+  left: 0;
+}
+
+.position-guide.y-axis {
+  height: 100%;
+  width: 1px;
+  left: 50%;
+  top: 0;
 }
 </style>

@@ -1,11 +1,25 @@
 <template>
-  <div class="wave-container">
+  <div class="wave-container" @mousemove="handleMouseMove" @touchmove="handleTouchMove">
+    <div class="position-guides" v-if="settings.dragMode">
+      <div class="position-guide x-axis"></div>
+      <div class="position-guide y-axis"></div>
+    </div>
     <div
       v-for="(text, lineIndex) in settings.textLines"
       :key="lineIndex"
       class="wave-text"
-      :style="getLineStyle(lineIndex)"
+      :class="{ 'draggable': settings.dragMode }"
+      :style="[getLineStyle(lineIndex), getDraggableStyle(lineIndex)]"
+      @mousedown="handleMouseDown($event, lineIndex)"
+      @touchstart="handleTouchStart($event, lineIndex)"
     >
+      <span class="drag-handle" v-if="settings.dragMode">⋮⋮</span>
+      <span
+        class="resize-handle"
+        v-if="settings.dragMode"
+        @mousedown="handleResizeStart($event, lineIndex)"
+        @touchstart="handleResizeStart($event, lineIndex)"
+      >◢</span>
       <span
         v-for="(letter, letterIndex) in text.split('')"
         :key="`${lineIndex}-${letterIndex}`"
@@ -19,8 +33,12 @@
 </template>
 
 <script>
+import draggableTextMixin from '@/mixins/draggableTextMixin';
+
 export default {
   name: 'WaveEffect',
+  mixins: [draggableTextMixin],
+  emits: ['update'],
   props: {
     settings: {
       type: Object,
@@ -53,13 +71,9 @@ export default {
       }
     },
     getLineStyle(index) {
-      const marginRight = this.settings.margin?.[index] || 0;
-      const marginTop = this.settings.marginTop?.[index] || 0;
       const letterSpacing = this.settings.letterSpacing?.[index] || 0;
 
       return {
-        marginRight: `${marginRight}px`,
-        marginTop: `${marginTop}px`,
         letterSpacing: `${letterSpacing}px`,
         mixBlendMode: this.settings.blendMode,
       };
@@ -105,5 +119,85 @@ export default {
   text-transform: uppercase;
   will-change: transform;
   transition: transform 0.1s ease-out;
+}
+
+.wave-text.draggable {
+  transition: none;
+}
+
+.wave-text.draggable:hover {
+  outline: 2px dashed rgba(255, 255, 255, 0.3);
+  outline-offset: 10px;
+}
+
+.drag-handle {
+  position: absolute;
+  top: -35px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.7);
+  padding: 4px 8px;
+  border-radius: 4px;
+  opacity: 0;
+  transition: opacity 0.2s;
+  font-size: 12px;
+  cursor: grab;
+  pointer-events: none;
+  color: white;
+  z-index: 10;
+}
+
+.wave-text.draggable:hover .drag-handle {
+  opacity: 1;
+}
+
+.resize-handle {
+  position: absolute;
+  bottom: -25px;
+  right: -25px;
+  background: rgba(0, 0, 0, 0.7);
+  padding: 6px 8px;
+  border-radius: 4px;
+  opacity: 0;
+  transition: opacity 0.2s;
+  font-size: 16px;
+  cursor: nwse-resize;
+  color: white;
+  pointer-events: all;
+  z-index: 10;
+}
+
+.wave-text.draggable:hover .resize-handle {
+  opacity: 1;
+}
+
+.position-guides {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.position-guide {
+  position: fixed;
+  pointer-events: none;
+  border: 1px dashed rgba(255, 255, 255, 0.2);
+}
+
+.position-guide.x-axis {
+  width: 100%;
+  height: 1px;
+  top: 50%;
+  left: 0;
+}
+
+.position-guide.y-axis {
+  height: 100%;
+  width: 1px;
+  left: 50%;
+  top: 0;
 }
 </style>
