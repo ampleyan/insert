@@ -5,8 +5,10 @@
       :src="youtubeEmbedUrl"
       class="youtube-iframe"
       :style="videoStyle"
+      title="YouTube video player"
       frameborder="0"
-      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+      referrerpolicy="strict-origin-when-cross-origin"
       allowfullscreen
     ></iframe>
     <canvas
@@ -59,13 +61,28 @@ export default {
   },
   computed: {
     youtubeEmbedUrl() {
-      if (!this.isYouTubeUrl || !this.layer.src) return null;
+      if (!this.isYouTubeUrl || !this.layer.src) {
+        console.log('[VideoLayer] youtubeEmbedUrl: null', {
+          isYouTubeUrl: this.isYouTubeUrl,
+          src: this.layer.src,
+        });
+        return null;
+      }
       const videoId = this.extractYouTubeId(this.layer.src);
-      if (!videoId) return null;
-      const autoplay = this.layer.playback.isPlaying ? 1 : 0;
-      const mute = this.layer.playback.isMuted ? 1 : 0;
-      const loop = this.layer.playback.loop ? 1 : 0;
-      return `https://www.youtube.com/embed/${videoId}?autoplay=${autoplay}&mute=${mute}&loop=${loop}&playlist=${videoId}&controls=0&modestbranding=1&rel=0&showinfo=0`;
+      if (!videoId) {
+        console.warn('[VideoLayer] Failed to extract YouTube video ID from:', this.layer.src);
+        return null;
+      }
+      const params = new URLSearchParams();
+      if (this.layer.playback.isPlaying) params.append('autoplay', '1');
+      if (this.layer.playback.isMuted) params.append('mute', '1');
+      if (this.layer.playback.loop) {
+        params.append('loop', '1');
+        params.append('playlist', videoId);
+      }
+      const embedUrl = `https://www.youtube.com/embed/${videoId}?${params.toString()}`;
+      console.log('[VideoLayer] Generated YouTube embed URL:', embedUrl);
+      return embedUrl;
     },
     needsCanvas() {
       return (
@@ -111,7 +128,7 @@ export default {
       return `translate(${t.x}px, ${t.y}px) scale(${t.scale / 100}) rotate(${t.rotate}deg)`;
     },
     videoStyle() {
-      return {
+      const style = {
         width: '100%',
         height: '100%',
         objectFit: 'cover',
@@ -120,6 +137,15 @@ export default {
         filter: this.filterString,
         transform: this.transformString,
       };
+      console.log('[VideoLayer] Computing videoStyle', {
+        layerId: this.layer.id,
+        layerOpacity: this.layer.opacity,
+        computedOpacity: this.layer.opacity / 100,
+        filters: this.layer.filters,
+        transform: this.layer.transform,
+        style,
+      });
+      return style;
     },
     canvasStyle() {
       return {
@@ -131,21 +157,58 @@ export default {
     },
   },
   watch: {
-    'layer.file'(newFile) {
-      if (newFile) {
-        this.videoSrc = URL.createObjectURL(newFile);
+    layer: {
+      handler(newLayer) {
+        console.log('[VideoLayer] layer changed', {
+          layerId: newLayer.id,
+          opacity: newLayer.opacity,
+          filters: newLayer.filters,
+          transform: newLayer.transform,
+        });
+      },
+      deep: true,
+    },
+    'layer.file'(newFile, oldFile) {
+      console.log('[VideoLayer] layer.file changed', {
+        layerId: this.layer.id,
+        newFile: newFile?.name,
+        isFileInstance: newFile instanceof File,
+        oldFile: oldFile?.name,
+      });
+      if (newFile && newFile instanceof File) {
+        try {
+          this.videoSrc = URL.createObjectURL(newFile);
+          console.log('[VideoLayer] Created blob URL from file:', this.videoSrc);
+        } catch (error) {
+          console.error('[VideoLayer] Failed to create object URL:', error);
+        }
       }
     },
-    'layer.src'(newSrc) {
+    'layer.src'(newSrc, oldSrc) {
+      console.log('[VideoLayer] layer.src changed', {
+        layerId: this.layer.id,
+        newSrc,
+        oldSrc,
+        hasFile: !!this.layer.file,
+      });
       if (newSrc && !this.layer.file) {
         if (this.checkYouTubeUrl(newSrc)) {
+          console.log('[VideoLayer] Detected YouTube URL');
           this.isYouTubeUrl = true;
           this.videoSrc = null;
         } else {
+          console.log('[VideoLayer] Using direct video URL');
           this.isYouTubeUrl = false;
           this.videoSrc = newSrc;
         }
       }
+    },
+    'layer.opacity'(newOpacity, oldOpacity) {
+      console.log('[VideoLayer] layer.opacity changed', {
+        layerId: this.layer.id,
+        oldOpacity,
+        newOpacity,
+      });
     },
     'layer.playback.isPlaying'(playing) {
       if (this.isYouTubeUrl) return;
@@ -173,17 +236,34 @@ export default {
     },
   },
   mounted() {
-    if (this.layer.file) {
-      this.videoSrc = URL.createObjectURL(this.layer.file);
-      this.isYouTubeUrl = false;
+    console.log('[VideoLayer] Mounted', {
+      layerId: this.layer.id,
+      layerSrc: this.layer.src,
+      hasFile: !!this.layer.file,
+      isFileInstance: this.layer.file instanceof File,
+    });
+
+    if (this.layer.file && this.layer.file instanceof File) {
+      try {
+        this.videoSrc = URL.createObjectURL(this.layer.file);
+        this.isYouTubeUrl = false;
+        console.log('[VideoLayer] Created blob URL from file on mount:', this.videoSrc);
+      } catch (error) {
+        console.error('[VideoLayer] Failed to create object URL:', error);
+        this.videoSrc = this.layer.src;
+      }
     } else if (this.layer.src) {
       if (this.checkYouTubeUrl(this.layer.src)) {
         this.isYouTubeUrl = true;
         this.videoSrc = null;
+        console.log('[VideoLayer] YouTube URL detected on mount');
       } else {
         this.isYouTubeUrl = false;
         this.videoSrc = this.layer.src;
+        console.log('[VideoLayer] Direct video URL set on mount:', this.videoSrc);
       }
+    } else {
+      console.warn('[VideoLayer] No src or file on mount');
     }
 
     this.$nextTick(() => {

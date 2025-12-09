@@ -52,13 +52,17 @@
         <div v-if="expandedLayer === layer.id" class="layer-controls">
           <div class="control-section">
             <h4>Source</h4>
-            <input
-              type="text"
-              v-model="layer.src"
-              placeholder="Enter video URL"
-              class="url-input"
-            />
-            <input type="file" @change="handleFileUpload($event, layer.id)" accept="video/*" />
+            <div class="url-input-group">
+              <input
+                type="text"
+                v-model="layer.src"
+                @keyup.enter="loadVideo(layer.id)"
+                placeholder="Enter video URL or YouTube link"
+                class="url-input"
+              />
+              <button @click="loadVideo(layer.id)" class="load-btn">Load</button>
+            </div>
+            <input type="file" @change="handleFileUpload($event, layer.id)" accept="video/*" class="file-input" />
           </div>
 
           <div class="control-section">
@@ -84,15 +88,22 @@
           </div>
 
           <div class="control-section">
-            <h4>Opacity</h4>
-            <input
-              type="range"
-              v-model.number="layer.opacity"
-              min="0"
-              max="100"
-              class="slider"
-            />
-            <span>{{ layer.opacity }}%</span>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <h4>Opacity</h4>
+              <button @click="resetLayerSettings(layer.id)" class="reset-layer-btn" title="Reset opacity, filters, and transform">
+                Reset Layer
+              </button>
+            </div>
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <input
+                type="range"
+                v-model.number="layer.opacity"
+                min="0"
+                max="100"
+                class="slider"
+              />
+              <span>{{ layer.opacity }}%</span>
+            </div>
           </div>
 
           <div class="control-section">
@@ -330,10 +341,31 @@ export default {
     toggleLayer(id) {
       this.expandedLayer = this.expandedLayer === id ? null : id;
     },
+    loadVideo(layerId) {
+      const layer = this.videoStore.layers.find((l) => l.id === layerId);
+      console.log('[VideoLayerControls] Load button clicked', {
+        layerId,
+        layer,
+        src: layer?.src,
+      });
+      if (layer && layer.src) {
+        console.log('[VideoLayerControls] Calling updateLayer with src:', layer.src);
+        this.videoStore.updateLayer(layerId, { src: layer.src, file: null });
+      } else {
+        console.warn('[VideoLayerControls] No layer or src found', { layer, src: layer?.src });
+      }
+    },
     handleFileUpload(event, layerId) {
       const file = event.target.files[0];
+      console.log('[VideoLayerControls] File selected', {
+        layerId,
+        fileName: file?.name,
+        fileSize: file?.size,
+        fileType: file?.type,
+      });
       if (file) {
-        this.videoStore.updateLayer(layerId, { file });
+        console.log('[VideoLayerControls] Calling updateLayer with file');
+        this.videoStore.updateLayer(layerId, { file, src: '' });
       }
     },
     togglePlayback(layerId) {
@@ -356,6 +388,28 @@ export default {
       if (index < this.videoStore.layers.length - 1) {
         this.videoStore.moveLayer(index, index + 1);
       }
+    },
+    resetLayerSettings(layerId) {
+      console.log('[VideoLayerControls] Resetting layer settings', { layerId });
+      this.videoStore.updateLayer(layerId, {
+        opacity: 100,
+        filters: {
+          blur: 0,
+          brightness: 100,
+          contrast: 100,
+          saturate: 100,
+          hue: 0,
+          grayscale: 0,
+          sepia: 0,
+          invert: 0,
+        },
+        transform: {
+          scale: 100,
+          x: 0,
+          y: 0,
+          rotate: 0,
+        },
+      });
     },
   },
 };
@@ -499,14 +553,39 @@ export default {
   margin: 0 0 10px 0;
 }
 
+.url-input-group {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
 .url-input {
-  width: 100%;
+  flex: 1;
   background: rgba(0, 0, 0, 0.5);
   border: 1px solid rgba(255, 255, 255, 0.2);
   color: white;
   padding: 8px;
   border-radius: 4px;
-  margin-bottom: 10px;
+}
+
+.load-btn {
+  background: rgba(0, 122, 255, 0.7);
+  color: white;
+  border: none;
+  padding: 8px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+.load-btn:hover {
+  background: rgba(0, 122, 255, 0.9);
+}
+
+.file-input {
+  width: 100%;
+  margin-top: 5px;
 }
 
 select {
@@ -585,5 +664,20 @@ select {
   display: flex;
   align-items: center;
   gap: 5px;
+}
+
+.reset-layer-btn {
+  background: rgba(255, 149, 0, 0.7);
+  color: white;
+  border: none;
+  padding: 4px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.reset-layer-btn:hover {
+  background: rgba(255, 149, 0, 0.9);
 }
 </style>
