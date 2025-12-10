@@ -77,20 +77,23 @@ export default {
       };
     },
     getFragmentStyle(index) {
-      const intensity = this.settings.vibrateIntensity || 5;
+      const shatterSettings = this.settings.shatter || {};
+      const explosionForce = (shatterSettings.explosionForce || 50) / 10;
+      const rotationSpeed = shatterSettings.rotationSpeed || 5;
+
       const randomX = (Math.sin(index * 12.9898) * 43758.5453123) % 1;
       const randomY = (Math.cos(index * 78.233) * 43758.5453123) % 1;
       const randomRotate = (Math.sin(index * 45.234) * 43758.5453123) % 1;
 
-      const translateX = (randomX - 0.5) * intensity * 2;
-      const translateY = (randomY - 0.5) * intensity * 2;
-      const rotate = (randomRotate - 0.5) * intensity * 10;
+      const translateX = (randomX - 0.5) * explosionForce * 2;
+      const translateY = (randomY - 0.5) * explosionForce * 2;
+      const rotate = (randomRotate - 0.5) * rotationSpeed * 10;
 
       return {
         '--fragment-x': `${translateX}px`,
         '--fragment-y': `${translateY}px`,
         '--fragment-rotate': `${rotate}deg`,
-        '--fragment-delay': `${index * 0.05}s`,
+        '--fragment-delay': `${index * 0.05 + (shatterSettings.shatterDelay || 0) / 1000}s`,
       };
     },
   },

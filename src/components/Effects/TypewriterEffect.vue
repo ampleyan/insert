@@ -81,28 +81,34 @@ export default {
   },
   methods: {
     startTyping() {
+      const typewriterSettings = this.settings.typewriter || {};
+      const typingSpeed = typewriterSettings.typingSpeed || 100;
+      const initialDelay = typewriterSettings.initialDelay || 500;
+
       this.visibleText = this.settings.textLines.map(() => '');
       this.isTyping = this.settings.textLines.map(() => true);
 
-      this.settings.textLines.forEach((text, lineIndex) => {
-        let charIndex = 0;
-        const interval = setInterval(() => {
-          if (charIndex < text.length) {
-            this.visibleText[lineIndex] = text.slice(0, charIndex + 1);
-            charIndex++;
-          } else {
-            this.isTyping[lineIndex] = false;
-            clearInterval(interval);
-            setTimeout(() => {
-              charIndex = 0;
-              this.visibleText[lineIndex] = '';
-              this.isTyping[lineIndex] = true;
-            }, 2000);
-          }
-        }, this.settings.intervalSpeed || 100);
+      setTimeout(() => {
+        this.settings.textLines.forEach((text, lineIndex) => {
+          let charIndex = 0;
+          const interval = setInterval(() => {
+            if (charIndex < text.length) {
+              this.visibleText[lineIndex] = text.slice(0, charIndex + 1);
+              charIndex++;
+            } else {
+              this.isTyping[lineIndex] = false;
+              clearInterval(interval);
+              setTimeout(() => {
+                charIndex = 0;
+                this.visibleText[lineIndex] = '';
+                this.isTyping[lineIndex] = true;
+              }, 2000);
+            }
+          }, typingSpeed);
 
-        this.intervals.push(interval);
-      });
+          this.intervals.push(interval);
+        });
+      }, initialDelay);
     },
     stopTyping() {
       this.intervals.forEach((interval) => clearInterval(interval));

@@ -63,15 +63,19 @@ export default {
     getTextStyle(index) {
       const fontSize = this.settings.fontSize?.[index] || 120;
       const letterSpacing = this.settings.letterSpacing?.[index] || 0;
+      const scanlinesSettings = this.settings.scanlines || {};
 
       return {
         fontSize: `${fontSize}px`,
-        color: this.settings.color,
+        color: scanlinesSettings.vintageTint || this.settings.color,
         opacity: this.settings.opacity / 100,
         letterSpacing: `${letterSpacing}px`,
         mixBlendMode: this.settings.blendMode,
         filter: `hue-rotate(${this.settings.hue}deg)`,
-        '--glitch-intensity': `${this.settings.vibrateIntensity}px`,
+        '--scanline-intensity': (scanlinesSettings.scanlineIntensity || 50) / 100,
+        '--scanline-count': scanlinesSettings.scanlineCount || 200,
+        '--vhs-noise': (scanlinesSettings.vhsNoise || 30) / 100,
+        '--chromatic-shift': `${scanlinesSettings.chromaticShift || 3}px`,
       };
     },
   },

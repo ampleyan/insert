@@ -67,6 +67,7 @@ export default {
     getTextStyle(index) {
       const fontSize = this.settings.fontSize?.[index] || 120;
       const letterSpacing = this.settings.letterSpacing?.[index] || 0;
+      const perspectiveSettings = this.settings.perspective || {};
 
       return {
         fontSize: `${fontSize}px`,
@@ -75,15 +76,20 @@ export default {
         letterSpacing: `${letterSpacing}px`,
         mixBlendMode: this.settings.blendMode,
         filter: `hue-rotate(${this.settings.hue}deg)`,
+        perspective: `${perspectiveSettings.perspectiveDepth || 500}px`,
       };
     },
     getPerspectiveStyle() {
-      const intensity = this.settings.vibrateIntensity || 10;
-      const rotateX = (this.mouseY - 0.5) * intensity;
-      const rotateY = (this.mouseX - 0.5) * -intensity;
+      const perspectiveSettings = this.settings.perspective || {};
+      const sensitivity = (perspectiveSettings.tiltSensitivity || 50) / 100;
+      const maxTiltX = perspectiveSettings.maxTiltX || 20;
+      const maxTiltY = perspectiveSettings.maxTiltY || 20;
+
+      const rotateX = (this.mouseY - 0.5) * maxTiltX * sensitivity * 2;
+      const rotateY = (this.mouseX - 0.5) * -maxTiltY * sensitivity * 2;
 
       return {
-        transform: `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateZ(0)`,
+        transform: `perspective(${perspectiveSettings.perspectiveDepth || 500}px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateZ(0)`,
       };
     },
     updateMousePosition(event) {

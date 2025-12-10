@@ -68,18 +68,25 @@ export default {
     getTextStyle(index) {
       const fontSize = this.settings.fontSize?.[index] || 120;
       const letterSpacing = this.settings.letterSpacing?.[index] || 0;
+      const splitSettings = this.settings.split || {};
 
       return {
         fontSize: `${fontSize}px`,
         letterSpacing: `${letterSpacing}px`,
         mixBlendMode: this.settings.blendMode,
         filter: `hue-rotate(${this.settings.hue}deg)`,
+        '--split-distance': `${splitSettings.splitDistance || 50}px`,
+        '--split-speed': `${splitSettings.splitSpeed || 800}ms`,
+        '--rotation-amount': `${splitSettings.rotationAmount || 15}deg`,
       };
     },
     getLetterStyle(index) {
-      const delay = index * 0.1;
+      const splitSettings = this.settings.split || {};
+      const baseDelay = 0.1;
+      const delay = index * baseDelay;
       return {
         animationDelay: `${delay}s`,
+        animationDuration: `${splitSettings.splitSpeed || 800}ms`,
         color: this.settings.color,
         opacity: this.settings.opacity / 100,
       };

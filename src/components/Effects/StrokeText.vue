@@ -62,13 +62,16 @@ export default {
     getTextStyle(index) {
       const fontSize = this.settings.fontSize?.[index] || 120;
       const letterSpacing = this.settings.letterSpacing?.[index] || 0;
+      const strokeSettings = this.settings.stroke || {};
 
       return {
         fontSize: `${fontSize}px`,
         letterSpacing: `${letterSpacing}px`,
         mixBlendMode: this.settings.blendMode,
         filter: `hue-rotate(${this.settings.hue}deg)`,
-        '--stroke-color': this.settings.color,
+        '--stroke-width': `${strokeSettings.strokeWidth || 2}px`,
+        '--stroke-color': strokeSettings.strokeColor || '#ffffff',
+        '--fill-opacity': (strokeSettings.fillOpacity || 100) / 100,
         opacity: this.settings.opacity / 100,
       };
     },

@@ -62,6 +62,7 @@ export default {
     getTextStyle(index) {
       const fontSize = this.settings.fontSize?.[index] || 120;
       const letterSpacing = this.settings.letterSpacing?.[index] || 0;
+      const flickerSettings = this.settings.flicker || {};
 
       return {
         fontSize: `${fontSize}px`,
@@ -70,6 +71,9 @@ export default {
         letterSpacing: `${letterSpacing}px`,
         mixBlendMode: this.settings.blendMode,
         filter: `hue-rotate(${this.settings.hue}deg)`,
+        '--flicker-speed': `${flickerSettings.flickerSpeed || 200}ms`,
+        '--min-opacity': (flickerSettings.minOpacity || 30) / 100,
+        '--max-opacity': (flickerSettings.maxOpacity || 100) / 100,
       };
     },
   },

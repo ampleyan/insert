@@ -68,16 +68,20 @@ export default {
     getTextStyle(index) {
       const fontSize = this.settings.fontSize?.[index] || 120;
       const letterSpacing = this.settings.letterSpacing?.[index] || 0;
+      const wavySettings = this.settings.wavy || {};
 
       return {
         fontSize: `${fontSize}px`,
         letterSpacing: `${letterSpacing}px`,
         mixBlendMode: this.settings.blendMode,
         filter: `hue-rotate(${this.settings.hue}deg)`,
+        '--wave-height': `${wavySettings.waveHeight || 20}px`,
+        '--wave-speed': `${wavySettings.waveSpeed || 2}s`,
       };
     },
     getLetterStyle(index) {
-      const delay = index * 0.05;
+      const wavySettings = this.settings.wavy || {};
+      const delay = index * ((wavySettings.waveDelay || 50) / 1000);
       return {
         animationDelay: `${delay}s`,
         color: this.settings.color,
@@ -105,7 +109,7 @@ export default {
 
 .wavy-letter {
   display: inline-block;
-  animation: wavy 2s ease-in-out infinite;
+  animation: wavy var(--wave-speed, 2s) ease-in-out infinite;
 }
 
 @keyframes wavy {
@@ -114,7 +118,7 @@ export default {
     transform: translateY(0);
   }
   50% {
-    transform: translateY(-20px);
+    transform: translateY(calc(-1 * var(--wave-height, 20px)));
   }
 }
 

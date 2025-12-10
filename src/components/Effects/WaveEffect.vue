@@ -79,7 +79,9 @@ export default {
   methods: {
     startAnimation() {
       const animate = () => {
-        this.time += 0.05;
+        const waveSettings = this.settings.wave || {};
+        const speed = (waveSettings.waveSpeed || 2) * 0.025;
+        this.time += speed;
         this.animationFrame = requestAnimationFrame(animate);
       };
       this.animationFrame = requestAnimationFrame(animate);
@@ -99,10 +101,12 @@ export default {
     },
     getLetterStyle(lineIndex, letterIndex) {
       const fontSize = this.settings.fontSize?.[lineIndex] || 120;
-      const frequency = 0.5;
-      const amplitude = this.settings.vibrateIntensity * 10;
+      const waveSettings = this.settings.wave || {};
+      const frequency = waveSettings.waveFrequency || 1;
+      const amplitude = waveSettings.waveAmplitude || 20;
+      const phase = waveSettings.wavePhase || 0;
       const offset = letterIndex * 0.3;
-      const y = Math.sin(this.time * frequency + offset) * amplitude;
+      const y = Math.sin(this.time * frequency + offset + phase) * amplitude;
 
       return {
         fontSize: `${fontSize}px`,

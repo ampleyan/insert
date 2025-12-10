@@ -64,13 +64,16 @@ export default {
     getTextStyle(index) {
       const fontSize = this.settings.fontSize?.[index] || 120;
       const letterSpacing = this.settings.letterSpacing?.[index] || 0;
+      const holoSettings = this.settings.holographic || {};
 
       return {
         fontSize: `${fontSize}px`,
         letterSpacing: `${letterSpacing}px`,
         '--holo-hue': `${this.settings.hue}deg`,
-        '--holo-opacity': this.settings.opacity / 100,
-        '--holo-intensity': this.settings.vibrateIntensity,
+        '--holo-opacity': (holoSettings.holoOpacity || 70) / 100,
+        '--holo-shift': `${holoSettings.holoShift || 8}px`,
+        '--holo-speed': `${holoSettings.holoSpeed || 2000}ms`,
+        '--rainbow-intensity': (holoSettings.rainbowIntensity || 80) / 100,
       };
     },
   },

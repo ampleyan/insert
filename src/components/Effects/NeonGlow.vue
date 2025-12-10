@@ -61,16 +61,17 @@ export default {
     getTextStyle(index) {
       const fontSize = this.settings.fontSize?.[index] || 120;
       const letterSpacing = this.settings.letterSpacing?.[index] || 0;
+      const neonSettings = this.settings.neon || {};
 
       return {
         fontSize: `${fontSize}px`,
-        color: this.settings.color,
+        color: neonSettings.glowColor || this.settings.color,
         opacity: this.settings.opacity / 100,
         letterSpacing: `${letterSpacing}px`,
         mixBlendMode: this.settings.blendMode,
-        filter: `hue-rotate(${this.settings.hue}deg)`,
-        '--glow-intensity': `${this.settings.vibrateIntensity * 10}px`,
-        '--pulse-speed': `${this.settings.vibrateSpeed * 10}ms`,
+        filter: `hue-rotate(${this.settings.hue}deg) blur(${neonSettings.glowBlur || 20}px)`,
+        '--glow-intensity': `${neonSettings.glowIntensity || 80}px`,
+        '--pulse-speed': `${neonSettings.pulseSpeed || 2000}ms`,
       };
     },
   },

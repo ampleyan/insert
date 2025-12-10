@@ -86,20 +86,21 @@ export default {
       });
     },
     triggerBurst(event) {
+      const particleSettings = this.settings.particle || {};
       const x = event.clientX;
       const y = event.clientY;
-      const particleCount = 50;
+      const particleCount = particleSettings.particleCount || 50;
 
       for (let i = 0; i < particleCount; i++) {
         const angle = (Math.PI * 2 * i) / particleCount;
-        const velocity = this.settings.vibrateIntensity * 2;
+        const velocity = (particleSettings.burstSpeed || 2) * 2;
         this.particles.push({
           x,
           y,
           vx: Math.cos(angle) * velocity,
           vy: Math.sin(angle) * velocity,
           life: 1,
-          size: Math.random() * 4 + 2,
+          size: Math.random() * (particleSettings.particleSize || 3) + 1,
         });
       }
     },
@@ -117,11 +118,16 @@ export default {
       }
     },
     updateParticles() {
+      const particleSettings = this.settings.particle || {};
+      const gravity = particleSettings.gravity || 0.5;
+      const particleLife = particleSettings.particleLife || 2000;
+      const lifeDelta = 1 / (particleLife / 16.67);
+
       this.particles = this.particles.filter((p) => {
         p.x += p.vx;
         p.y += p.vy;
-        p.vy += 0.3;
-        p.life -= 0.01;
+        p.vy += gravity;
+        p.life -= lifeDelta;
         return p.life > 0;
       });
     },

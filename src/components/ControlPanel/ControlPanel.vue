@@ -7,10 +7,26 @@
       </button>
     </div>
 
-    <TabContainer :tabs="tabs" default-tab="effects">
+    <TabContainer :tabs="tabs" default-tab="text">
       <template #effects>
         <div class="tab-section">
           <EffectSelector :settings="settings" @update="onUpdate" />
+
+          <div class="collapsible-section">
+            <div class="section-header" @click="toggleSection('effectSpecific')">
+              <span class="section-title">Effect Settings</span>
+              <span class="toggle-icon">{{ expanded.effectSpecific ? '▼' : '▶' }}</span>
+            </div>
+            <transition name="expand">
+              <div v-show="expanded.effectSpecific" class="section-content">
+                <EffectSpecificControls
+                  :effectType="settings.effectType"
+                  :settings="settings"
+                  @update="onUpdate"
+                />
+              </div>
+            </transition>
+          </div>
 
           <BlendControls @update="onUpdate" />
 
@@ -185,6 +201,7 @@
   import VideoLayerControls from '../VideoLayerControls.vue';
   import TabContainer from './TabContainer.vue';
   import EffectSelector from './EffectSelector.vue';
+  import EffectSpecificControls from './EffectSpecificControls.vue';
   import { useSettingsStore } from '@/stores/settings';
 
   export default {
@@ -198,6 +215,7 @@
       VideoLayerControls,
       TabContainer,
       EffectSelector,
+      EffectSpecificControls,
     },
     emits: [
       'update',
@@ -226,11 +244,12 @@
         expanded: {
           backdrop: false,
           animation: false,
+          effectSpecific: true,
           textOptions: [],
         },
         tabs: [
-          { name: 'effects', label: 'Effects', icon: '✨' },
           { name: 'text', label: 'Text', icon: 'T' },
+          { name: 'effects', label: 'Effects', icon: '✨' },
           { name: 'appearance', label: 'Style', icon: '🎨' },
           { name: 'settings', label: 'Settings', icon: '⚙' },
         ],

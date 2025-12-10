@@ -62,6 +62,7 @@ export default {
     getTextStyle(index) {
       const fontSize = this.settings.fontSize?.[index] || 120;
       const letterSpacing = this.settings.letterSpacing?.[index] || 0;
+      const chromaticSettings = this.settings.chromatic || {};
 
       return {
         fontSize: `${fontSize}px`,
@@ -70,7 +71,9 @@ export default {
         letterSpacing: `${letterSpacing}px`,
         mixBlendMode: this.settings.blendMode,
         filter: `hue-rotate(${this.settings.hue}deg)`,
-        '--aberration-offset': `${this.settings.vibrateIntensity}px`,
+        '--aberration-distance': `${chromaticSettings.aberrationDistance || 8}px`,
+        '--red-offset': `${chromaticSettings.redOffset || 5}px`,
+        '--blue-offset': `${chromaticSettings.blueOffset || 5}px`,
       };
     },
   },

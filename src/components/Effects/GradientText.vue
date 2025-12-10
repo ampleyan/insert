@@ -61,6 +61,7 @@ export default {
     getTextStyle(index) {
       const fontSize = this.settings.fontSize?.[index] || 120;
       const letterSpacing = this.settings.letterSpacing?.[index] || 0;
+      const gradientSettings = this.settings.gradient || {};
 
       return {
         fontSize: `${fontSize}px`,
@@ -68,7 +69,11 @@ export default {
         mixBlendMode: this.settings.blendMode,
         filter: `hue-rotate(${this.settings.hue}deg)`,
         opacity: this.settings.opacity / 100,
-        '--gradient-color': this.settings.color,
+        '--gradient-color1': gradientSettings.gradientColor1 || '#ff0080',
+        '--gradient-color2': gradientSettings.gradientColor2 || '#7928ca',
+        '--gradient-color3': gradientSettings.gradientColor3 || '#0070f3',
+        '--gradient-angle': `${gradientSettings.gradientAngle || 45}deg`,
+        '--gradient-speed': `${gradientSettings.gradientSpeed || 3000}ms`,
       };
     },
   },

@@ -61,6 +61,7 @@ export default {
     getTextStyle(index) {
       const fontSize = this.settings.fontSize?.[index] || 120;
       const letterSpacing = this.settings.letterSpacing?.[index] || 0;
+      const rotation3dSettings = this.settings.rotation3d || {};
 
       return {
         fontSize: `${fontSize}px`,
@@ -69,7 +70,8 @@ export default {
         letterSpacing: `${letterSpacing}px`,
         mixBlendMode: this.settings.blendMode,
         filter: `hue-rotate(${this.settings.hue}deg) blur(${this.settings.blurAmount}px)`,
-        '--rotation-speed': `${this.settings.vibrateSpeed * 10}ms`,
+        '--rotation-speed': `${1000 / (rotation3dSettings.rotationSpeed || 2)}ms`,
+        perspective: `${rotation3dSettings.perspective || 800}px`,
       };
     },
   },

@@ -3,16 +3,16 @@
     <svg width="0" height="0" style="position: absolute">
       <defs>
         <filter :id="`liquid-${uid}`">
-          <feTurbulence type="fractalNoise" :baseFrequency="baseFrequency" numOctaves="5">
+          <feTurbulence type="fractalNoise" :baseFrequency="liquidFrequency" numOctaves="5">
             <animate
               attributeName="baseFrequency"
-              :from="baseFrequency"
+              :from="liquidFrequency"
               :to="animatedFrequency"
-              :dur="`${settings.vibrateSpeed * 20}ms`"
+              :dur="`${liquidSpeed}ms`"
               repeatCount="indefinite"
             />
           </feTurbulence>
-          <feDisplacementMap in="SourceGraphic" :scale="settings.vibrateIntensity * 10" />
+          <feDisplacementMap in="SourceGraphic" :scale="liquidScale" />
         </filter>
       </defs>
     </svg>
@@ -81,6 +81,21 @@ export default {
       baseFrequency: '0.01 0.03',
       animatedFrequency: '0.03 0.01',
     };
+  },
+  computed: {
+    liquidFrequency() {
+      const liquidSettings = this.settings.liquid || {};
+      const freq = liquidSettings.baseFrequency || 0.02;
+      return `${freq} ${freq * 1.5}`;
+    },
+    liquidScale() {
+      const liquidSettings = this.settings.liquid || {};
+      return liquidSettings.turbulenceScale || 30;
+    },
+    liquidSpeed() {
+      const liquidSettings = this.settings.liquid || {};
+      return (liquidSettings.flowSpeed || 1) * 1000;
+    },
   },
   methods: {
     getTextStyle(index) {

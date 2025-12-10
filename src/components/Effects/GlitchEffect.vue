@@ -61,6 +61,7 @@ export default {
     getTextStyle(index) {
       const fontSize = this.settings.fontSize?.[index] || 120;
       const letterSpacing = this.settings.letterSpacing?.[index] || 0;
+      const glitchSettings = this.settings.glitch || {};
 
       return {
         fontSize: `${fontSize}px`,
@@ -68,8 +69,9 @@ export default {
         opacity: this.settings.opacity / 100,
         letterSpacing: `${letterSpacing}px`,
         mixBlendMode: this.settings.blendMode,
-        '--glitch-intensity': `${this.settings.vibrateIntensity}px`,
-        '--glitch-speed': `${this.settings.vibrateSpeed}ms`,
+        '--glitch-intensity': `${glitchSettings.glitchIntensity || 10}px`,
+        '--glitch-speed': `${glitchSettings.glitchSpeed || 500}ms`,
+        '--color-separation': `${glitchSettings.colorSeparation || 5}px`,
         filter: `hue-rotate(${this.settings.hue}deg)`,
       };
     },

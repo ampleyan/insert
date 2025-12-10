@@ -54,10 +54,12 @@
     },
     computed: {
       rootStyles() {
+        const gooSettings = this.settings.goo || {};
         return {
-          '--translate-x': `${this.settings.vibrateIntensity}px`,
-          '--translate-y': `${this.settings.vibrateIntensity}px`,
-          '--vibrate-speed': `${this.settings.vibrateSpeed}ms`,
+          '--translate-x': `${gooSettings.gooAmount || 20}px`,
+          '--translate-y': `${gooSettings.gooAmount || 20}px`,
+          '--vibrate-speed': `${1000 / (gooSettings.morphSpeed || 1)}ms`,
+          '--turbulence-intensity': gooSettings.turbulenceIntensity || 30,
         };
       },
     },
