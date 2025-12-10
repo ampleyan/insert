@@ -8,7 +8,7 @@
       v-for="(text, index) in textLinesVar"
       :key="index"
       class="distort-text"
-      :class="{ 'draggable': settings.dragMode }"
+      :class="{ 'draggable': settings.dragMode, 'has-path': isPathEnabled(index) }"
       :style="[rootStyles, getDraggableStyle(index)]"
       contenteditable
       :data-heading="`${text}`"
@@ -22,17 +22,32 @@
         @mousedown="handleResizeStart($event, index)"
         @touchstart="handleResizeStart($event, index)"
       >◢</span>
-      {{ text }}
+
+      <template v-if="isPathEnabled(index)">
+        <span
+          v-for="(letterObj, letterIndex) in getLettersForLine(index)"
+          :key="`letter-${letterIndex}`"
+          class="path-letter"
+          :style="getLetterPositionStyle(index, letterIndex)"
+        >
+          {{ letterObj.letter }}
+        </span>
+      </template>
+
+      <template v-else>
+        {{ text }}
+      </template>
     </h1>
   </div>
 </template>
 
 <script>
   import draggableTextMixin from '@/mixins/draggableTextMixin';
+  import textPathMixin from '@/mixins/textPathMixin';
 
   export default {
     name: 'TextDistort',
-    mixins: [draggableTextMixin],
+    mixins: [draggableTextMixin, textPathMixin],
     emits: ['update'],
     props: {
       settings: {
@@ -118,6 +133,21 @@
       transform: translate(var(--translate-x), -2px);
       animation: fracture 5s infinite ease;
     }
+  }
+
+  h1.has-path {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+
+    &::after {
+      display: none;
+    }
+  }
+
+  .path-letter {
+    display: inline-block;
+    white-space: pre;
   }
 
   @keyframes fracture {

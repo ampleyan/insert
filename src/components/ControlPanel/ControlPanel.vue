@@ -156,6 +156,25 @@
               </div>
             </div>
           </div>
+
+          <div class="collapsible-section">
+            <div class="section-header" @click="toggleSection('textPath')">
+              <span class="section-title">Text Path</span>
+              <span class="section-summary" v-if="!expanded.textPath">
+                Shape your text along curves and paths
+              </span>
+              <span class="toggle-icon">{{ expanded.textPath ? '▼' : '▶' }}</span>
+            </div>
+            <transition name="expand">
+              <div v-show="expanded.textPath" class="section-content">
+                <TextPathControls
+                  :settings="settings"
+                  @update="onUpdate"
+                />
+              </div>
+            </transition>
+          </div>
+
           <button class="add-line-button" @click="addLine">Add Line</button>
         </div>
       </template>
@@ -202,6 +221,7 @@
   import TabContainer from './TabContainer.vue';
   import EffectSelector from './EffectSelector.vue';
   import EffectSpecificControls from './EffectSpecificControls.vue';
+  import TextPathControls from './TextPathControls.vue';
   import { useSettingsStore } from '@/stores/settings';
 
   export default {
@@ -216,6 +236,7 @@
       TabContainer,
       EffectSelector,
       EffectSpecificControls,
+      TextPathControls,
     },
     emits: [
       'update',
@@ -246,6 +267,7 @@
           animation: false,
           effectSpecific: true,
           textOptions: [],
+          textPath: false,
         },
         tabs: [
           { name: 'text', label: 'Text', icon: 'T' },

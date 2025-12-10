@@ -8,7 +8,7 @@
       v-for="(text, index) in settings.textLines"
       :key="index"
       class="typewriter-text"
-      :class="{ 'draggable': settings.dragMode }"
+      :class="{ 'draggable': settings.dragMode, 'has-path': isPathEnabled(index) }"
       :style="[getTextStyle(index), getDraggableStyle(index)]"
       @mousedown="handleMouseDown($event, index)"
       @touchstart="handleTouchStart($event, index)"
@@ -26,7 +26,22 @@
         v-if="settings.dragMode"
         @click.stop="openInlineEditor(index, $event)"
       >✏</span>
-      {{ visibleText[index] }}<span class="cursor" v-if="isTyping[index]">|</span>
+
+      <template v-if="isPathEnabled(index)">
+        <span
+          v-for="(letterObj, letterIndex) in getLettersForLine(index).slice(0, visibleText[index].length)"
+          :key="`letter-${letterIndex}`"
+          class="path-letter"
+          :style="getLetterPositionStyle(index, letterIndex, getTextStyle(index))"
+        >
+          {{ letterObj.letter }}
+        </span>
+        <span class="cursor path-cursor" v-if="isTyping[index]" :style="getLetterPositionStyle(index, visibleText[index].length, getTextStyle(index))">|</span>
+      </template>
+
+      <template v-else>
+        {{ visibleText[index] }}<span class="cursor" v-if="isTyping[index]">|</span>
+      </template>
     </div>
 
     <InlineTextEditor
@@ -42,6 +57,7 @@
 
 <script>
 import draggableTextMixin from '@/mixins/draggableTextMixin';
+import textPathMixin from '@/mixins/textPathMixin';
 import InlineTextEditor from '@/components/InlineTextEditor.vue';
 
 export default {
@@ -49,7 +65,7 @@ export default {
   components: {
     InlineTextEditor,
   },
-  mixins: [draggableTextMixin],
+  mixins: [draggableTextMixin, textPathMixin],
   emits: ['update'],
   props: {
     settings: {
@@ -146,6 +162,21 @@ export default {
   font-weight: 900;
   text-transform: uppercase;
   white-space: nowrap;
+}
+
+.typewriter-text.has-path {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+}
+
+.path-letter {
+  display: inline-block;
+  white-space: pre;
+}
+
+.cursor.path-cursor {
+  display: inline-block;
 }
 
 .cursor {
