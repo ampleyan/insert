@@ -48,6 +48,7 @@
 
 <script>
 import draggableTextMixin from '@/mixins/draggableTextMixin';
+import textPathMixin from '@/mixins/textPathMixin';
 import InlineTextEditor from '@/components/InlineTextEditor.vue';
 
 export default {
@@ -55,7 +56,7 @@ export default {
   components: {
     InlineTextEditor,
   },
-  mixins: [draggableTextMixin],
+  mixins: [draggableTextMixin, textPathMixin],
   props: {
     settings: {
       type: Object,

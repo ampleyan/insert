@@ -8,7 +8,7 @@
       v-for="(text, index) in settings.textLines"
       :key="index"
       class="holographic-text"
-      :class="{ 'draggable': settings.dragMode }"
+      :class="{ 'draggable': settings.dragMode, 'has-path': isPathEnabled(index) }"
       :style="[getTextStyle(index), getDraggableStyle(index)]"
       @mousedown="handleMouseDown($event, index)"
       @touchstart="handleTouchStart($event, index)"
@@ -27,10 +27,48 @@
         v-if="settings.dragMode"
         @click.stop="openInlineEditor(index, $event)"
       >✏</span>
-      <span class="holo-layer layer-1">{{ text }}</span>
-      <span class="holo-layer layer-2">{{ text }}</span>
-      <span class="holo-layer layer-3">{{ text }}</span>
-      <span class="holo-layer layer-main">{{ text }}</span>
+
+      <template v-if="isPathEnabled(index)">
+        <span class="holo-layer layer-1">
+          <span
+            v-for="(letterObj, letterIndex) in getLettersForLine(index)"
+            :key="`letter-${letterIndex}`"
+            class="path-letter"
+            :style="getLetterPositionStyle(index, letterIndex)"
+          >{{ letterObj.letter }}</span>
+        </span>
+        <span class="holo-layer layer-2">
+          <span
+            v-for="(letterObj, letterIndex) in getLettersForLine(index)"
+            :key="`letter-${letterIndex}`"
+            class="path-letter"
+            :style="getLetterPositionStyle(index, letterIndex)"
+          >{{ letterObj.letter }}</span>
+        </span>
+        <span class="holo-layer layer-3">
+          <span
+            v-for="(letterObj, letterIndex) in getLettersForLine(index)"
+            :key="`letter-${letterIndex}`"
+            class="path-letter"
+            :style="getLetterPositionStyle(index, letterIndex)"
+          >{{ letterObj.letter }}</span>
+        </span>
+        <span class="holo-layer layer-main">
+          <span
+            v-for="(letterObj, letterIndex) in getLettersForLine(index)"
+            :key="`letter-${letterIndex}`"
+            class="path-letter"
+            :style="getLetterPositionStyle(index, letterIndex)"
+          >{{ letterObj.letter }}</span>
+        </span>
+      </template>
+
+      <template v-else>
+        <span class="holo-layer layer-1">{{ text }}</span>
+        <span class="holo-layer layer-2">{{ text }}</span>
+        <span class="holo-layer layer-3">{{ text }}</span>
+        <span class="holo-layer layer-main">{{ text }}</span>
+      </template>
     </div>
 
     <InlineTextEditor
@@ -46,6 +84,7 @@
 
 <script>
 import draggableTextMixin from '@/mixins/draggableTextMixin';
+import textPathMixin from '@/mixins/textPathMixin';
 import InlineTextEditor from '@/components/InlineTextEditor.vue';
 
 export default {
@@ -53,7 +92,7 @@ export default {
   components: {
     InlineTextEditor,
   },
-  mixins: [draggableTextMixin],
+  mixins: [draggableTextMixin, textPathMixin],
   props: {
     settings: {
       type: Object,

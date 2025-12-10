@@ -8,7 +8,7 @@
       v-for="(text, index) in settings.textLines"
       :key="index"
       class="scanlines-text"
-      :class="{ 'draggable': settings.dragMode }"
+      :class="{ 'draggable': settings.dragMode, 'has-path': isPathEnabled(index) }"
       :style="[getTextStyle(index), getDraggableStyle(index)]"
       @mousedown="handleMouseDown($event, index)"
       @touchstart="handleTouchStart($event, index)"
@@ -27,7 +27,21 @@
         v-if="settings.dragMode"
         @click.stop="openInlineEditor(index, $event)"
       >✏</span>
-      {{ text }}
+
+      <template v-if="isPathEnabled(index)">
+        <span
+          v-for="(letterObj, letterIndex) in getLettersForLine(index)"
+          :key="`letter-${letterIndex}`"
+          class="path-letter"
+          :style="getLetterPositionStyle(index, letterIndex, getTextStyle(index))"
+        >
+          {{ letterObj.letter }}
+        </span>
+      </template>
+
+      <template v-else>
+        {{ text }}
+      </template>
     </div>
 
     <InlineTextEditor
@@ -45,6 +59,7 @@
 
 <script>
 import draggableTextMixin from '@/mixins/draggableTextMixin';
+import textPathMixin from '@/mixins/textPathMixin';
 import InlineTextEditor from '@/components/InlineTextEditor.vue';
 
 export default {
@@ -52,7 +67,7 @@ export default {
   components: {
     InlineTextEditor,
   },
-  mixins: [draggableTextMixin],
+  mixins: [draggableTextMixin, textPathMixin],
   props: {
     settings: {
       type: Object,
