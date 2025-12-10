@@ -590,11 +590,17 @@ export default {
 
 select {
   width: 100%;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.9);
   border: 1px solid rgba(255, 255, 255, 0.2);
   color: white;
   padding: 8px;
   border-radius: 4px;
+}
+
+select option {
+  background: rgba(0, 0, 0, 0.95);
+  color: white;
+  padding: 8px;
 }
 
 .slider {

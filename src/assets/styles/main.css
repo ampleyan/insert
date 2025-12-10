@@ -41,3 +41,14 @@ html, body {
   color: white;
   mix-blend-mode: difference;
 }
+
+select {
+  background: rgba(0, 0, 0, 0.9);
+  color: white;
+}
+
+select option {
+  background: rgba(0, 0, 0, 0.95);
+  color: white;
+  padding: 8px;
+}

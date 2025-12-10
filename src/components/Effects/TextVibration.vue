@@ -9,9 +9,10 @@
       v-for="(text, index) in textLinesVar"
       :key="index"
       :style="[rootStyles, getDraggableStyle(index)]"
-      :class="{ 'is-paragraph': isParagraph(index), 'draggable': settings.dragMode }"
+      :class="{ 'is-paragraph': isParagraph(index), 'draggable': settings.dragMode, 'has-path': isPathEnabled(index) }"
       @mousedown="handleMouseDown($event, index)"
       @touchstart="handleTouchStart($event, index)"
+      @contextmenu="handleContextMenu($event, index)"
     >
       <span class="drag-handle" v-if="settings.dragMode">⋮⋮</span>
       <span
@@ -20,6 +21,11 @@
         @mousedown="handleResizeStart($event, index)"
         @touchstart="handleResizeStart($event, index)"
       >◢</span>
+      <span
+        class="edit-icon"
+        v-if="settings.dragMode"
+        @click.stop="openInlineEditor(index, $event)"
+      >✏</span>
 
       <template v-if="isParagraph(index)">
         <p
@@ -42,12 +48,21 @@
           v-for="(letter, letterIndex) in text.split('')"
           :key="`${index}-${letterIndex}`"
           :class="{ vibrate: isLetterVibrating(index, letterIndex) }"
-          :style="getFullStyle(index, letterIndex)"
+          :style="getFullStyle(index, letterIndex, letter)"
         >
           {{ letter }}
         </span>
       </template>
     </div>
+
+    <InlineTextEditor
+      :visible="inlineEditor.visible"
+      :lineIndex="inlineEditor.lineIndex"
+      :settings="settings"
+      :position="inlineEditor.position"
+      @update="$emit('update', $event)"
+      @close="closeInlineEditor"
+    />
   </div>
 </template>
 
@@ -55,10 +70,16 @@
 import { useTextAnimation } from '@/composables/useTextAnimation';
 import { useDraggable } from '@/composables/useDraggable';
 import { useResizable } from '@/composables/useResizable';
+import InlineTextEditor from '@/components/InlineTextEditor.vue';
+import textPathMixin from '@/mixins/textPathMixin';
 import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue';
 
 export default {
   name: 'TextVibration',
+  components: {
+    InlineTextEditor,
+  },
+  mixins: [textPathMixin],
   props: {
     settings: {
       type: Object,
@@ -66,6 +87,15 @@ export default {
     },
   },
   emits: ['update'],
+  data() {
+    return {
+      inlineEditor: {
+        visible: false,
+        lineIndex: 0,
+        position: { x: 0, y: 0 },
+      },
+    };
+  },
   setup(props, { emit }) {
     const textLinesVar = ref(props.settings.textLines);
 
@@ -196,7 +226,7 @@ export default {
     splitIntoParagraphLines(text) {
       return text.split('\n').filter((line) => line.trim());
     },
-    getFullStyle(lineIndex, letterIndex) {
+    getFullStyle(lineIndex, letterIndex, letter = '') {
       const isVibrating = this.isLetterVibrating(lineIndex, letterIndex);
       const fontSize = this.textLineFontSize[lineIndex] || this.settings.fontSize;
       const letterSpacing = `${this.settings.letterSpacing?.[lineIndex] || 0}px`;
@@ -210,7 +240,7 @@ export default {
 
       const scale = isVibrating ? 1.05 : 1;
 
-      return {
+      const baseStyle = {
         fontSize: `${fontSize}px`,
         color: this.settings.color,
         opacity: this.settings.opacity / 100,
@@ -219,6 +249,31 @@ export default {
         transition: 'all 300ms ease',
         letterSpacing,
       };
+
+      if (letter.trim() === '') {
+        return baseStyle;
+      }
+
+      return this.getLetterPositionStyle(lineIndex, letterIndex, baseStyle);
+    },
+    openInlineEditor(lineIndex, event) {
+      this.inlineEditor = {
+        visible: true,
+        lineIndex,
+        position: {
+          x: event.clientX,
+          y: event.clientY,
+        },
+      };
+    },
+    closeInlineEditor() {
+      this.inlineEditor.visible = false;
+    },
+    handleContextMenu(event, index) {
+      if (this.settings.dragMode) {
+        event.preventDefault();
+        this.openInlineEditor(index, event);
+      }
     },
     isLetterVibrating(lineIndex, letterIndex) {
       const key = `${lineIndex}-${letterIndex}`;
@@ -311,6 +366,30 @@ export default {
 
 .vibration.draggable:hover .resize-handle {
   opacity: 1;
+}
+
+.edit-icon {
+  position: absolute;
+  top: -35px;
+  right: -35px;
+  background: rgba(0, 0, 0, 0.7);
+  padding: 4px 8px;
+  border-radius: 4px;
+  opacity: 0;
+  transition: opacity 0.2s;
+  font-size: 14px;
+  cursor: pointer;
+  color: white;
+  pointer-events: all;
+  z-index: 10;
+}
+
+.vibration.draggable:hover .edit-icon {
+  opacity: 1;
+}
+
+.vibration.has-path span {
+  display: inline-block;
 }
 
 .position-guides {

@@ -29,18 +29,18 @@
 
       <template v-if="isPathEnabled(index)">
         <span
-          v-for="(letterObj, letterIndex) in getLettersForLine(index).slice(0, visibleText[index].length)"
+          v-for="(letterObj, letterIndex) in getLettersForLine(index).slice(0, (visibleText[index] || '').length)"
           :key="`letter-${letterIndex}`"
           class="path-letter"
           :style="getLetterPositionStyle(index, letterIndex, getTextStyle(index))"
         >
           {{ letterObj.letter }}
         </span>
-        <span class="cursor path-cursor" v-if="isTyping[index]" :style="getLetterPositionStyle(index, visibleText[index].length, getTextStyle(index))">|</span>
+        <span class="cursor path-cursor" v-if="isTyping[index]" :style="getLetterPositionStyle(index, (visibleText[index] || '').length, getTextStyle(index))">|</span>
       </template>
 
       <template v-else>
-        {{ visibleText[index] }}<span class="cursor" v-if="isTyping[index]">|</span>
+        {{ visibleText[index] || '' }}<span class="cursor" v-if="isTyping[index]">|</span>
       </template>
     </div>
 

@@ -10,6 +10,51 @@
     <TabContainer :tabs="tabs" default-tab="text">
       <template #effects>
         <div class="tab-section">
+          <div class="collapsible-section">
+            <div class="section-header" @click="toggleSection('color')">
+              <span class="section-title">Color Settings</span>
+              <span class="section-summary" v-if="!expanded.color">
+                {{ settings.color }}, {{ settings.opacity }}% opacity
+              </span>
+              <span class="toggle-icon">{{ expanded.color ? '▼' : '▶' }}</span>
+            </div>
+            <transition name="expand">
+              <div v-show="expanded.color" class="section-content">
+                <ColorControls @update="onUpdate" />
+              </div>
+            </transition>
+          </div>
+
+          <div class="collapsible-section">
+            <div class="section-header" @click="toggleSection('backdrop')">
+              <span class="section-title">Backdrop Filters</span>
+              <span class="section-summary" v-if="!expanded.backdrop">
+                Blur: {{ settings.backdropBlur }}px, Brightness: {{ settings.backdropBrightness }}%
+              </span>
+              <span class="toggle-icon">{{ expanded.backdrop ? '▼' : '▶' }}</span>
+            </div>
+            <transition name="expand">
+              <div v-show="expanded.backdrop" class="section-content">
+                <BackdropControls @update="onUpdate" />
+              </div>
+            </transition>
+          </div>
+
+          <div class="collapsible-section">
+            <div class="section-header" @click="toggleSection('blend')">
+              <span class="section-title">Blend Settings</span>
+              <span class="section-summary" v-if="!expanded.blend">
+                {{ settings.blendMode }}
+              </span>
+              <span class="toggle-icon">{{ expanded.blend ? '▼' : '▶' }}</span>
+            </div>
+            <transition name="expand">
+              <div v-show="expanded.blend" class="section-content">
+                <BlendControls @update="onUpdate" />
+              </div>
+            </transition>
+          </div>
+
           <EffectSelector :settings="settings" @update="onUpdate" />
 
           <div class="collapsible-section">
@@ -24,23 +69,6 @@
                   :settings="settings"
                   @update="onUpdate"
                 />
-              </div>
-            </transition>
-          </div>
-
-          <BlendControls @update="onUpdate" />
-
-          <div class="collapsible-section">
-            <div class="section-header" @click="toggleSection('animation')">
-              <span class="section-title">Animation Settings</span>
-              <span class="section-summary" v-if="!expanded.animation">
-                Speed: {{ settings.vibrateSpeed }}ms, Intensity: {{ settings.vibrateIntensity }}x
-              </span>
-              <span class="toggle-icon">{{ expanded.animation ? '▼' : '▶' }}</span>
-            </div>
-            <transition name="expand">
-              <div v-show="expanded.animation" class="section-content">
-                <AnimationControls @update="onUpdate" />
               </div>
             </transition>
           </div>
@@ -179,27 +207,6 @@
         </div>
       </template>
 
-      <template #appearance>
-        <div class="tab-section">
-          <ColorControls @update="onUpdate" />
-
-          <div class="collapsible-section">
-            <div class="section-header" @click="toggleSection('backdrop')">
-              <span class="section-title">Backdrop Filters</span>
-              <span class="section-summary" v-if="!expanded.backdrop">
-                Blur: {{ settings.backdropBlur }}px, Brightness: {{ settings.backdropBrightness }}%
-              </span>
-              <span class="toggle-icon">{{ expanded.backdrop ? '▼' : '▶' }}</span>
-            </div>
-            <transition name="expand">
-              <div v-show="expanded.backdrop" class="section-content">
-                <BackdropControls @update="onUpdate" />
-              </div>
-            </transition>
-          </div>
-        </div>
-      </template>
-
       <template #settings>
         <div class="tab-section">
           <VideoLayerControls />
@@ -214,7 +221,6 @@
 <script>
   import BlendControls from './BlendControls.vue';
   import ColorControls from './ColorControls.vue';
-  import AnimationControls from './AnimationControls.vue';
   import BackdropControls from './BackdropFilterControls.vue';
   import RecordingControls from './RecordingControls.vue';
   import VideoLayerControls from '../VideoLayerControls.vue';
@@ -229,7 +235,6 @@
     components: {
       BlendControls,
       ColorControls,
-      AnimationControls,
       BackdropControls,
       RecordingControls,
       VideoLayerControls,
@@ -263,8 +268,9 @@
         audioUrl: '',
         isAudioMuted: false,
         expanded: {
+          color: false,
           backdrop: false,
-          animation: false,
+          blend: false,
           effectSpecific: true,
           textOptions: [],
           textPath: false,
@@ -272,7 +278,6 @@
         tabs: [
           { name: 'text', label: 'Text', icon: 'T' },
           { name: 'effects', label: 'Effects', icon: '✨' },
-          { name: 'appearance', label: 'Style', icon: '🎨' },
           { name: 'settings', label: 'Settings', icon: '⚙' },
         ],
       };

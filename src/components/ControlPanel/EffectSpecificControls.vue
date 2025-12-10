@@ -66,6 +66,11 @@ const EFFECT_CONFIGS = {
   vibration: {
     name: 'Vibration',
     controls: [
+      { key: 'vibrateSpeed', label: 'Animation Speed', type: 'range', min: 10, max: 500, unit: 'ms', global: true },
+      { key: 'vibrateIntensity', label: 'Intensity', type: 'range', min: 1, max: 10, unit: 'x', global: true },
+      { key: 'blurAmount', label: 'Blur Amount', type: 'range', min: 0, max: 10, step: 0.5, unit: 'px', global: true },
+      { key: 'globalRandomAmount', label: 'Random Letters', type: 'range', min: 1, max: 100, unit: '%', global: true },
+      { key: 'intervalSpeed', label: 'Effect Interval', type: 'range', min: 50, max: 1000, unit: 'ms', global: true },
       { key: 'jitterMode', label: 'Jitter Mode', type: 'select', options: [
         { value: 'random', label: 'Random' },
         { value: 'smooth', label: 'Smooth' },
@@ -339,13 +344,22 @@ export default {
   },
   methods: {
     getCurrentValue(key) {
+      const control = this.effectConfig?.controls.find(c => c.key === key);
+      if (control?.global) {
+        return this.settings[key];
+      }
       const effectSettings = this.settings[this.effectType];
       return effectSettings?.[key];
     },
     updateValue(key, value) {
-      const effectSettings = { ...this.settings[this.effectType] };
-      effectSettings[key] = value;
-      this.$emit('update', { [this.effectType]: effectSettings });
+      const control = this.effectConfig?.controls.find(c => c.key === key);
+      if (control?.global) {
+        this.$emit('update', { [key]: value });
+      } else {
+        const effectSettings = { ...this.settings[this.effectType] };
+        effectSettings[key] = value;
+        this.$emit('update', { [this.effectType]: effectSettings });
+      }
     },
   },
 };
