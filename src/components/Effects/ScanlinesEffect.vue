@@ -1,5 +1,5 @@
 <template>
-  <div class="split-container">
+  <div class="scanlines-container">
     <div class="position-guides" v-if="settings.dragMode">
       <div class="position-guide x-axis"></div>
       <div class="position-guide y-axis"></div>
@@ -7,12 +7,13 @@
     <div
       v-for="(text, index) in settings.textLines"
       :key="index"
-      class="split-text"
+      class="scanlines-text"
       :class="{ 'draggable': settings.dragMode }"
       :style="[getTextStyle(index), getDraggableStyle(index)]"
       @mousedown="handleMouseDown($event, index)"
       @touchstart="handleTouchStart($event, index)"
       @contextmenu="handleContextMenu($event, index)"
+      v-memo="[text, settings.fontSize[index], settings.color, settings.blendMode]"
     >
       <span class="drag-handle" v-if="settings.dragMode">⋮⋮</span>
       <span
@@ -26,14 +27,7 @@
         v-if="settings.dragMode"
         @click.stop="openInlineEditor(index, $event)"
       >✏</span>
-      <span
-        v-for="(letter, letterIndex) in text.split('')"
-        :key="`${index}-${letterIndex}`"
-        class="split-letter"
-        :style="getLetterStyle(letterIndex)"
-      >
-        {{ letter }}
-      </span>
+      {{ text }}
     </div>
 
     <InlineTextEditor
@@ -44,6 +38,8 @@
       @update="$emit('update', $event)"
       @close="closeInlineEditor"
     />
+    <div class="scanlines-overlay"></div>
+    <div class="vhs-noise"></div>
   </div>
 </template>
 
@@ -52,12 +48,11 @@ import draggableTextMixin from '@/mixins/draggableTextMixin';
 import InlineTextEditor from '@/components/InlineTextEditor.vue';
 
 export default {
-  name: 'SplitText',
+  name: 'ScanlinesEffect',
   components: {
     InlineTextEditor,
   },
   mixins: [draggableTextMixin],
-  emits: ['update'],
   props: {
     settings: {
       type: Object,
@@ -71,17 +66,12 @@ export default {
 
       return {
         fontSize: `${fontSize}px`,
+        color: this.settings.color,
+        opacity: this.settings.opacity / 100,
         letterSpacing: `${letterSpacing}px`,
         mixBlendMode: this.settings.blendMode,
         filter: `hue-rotate(${this.settings.hue}deg)`,
-      };
-    },
-    getLetterStyle(index) {
-      const delay = index * 0.1;
-      return {
-        animationDelay: `${delay}s`,
-        color: this.settings.color,
-        opacity: this.settings.opacity / 100,
+        '--glitch-intensity': `${this.settings.vibrateIntensity}px`,
       };
     },
   },
@@ -89,40 +79,101 @@ export default {
 </script>
 
 <style scoped>
-.split-container {
+.scanlines-container {
+  position: relative;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   height: 100vh;
   text-align: center;
+  overflow: hidden;
+  transform: translateZ(0);
 }
 
-.split-text {
+.scanlines-text {
+  position: relative;
   font-weight: 900;
   text-transform: uppercase;
-  perspective: 1000px;
+  will-change: transform;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  animation: vhs-distort 0.3s infinite;
 }
 
-.split-letter {
-  display: inline-block;
-  animation: split-reveal 1s ease forwards;
-  transform: translateY(100px) rotateX(-90deg);
-  opacity: 0;
+.scanlines-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(0, 0, 0, 0.15),
+    rgba(0, 0, 0, 0.15) 1px,
+    transparent 1px,
+    transparent 2px
+  );
+  pointer-events: none;
+  z-index: 1;
+  animation: scanlines-move 8s linear infinite;
 }
 
-@keyframes split-reveal {
-  to {
-    transform: translateY(0) rotateX(0deg);
-    opacity: 1;
+.vhs-noise {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><filter id="noise"><feTurbulence baseFrequency="0.9" numOctaves="4" /></filter><rect width="100%" height="100%" filter="url(%23noise)" opacity="0.05"/></svg>');
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0.3;
+  animation: noise 0.2s infinite;
+}
+
+@keyframes scanlines-move {
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(4px);
   }
 }
 
-.split-text.draggable {
+@keyframes vhs-distort {
+  0% {
+    transform: skewX(0deg);
+    text-shadow: 2px 0 #ff0000, -2px 0 #00ffff;
+  }
+  25% {
+    transform: skewX(0.5deg);
+    text-shadow: 3px 0 #ff0000, -3px 0 #00ffff;
+  }
+  50% {
+    transform: skewX(-0.5deg);
+    text-shadow: 2px 0 #ff0000, -2px 0 #00ffff;
+  }
+  75% {
+    transform: skewX(0.3deg);
+    text-shadow: 4px 0 #ff0000, -4px 0 #00ffff;
+  }
+  100% {
+    transform: skewX(0deg);
+    text-shadow: 2px 0 #ff0000, -2px 0 #00ffff;
+  }
+}
+
+@keyframes noise {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 0.4; }
+}
+
+.scanlines-text.draggable {
   transition: none;
 }
 
-.split-text.draggable:hover {
+.scanlines-text.draggable:hover {
   outline: 2px dashed rgba(255, 255, 255, 0.3);
   outline-offset: 10px;
 }
@@ -144,7 +195,7 @@ export default {
   z-index: 10;
 }
 
-.split-text.draggable:hover .drag-handle {
+.scanlines-text.draggable:hover .drag-handle {
   opacity: 1;
 }
 
@@ -164,7 +215,7 @@ export default {
   z-index: 10;
 }
 
-.split-text.draggable:hover .resize-handle {
+.scanlines-text.draggable:hover .resize-handle {
   opacity: 1;
 }
 
@@ -184,7 +235,7 @@ export default {
   z-index: 10;
 }
 
-.split-text.draggable:hover .edit-icon {
+.scanlines-text.draggable:hover .edit-icon {
   opacity: 1;
 }
 

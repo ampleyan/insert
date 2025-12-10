@@ -24,28 +24,33 @@
         :settings="settingsStore.$state"
         @update="onUpdate"
       />
-      <GlitchEffect v-if="settingsStore.effectType === 'glitch'" :settings="settingsStore.$state" />
-      <WaveEffect v-if="settingsStore.effectType === 'wave'" :settings="settingsStore.$state" />
+      <GlitchEffect v-if="settingsStore.effectType === 'glitch'" :settings="settingsStore.$state" @update="onUpdate" />
+      <WaveEffect v-if="settingsStore.effectType === 'wave'" :settings="settingsStore.$state" @update="onUpdate" />
       <ParticleBurst
         v-if="settingsStore.effectType === 'particle'"
         :settings="settingsStore.$state"
+        @update="onUpdate"
       />
       <Rotation3D
         v-if="settingsStore.effectType === 'rotation3d'"
         :settings="settingsStore.$state"
+        @update="onUpdate"
       />
-      <NeonGlow v-if="settingsStore.effectType === 'neon'" :settings="settingsStore.$state" />
+      <NeonGlow v-if="settingsStore.effectType === 'neon'" :settings="settingsStore.$state" @update="onUpdate" />
       <LiquidDistortion
         v-if="settingsStore.effectType === 'liquid'"
         :settings="settingsStore.$state"
+        @update="onUpdate"
       />
       <TypewriterEffect
         v-if="settingsStore.effectType === 'typewriter'"
         :settings="settingsStore.$state"
+        @update="onUpdate"
       />
       <ChromaticAberration
         v-if="settingsStore.effectType === 'chromatic'"
         :settings="settingsStore.$state"
+        @update="onUpdate"
       />
       <TextDistort
         v-if="settingsStore.effectType === 'goo'"
@@ -56,19 +61,46 @@
         fontSize="12vw"
         color="#ff0"
       />
-      <SplitText v-if="settingsStore.effectType === 'split'" :settings="settingsStore.$state" />
-      <WavyText v-if="settingsStore.effectType === 'wavy'" :settings="settingsStore.$state" />
+      <SplitText v-if="settingsStore.effectType === 'split'" :settings="settingsStore.$state" @update="onUpdate" />
+      <WavyText v-if="settingsStore.effectType === 'wavy'" :settings="settingsStore.$state" @update="onUpdate" />
       <FlickerText
         v-if="settingsStore.effectType === 'flicker'"
         :settings="settingsStore.$state"
+        @update="onUpdate"
       />
-      <StrokeText v-if="settingsStore.effectType === 'stroke'" :settings="settingsStore.$state" />
+      <StrokeText v-if="settingsStore.effectType === 'stroke'" :settings="settingsStore.$state" @update="onUpdate" />
       <GradientText
         v-if="settingsStore.effectType === 'gradient'"
         :settings="settingsStore.$state"
+        @update="onUpdate"
+      />
+      <ScanlinesEffect
+        v-if="settingsStore.effectType === 'scanlines'"
+        :settings="settingsStore.$state"
+        @update="onUpdate"
+      />
+      <HolographicEffect
+        v-if="settingsStore.effectType === 'holographic'"
+        :settings="settingsStore.$state"
+        @update="onUpdate"
+      />
+      <PerspectiveEffect
+        v-if="settingsStore.effectType === 'perspective'"
+        :settings="settingsStore.$state"
+        @update="onUpdate"
+      />
+      <ShatterEffect
+        v-if="settingsStore.effectType === 'shatter'"
+        :settings="settingsStore.$state"
+        @update="onUpdate"
       />
     </ErrorBoundary>
 
+    <QuickActionsBar
+      @reset="resetToDefaults"
+      @show-presets="showPresetsModal = true"
+      @save-preset="showSavePresetModal = true"
+    />
   </div>
 </template>
 
@@ -90,14 +122,22 @@ import WavyText from './components/Effects/WavyText.vue';
 import FlickerText from './components/Effects/FlickerText.vue';
 import StrokeText from './components/Effects/StrokeText.vue';
 import GradientText from './components/Effects/GradientText.vue';
+import ScanlinesEffect from './components/Effects/ScanlinesEffect.vue';
+import HolographicEffect from './components/Effects/HolographicEffect.vue';
+import PerspectiveEffect from './components/Effects/PerspectiveEffect.vue';
+import ShatterEffect from './components/Effects/ShatterEffect.vue';
 import ErrorBoundary from './components/ErrorBoundary.vue';
+import QuickActionsBar from './components/QuickActionsBar.vue';
 import { useSettingsStore } from './stores/settings';
+import { useHistoryStore } from './stores/history';
+import { usePresetsStore } from './stores/presets';
 
 export default {
   name: 'App',
   components: {
     VideoBackground,
     ControlPanel,
+    QuickActionsBar,
     TextVibration,
     TextDistort,
     GlitchEffect,
@@ -113,6 +153,10 @@ export default {
     FlickerText,
     StrokeText,
     GradientText,
+    ScanlinesEffect,
+    HolographicEffect,
+    PerspectiveEffect,
+    ShatterEffect,
     ErrorBoundary,
   },
   data() {
@@ -124,12 +168,19 @@ export default {
     return {
       ...JSON.parse(storedState || JSON.stringify(defaultState)),
       isShortcutHintVisible: false,
+      showPresetsModal: false,
+      showSavePresetModal: false,
     };
   },
   setup() {
     const settingsStore = useSettingsStore();
+    const historyStore = useHistoryStore();
+    const presetsStore = usePresetsStore();
+
     settingsStore.loadFromLocalStorage();
-    return { settingsStore };
+    presetsStore.loadFromLocalStorage();
+
+    return { settingsStore, historyStore, presetsStore };
   },
   mounted() {
     document.addEventListener('dblclick', this.handleDoubleClick);
@@ -153,6 +204,7 @@ export default {
       this.isControlsHidden = false;
     },
     onUpdate(val) {
+      this.historyStore.recordState(this.settingsStore.$state);
       this.settingsStore.updateSettings(val);
     },
 
@@ -168,6 +220,26 @@ export default {
     handleKeyDown(e) {
       if (e.key === 'h' || e.key === 'H') {
         this.toggleControls();
+      }
+
+      if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
+        e.preventDefault();
+        this.historyStore.undo(this.settingsStore);
+      }
+
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'z') {
+        e.preventDefault();
+        this.historyStore.redo(this.settingsStore);
+      }
+
+      const effectMap = {
+        '1': 'vibration', '2': 'glitch', '3': 'wave', '4': 'particle',
+        '5': 'rotation3d', '6': 'neon', '7': 'liquid', '8': 'typewriter',
+        '9': 'chromatic'
+      };
+
+      if (effectMap[e.key]) {
+        this.settingsStore.updateSettings({ effectType: effectMap[e.key] });
       }
     },
     showShortcutHint() {
@@ -227,5 +299,15 @@ export default {
 
 .shortcut-hint.visible {
   opacity: 1;
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
 }
 </style>

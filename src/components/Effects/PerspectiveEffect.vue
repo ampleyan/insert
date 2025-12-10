@@ -1,5 +1,5 @@
 <template>
-  <div class="split-container">
+  <div class="perspective-container">
     <div class="position-guides" v-if="settings.dragMode">
       <div class="position-guide x-axis"></div>
       <div class="position-guide y-axis"></div>
@@ -7,12 +7,13 @@
     <div
       v-for="(text, index) in settings.textLines"
       :key="index"
-      class="split-text"
+      class="perspective-text"
       :class="{ 'draggable': settings.dragMode }"
-      :style="[getTextStyle(index), getDraggableStyle(index)]"
+      :style="[getTextStyle(index), getDraggableStyle(index), getPerspectiveStyle()]"
       @mousedown="handleMouseDown($event, index)"
       @touchstart="handleTouchStart($event, index)"
       @contextmenu="handleContextMenu($event, index)"
+      v-memo="[text, settings.fontSize[index], settings.color, settings.blendMode]"
     >
       <span class="drag-handle" v-if="settings.dragMode">⋮⋮</span>
       <span
@@ -26,14 +27,7 @@
         v-if="settings.dragMode"
         @click.stop="openInlineEditor(index, $event)"
       >✏</span>
-      <span
-        v-for="(letter, letterIndex) in text.split('')"
-        :key="`${index}-${letterIndex}`"
-        class="split-letter"
-        :style="getLetterStyle(letterIndex)"
-      >
-        {{ letter }}
-      </span>
+      {{ text }}
     </div>
 
     <InlineTextEditor
@@ -52,17 +46,22 @@ import draggableTextMixin from '@/mixins/draggableTextMixin';
 import InlineTextEditor from '@/components/InlineTextEditor.vue';
 
 export default {
-  name: 'SplitText',
+  name: 'PerspectiveEffect',
   components: {
     InlineTextEditor,
   },
   mixins: [draggableTextMixin],
-  emits: ['update'],
   props: {
     settings: {
       type: Object,
       required: true,
     },
+  },
+  data() {
+    return {
+      mouseX: 0,
+      mouseY: 0,
+    };
   },
   methods: {
     getTextStyle(index) {
@@ -71,58 +70,84 @@ export default {
 
       return {
         fontSize: `${fontSize}px`,
+        color: this.settings.color,
+        opacity: this.settings.opacity / 100,
         letterSpacing: `${letterSpacing}px`,
         mixBlendMode: this.settings.blendMode,
         filter: `hue-rotate(${this.settings.hue}deg)`,
       };
     },
-    getLetterStyle(index) {
-      const delay = index * 0.1;
+    getPerspectiveStyle() {
+      const intensity = this.settings.vibrateIntensity || 10;
+      const rotateX = (this.mouseY - 0.5) * intensity;
+      const rotateY = (this.mouseX - 0.5) * -intensity;
+
       return {
-        animationDelay: `${delay}s`,
-        color: this.settings.color,
-        opacity: this.settings.opacity / 100,
+        transform: `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateZ(0)`,
       };
+    },
+    updateMousePosition(event) {
+      const rect = this.$el.getBoundingClientRect();
+      const x = event.clientX - rect.left;
+      const y = event.clientY - rect.top;
+      this.mouseX = x / rect.width;
+      this.mouseY = y / rect.height;
+    },
+    handleMouseMove(event) {
+      this.updateMousePosition(event);
+      if (!this.settings.dragMode) return;
+      if (this.resizing.active) {
+        this.onResize(event, this.settings.fontSize);
+      } else {
+        this.onDrag(event, this.settings.margin, this.settings.marginTop, true);
+      }
+    },
+    handleTouchMove(event) {
+      if (event.touches.length > 0) {
+        const touch = event.touches[0];
+        this.updateMousePosition(touch);
+      }
+      if (!this.settings.dragMode) return;
+      if (this.resizing.active) {
+        this.onResize(event, this.settings.fontSize);
+      } else {
+        this.onDrag(event, this.settings.margin, this.settings.marginTop, true);
+      }
     },
   },
 };
 </script>
 
 <style scoped>
-.split-container {
+.perspective-container {
+  position: relative;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   height: 100vh;
   text-align: center;
+  overflow: hidden;
+  perspective: 1000px;
+  transform: translateZ(0);
 }
 
-.split-text {
+.perspective-text {
+  position: relative;
   font-weight: 900;
   text-transform: uppercase;
-  perspective: 1000px;
+  will-change: transform;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  transition: transform 0.1s ease-out;
+  transform-style: preserve-3d;
 }
 
-.split-letter {
-  display: inline-block;
-  animation: split-reveal 1s ease forwards;
-  transform: translateY(100px) rotateX(-90deg);
-  opacity: 0;
-}
-
-@keyframes split-reveal {
-  to {
-    transform: translateY(0) rotateX(0deg);
-    opacity: 1;
-  }
-}
-
-.split-text.draggable {
+.perspective-text.draggable {
   transition: none;
 }
 
-.split-text.draggable:hover {
+.perspective-text.draggable:hover {
   outline: 2px dashed rgba(255, 255, 255, 0.3);
   outline-offset: 10px;
 }
@@ -144,7 +169,7 @@ export default {
   z-index: 10;
 }
 
-.split-text.draggable:hover .drag-handle {
+.perspective-text.draggable:hover .drag-handle {
   opacity: 1;
 }
 
@@ -164,7 +189,7 @@ export default {
   z-index: 10;
 }
 
-.split-text.draggable:hover .resize-handle {
+.perspective-text.draggable:hover .resize-handle {
   opacity: 1;
 }
 
@@ -184,7 +209,7 @@ export default {
   z-index: 10;
 }
 
-.split-text.draggable:hover .edit-icon {
+.perspective-text.draggable:hover .edit-icon {
   opacity: 1;
 }
 

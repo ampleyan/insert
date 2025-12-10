@@ -10,26 +10,7 @@
     <TabContainer :tabs="tabs" default-tab="effects">
       <template #effects>
         <div class="tab-section">
-          <div class="control-group">
-            <label class="control-label">Effect Type</label>
-            <select v-model="settings.effectType" @change="onEffectChoice(settings)" class="effect-select">
-              <option value="vibration">Vibration</option>
-              <option value="glitch">Glitch</option>
-              <option value="wave">Wave</option>
-              <option value="particle">Particle Burst</option>
-              <option value="rotation3d">3D Rotation</option>
-              <option value="neon">Neon Glow</option>
-              <option value="liquid">Liquid Distortion</option>
-              <option value="typewriter">Typewriter</option>
-              <option value="chromatic">Chromatic Aberration</option>
-              <option value="goo">SVG Distort</option>
-              <option value="split">Split Text</option>
-              <option value="wavy">Wavy Text</option>
-              <option value="flicker">Flicker Text</option>
-              <option value="stroke">Stroke Text</option>
-              <option value="gradient">Gradient Text</option>
-            </select>
-          </div>
+          <EffectSelector :settings="settings" @update="onUpdate" />
 
           <BlendControls @update="onUpdate" />
 
@@ -203,6 +184,7 @@
   import RecordingControls from './RecordingControls.vue';
   import VideoLayerControls from '../VideoLayerControls.vue';
   import TabContainer from './TabContainer.vue';
+  import EffectSelector from './EffectSelector.vue';
   import { useSettingsStore } from '@/stores/settings';
 
   export default {
@@ -215,6 +197,7 @@
       RecordingControls,
       VideoLayerControls,
       TabContainer,
+      EffectSelector,
     },
     emits: [
       'update',
@@ -271,7 +254,7 @@
         this.expanded[section] = !this.expanded[section];
       },
       toggleTextOptions(index) {
-        this.$set(this.expanded.textOptions, index, !this.expanded.textOptions[index]);
+        this.expanded.textOptions[index] = !this.expanded.textOptions[index];
       },
       handleReset() {
         if (confirm('Are you sure you want to reset all settings to defaults?')) {

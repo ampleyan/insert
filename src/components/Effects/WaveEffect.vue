@@ -1,5 +1,5 @@
 <template>
-  <div class="wave-container" @mousemove="handleMouseMove" @touchmove="handleTouchMove">
+  <div class="wave-container">
     <div class="position-guides" v-if="settings.dragMode">
       <div class="position-guide x-axis"></div>
       <div class="position-guide y-axis"></div>
@@ -12,6 +12,7 @@
       :style="[getLineStyle(lineIndex), getDraggableStyle(lineIndex)]"
       @mousedown="handleMouseDown($event, lineIndex)"
       @touchstart="handleTouchStart($event, lineIndex)"
+      @contextmenu="handleContextMenu($event, lineIndex)"
     >
       <span class="drag-handle" v-if="settings.dragMode">⋮⋮</span>
       <span
@@ -21,6 +22,11 @@
         @touchstart="handleResizeStart($event, lineIndex)"
       >◢</span>
       <span
+        class="edit-icon"
+        v-if="settings.dragMode"
+        @click.stop="openInlineEditor(lineIndex, $event)"
+      >✏</span>
+      <span
         v-for="(letter, letterIndex) in text.split('')"
         :key="`${lineIndex}-${letterIndex}`"
         class="wave-letter"
@@ -29,14 +35,27 @@
         {{ letter }}
       </span>
     </div>
+
+    <InlineTextEditor
+      :visible="inlineEditor.visible"
+      :lineIndex="inlineEditor.lineIndex"
+      :settings="settings"
+      :position="inlineEditor.position"
+      @update="$emit('update', $event)"
+      @close="closeInlineEditor"
+    />
   </div>
 </template>
 
 <script>
 import draggableTextMixin from '@/mixins/draggableTextMixin';
+import InlineTextEditor from '@/components/InlineTextEditor.vue';
 
 export default {
   name: 'WaveEffect',
+  components: {
+    InlineTextEditor,
+  },
   mixins: [draggableTextMixin],
   emits: ['update'],
   props: {
@@ -168,6 +187,26 @@ export default {
 }
 
 .wave-text.draggable:hover .resize-handle {
+  opacity: 1;
+}
+
+.edit-icon {
+  position: absolute;
+  top: -35px;
+  right: -35px;
+  background: rgba(0, 0, 0, 0.7);
+  padding: 4px 8px;
+  border-radius: 4px;
+  opacity: 0;
+  transition: opacity 0.2s;
+  font-size: 14px;
+  cursor: pointer;
+  color: white;
+  pointer-events: all;
+  z-index: 10;
+}
+
+.wave-text.draggable:hover .edit-icon {
   opacity: 1;
 }
 

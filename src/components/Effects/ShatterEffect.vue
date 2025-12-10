@@ -1,5 +1,5 @@
 <template>
-  <div class="split-container">
+  <div class="shatter-container">
     <div class="position-guides" v-if="settings.dragMode">
       <div class="position-guide x-axis"></div>
       <div class="position-guide y-axis"></div>
@@ -7,12 +7,13 @@
     <div
       v-for="(text, index) in settings.textLines"
       :key="index"
-      class="split-text"
+      class="shatter-text"
       :class="{ 'draggable': settings.dragMode }"
       :style="[getTextStyle(index), getDraggableStyle(index)]"
       @mousedown="handleMouseDown($event, index)"
       @touchstart="handleTouchStart($event, index)"
       @contextmenu="handleContextMenu($event, index)"
+      v-memo="[text, settings.fontSize[index], settings.color, settings.blendMode]"
     >
       <span class="drag-handle" v-if="settings.dragMode">⋮⋮</span>
       <span
@@ -27,13 +28,11 @@
         @click.stop="openInlineEditor(index, $event)"
       >✏</span>
       <span
-        v-for="(letter, letterIndex) in text.split('')"
-        :key="`${index}-${letterIndex}`"
-        class="split-letter"
-        :style="getLetterStyle(letterIndex)"
-      >
-        {{ letter }}
-      </span>
+        v-for="(char, charIndex) in text"
+        :key="charIndex"
+        class="shatter-fragment"
+        :style="getFragmentStyle(charIndex)"
+      >{{ char }}</span>
     </div>
 
     <InlineTextEditor
@@ -52,12 +51,11 @@ import draggableTextMixin from '@/mixins/draggableTextMixin';
 import InlineTextEditor from '@/components/InlineTextEditor.vue';
 
 export default {
-  name: 'SplitText',
+  name: 'ShatterEffect',
   components: {
     InlineTextEditor,
   },
   mixins: [draggableTextMixin],
-  emits: ['update'],
   props: {
     settings: {
       type: Object,
@@ -71,17 +69,28 @@ export default {
 
       return {
         fontSize: `${fontSize}px`,
+        color: this.settings.color,
+        opacity: this.settings.opacity / 100,
         letterSpacing: `${letterSpacing}px`,
         mixBlendMode: this.settings.blendMode,
         filter: `hue-rotate(${this.settings.hue}deg)`,
       };
     },
-    getLetterStyle(index) {
-      const delay = index * 0.1;
+    getFragmentStyle(index) {
+      const intensity = this.settings.vibrateIntensity || 5;
+      const randomX = (Math.sin(index * 12.9898) * 43758.5453123) % 1;
+      const randomY = (Math.cos(index * 78.233) * 43758.5453123) % 1;
+      const randomRotate = (Math.sin(index * 45.234) * 43758.5453123) % 1;
+
+      const translateX = (randomX - 0.5) * intensity * 2;
+      const translateY = (randomY - 0.5) * intensity * 2;
+      const rotate = (randomRotate - 0.5) * intensity * 10;
+
       return {
-        animationDelay: `${delay}s`,
-        color: this.settings.color,
-        opacity: this.settings.opacity / 100,
+        '--fragment-x': `${translateX}px`,
+        '--fragment-y': `${translateY}px`,
+        '--fragment-rotate': `${rotate}deg`,
+        '--fragment-delay': `${index * 0.05}s`,
       };
     },
   },
@@ -89,40 +98,54 @@ export default {
 </script>
 
 <style scoped>
-.split-container {
+.shatter-container {
+  position: relative;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   height: 100vh;
   text-align: center;
+  overflow: hidden;
+  transform: translateZ(0);
 }
 
-.split-text {
+.shatter-text {
+  position: relative;
   font-weight: 900;
   text-transform: uppercase;
-  perspective: 1000px;
+  will-change: transform;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  display: flex;
+  white-space: pre;
 }
 
-.split-letter {
+.shatter-fragment {
   display: inline-block;
-  animation: split-reveal 1s ease forwards;
-  transform: translateY(100px) rotateX(-90deg);
-  opacity: 0;
+  will-change: transform;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  animation: shatter 2s ease-in-out infinite;
+  animation-delay: var(--fragment-delay);
 }
 
-@keyframes split-reveal {
-  to {
-    transform: translateY(0) rotateX(0deg);
-    opacity: 1;
+@keyframes shatter {
+  0%, 100% {
+    transform: translate(0, 0) rotate(0deg);
+    filter: blur(0px);
+  }
+  50% {
+    transform: translate(var(--fragment-x), var(--fragment-y)) rotate(var(--fragment-rotate));
+    filter: blur(1px);
   }
 }
 
-.split-text.draggable {
+.shatter-text.draggable {
   transition: none;
 }
 
-.split-text.draggable:hover {
+.shatter-text.draggable:hover {
   outline: 2px dashed rgba(255, 255, 255, 0.3);
   outline-offset: 10px;
 }
@@ -144,7 +167,7 @@ export default {
   z-index: 10;
 }
 
-.split-text.draggable:hover .drag-handle {
+.shatter-text.draggable:hover .drag-handle {
   opacity: 1;
 }
 
@@ -164,7 +187,7 @@ export default {
   z-index: 10;
 }
 
-.split-text.draggable:hover .resize-handle {
+.shatter-text.draggable:hover .resize-handle {
   opacity: 1;
 }
 
@@ -184,7 +207,7 @@ export default {
   z-index: 10;
 }
 
-.split-text.draggable:hover .edit-icon {
+.shatter-text.draggable:hover .edit-icon {
   opacity: 1;
 }
 

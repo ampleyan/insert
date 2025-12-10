@@ -1,5 +1,5 @@
 <template>
-  <div class="stroke-container" @mousemove="handleMouseMove" @touchmove="handleTouchMove">
+  <div class="stroke-container">
     <div class="position-guides" v-if="settings.dragMode">
       <div class="position-guide x-axis"></div>
       <div class="position-guide y-axis"></div>
@@ -13,6 +13,7 @@
       :data-text="text"
       @mousedown="handleMouseDown($event, index)"
       @touchstart="handleTouchStart($event, index)"
+      @contextmenu="handleContextMenu($event, index)"
     >
       <span class="drag-handle" v-if="settings.dragMode">⋮⋮</span>
       <span
@@ -21,16 +22,34 @@
         @mousedown="handleResizeStart($event, index)"
         @touchstart="handleResizeStart($event, index)"
       >◢</span>
+      <span
+        class="edit-icon"
+        v-if="settings.dragMode"
+        @click.stop="openInlineEditor(index, $event)"
+      >✏</span>
       {{ text }}
     </div>
+
+    <InlineTextEditor
+      :visible="inlineEditor.visible"
+      :lineIndex="inlineEditor.lineIndex"
+      :settings="settings"
+      :position="inlineEditor.position"
+      @update="$emit('update', $event)"
+      @close="closeInlineEditor"
+    />
   </div>
 </template>
 
 <script>
 import draggableTextMixin from '@/mixins/draggableTextMixin';
+import InlineTextEditor from '@/components/InlineTextEditor.vue';
 
 export default {
   name: 'StrokeText',
+  components: {
+    InlineTextEditor,
+  },
   mixins: [draggableTextMixin],
   emits: ['update'],
   props: {
@@ -145,6 +164,26 @@ export default {
 }
 
 .stroke-text.draggable:hover .resize-handle {
+  opacity: 1;
+}
+
+.edit-icon {
+  position: absolute;
+  top: -35px;
+  right: -35px;
+  background: rgba(0, 0, 0, 0.7);
+  padding: 4px 8px;
+  border-radius: 4px;
+  opacity: 0;
+  transition: opacity 0.2s;
+  font-size: 14px;
+  cursor: pointer;
+  color: white;
+  pointer-events: all;
+  z-index: 10;
+}
+
+.stroke-text.draggable:hover .edit-icon {
   opacity: 1;
 }
 

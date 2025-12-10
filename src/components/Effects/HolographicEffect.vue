@@ -1,5 +1,5 @@
 <template>
-  <div class="split-container">
+  <div class="holographic-container">
     <div class="position-guides" v-if="settings.dragMode">
       <div class="position-guide x-axis"></div>
       <div class="position-guide y-axis"></div>
@@ -7,12 +7,13 @@
     <div
       v-for="(text, index) in settings.textLines"
       :key="index"
-      class="split-text"
+      class="holographic-text"
       :class="{ 'draggable': settings.dragMode }"
       :style="[getTextStyle(index), getDraggableStyle(index)]"
       @mousedown="handleMouseDown($event, index)"
       @touchstart="handleTouchStart($event, index)"
       @contextmenu="handleContextMenu($event, index)"
+      v-memo="[text, settings.fontSize[index], settings.color, settings.blendMode]"
     >
       <span class="drag-handle" v-if="settings.dragMode">⋮⋮</span>
       <span
@@ -26,14 +27,10 @@
         v-if="settings.dragMode"
         @click.stop="openInlineEditor(index, $event)"
       >✏</span>
-      <span
-        v-for="(letter, letterIndex) in text.split('')"
-        :key="`${index}-${letterIndex}`"
-        class="split-letter"
-        :style="getLetterStyle(letterIndex)"
-      >
-        {{ letter }}
-      </span>
+      <span class="holo-layer layer-1">{{ text }}</span>
+      <span class="holo-layer layer-2">{{ text }}</span>
+      <span class="holo-layer layer-3">{{ text }}</span>
+      <span class="holo-layer layer-main">{{ text }}</span>
     </div>
 
     <InlineTextEditor
@@ -52,12 +49,11 @@ import draggableTextMixin from '@/mixins/draggableTextMixin';
 import InlineTextEditor from '@/components/InlineTextEditor.vue';
 
 export default {
-  name: 'SplitText',
+  name: 'HolographicEffect',
   components: {
     InlineTextEditor,
   },
   mixins: [draggableTextMixin],
-  emits: ['update'],
   props: {
     settings: {
       type: Object,
@@ -72,16 +68,9 @@ export default {
       return {
         fontSize: `${fontSize}px`,
         letterSpacing: `${letterSpacing}px`,
-        mixBlendMode: this.settings.blendMode,
-        filter: `hue-rotate(${this.settings.hue}deg)`,
-      };
-    },
-    getLetterStyle(index) {
-      const delay = index * 0.1;
-      return {
-        animationDelay: `${delay}s`,
-        color: this.settings.color,
-        opacity: this.settings.opacity / 100,
+        '--holo-hue': `${this.settings.hue}deg`,
+        '--holo-opacity': this.settings.opacity / 100,
+        '--holo-intensity': this.settings.vibrateIntensity,
       };
     },
   },
@@ -89,40 +78,88 @@ export default {
 </script>
 
 <style scoped>
-.split-container {
+.holographic-container {
+  position: relative;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   height: 100vh;
   text-align: center;
+  background: #000;
+  transform: translateZ(0);
 }
 
-.split-text {
+.holographic-text {
+  position: relative;
   font-weight: 900;
   text-transform: uppercase;
-  perspective: 1000px;
+  will-change: transform;
+  transform: translateZ(0);
+  backface-visibility: hidden;
 }
 
-.split-letter {
-  display: inline-block;
-  animation: split-reveal 1s ease forwards;
-  transform: translateY(100px) rotateX(-90deg);
-  opacity: 0;
+.holo-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: var(--holo-opacity);
+  mix-blend-mode: screen;
+  animation: holo-shift 3s ease-in-out infinite;
 }
 
-@keyframes split-reveal {
-  to {
-    transform: translateY(0) rotateX(0deg);
-    opacity: 1;
+.layer-1 {
+  color: #ff00ff;
+  filter: hue-rotate(calc(var(--holo-hue) + 0deg)) blur(1px);
+  animation-delay: 0s;
+}
+
+.layer-2 {
+  color: #00ffff;
+  filter: hue-rotate(calc(var(--holo-hue) + 120deg)) blur(1px);
+  animation-delay: 0.5s;
+}
+
+.layer-3 {
+  color: #ffff00;
+  filter: hue-rotate(calc(var(--holo-hue) + 240deg)) blur(1px);
+  animation-delay: 1s;
+}
+
+.layer-main {
+  color: #ffffff;
+  position: relative;
+  filter: hue-rotate(var(--holo-hue));
+  mix-blend-mode: normal;
+  z-index: 1;
+}
+
+@keyframes holo-shift {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+    opacity: calc(var(--holo-opacity) * 0.6);
+  }
+  25% {
+    transform: translate(calc(var(--holo-intensity) * 1px), calc(var(--holo-intensity) * -1px)) scale(1.01);
+    opacity: calc(var(--holo-opacity) * 0.8);
+  }
+  50% {
+    transform: translate(calc(var(--holo-intensity) * -1px), calc(var(--holo-intensity) * 1px)) scale(0.99);
+    opacity: calc(var(--holo-opacity) * 0.7);
+  }
+  75% {
+    transform: translate(calc(var(--holo-intensity) * 1px), calc(var(--holo-intensity) * 1px)) scale(1.01);
+    opacity: calc(var(--holo-opacity) * 0.9);
   }
 }
 
-.split-text.draggable {
+.holographic-text.draggable {
   transition: none;
 }
 
-.split-text.draggable:hover {
+.holographic-text.draggable:hover {
   outline: 2px dashed rgba(255, 255, 255, 0.3);
   outline-offset: 10px;
 }
@@ -144,7 +181,7 @@ export default {
   z-index: 10;
 }
 
-.split-text.draggable:hover .drag-handle {
+.holographic-text.draggable:hover .drag-handle {
   opacity: 1;
 }
 
@@ -164,7 +201,7 @@ export default {
   z-index: 10;
 }
 
-.split-text.draggable:hover .resize-handle {
+.holographic-text.draggable:hover .resize-handle {
   opacity: 1;
 }
 
@@ -184,7 +221,7 @@ export default {
   z-index: 10;
 }
 
-.split-text.draggable:hover .edit-icon {
+.holographic-text.draggable:hover .edit-icon {
   opacity: 1;
 }
 
