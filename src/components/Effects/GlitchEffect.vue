@@ -9,7 +9,6 @@
       :key="index"
       class="glitch-text"
       :class="{ 'draggable': settings.dragMode, 'has-path': isPathEnabled(index) }"
-      :data-text="text"
       :style="[getTextStyle(index), getDraggableStyle(index)]"
       @mousedown="handleMouseDown($event, index)"
       @touchstart="handleTouchStart($event, index)"
@@ -32,8 +31,9 @@
         <span
           v-for="(letterObj, letterIndex) in getLettersForLine(index)"
           :key="`letter-${letterIndex}`"
-          class="path-letter"
-          :style="getLetterPositionStyle(index, letterIndex, getTextStyle(index))"
+          class="path-letter glitch-letter-animated"
+          :data-letter="letterObj.letter"
+          :style="[getLetterPositionStyle(index, letterIndex, getTextStyle(index)), getLetterStyle(index, letterIndex)]"
         >
           {{ letterObj.letter }}
         </span>
@@ -43,7 +43,9 @@
         <span
           v-for="(letter, letterIndex) in text.split('')"
           :key="`${index}-${letterIndex}`"
-          class="glitch-letter"
+          class="glitch-letter glitch-letter-animated"
+          :data-letter="letter"
+          :style="getLetterStyle(index, letterIndex)"
         >
           {{ letter }}
         </span>
@@ -62,6 +64,8 @@
 </template>
 
 <script>
+import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue';
+import { useTextAnimation } from '@/composables/useTextAnimation';
 import draggableTextMixin from '@/mixins/draggableTextMixin';
 import textPathMixin from '@/mixins/textPathMixin';
 import InlineTextEditor from '@/components/InlineTextEditor.vue';
@@ -77,6 +81,34 @@ export default {
       type: Object,
       required: true,
     },
+  },
+  setup(props) {
+    const textLinesVar = ref(props.settings.textLines);
+
+    const { vibratingItems, startAnimation, stopAnimation } = useTextAnimation(
+      computed(() => props.settings),
+      textLinesVar
+    );
+
+    watch(
+      () => props.settings.textLines,
+      (newValue) => {
+        textLinesVar.value = newValue;
+      }
+    );
+
+    onMounted(() => {
+      startAnimation();
+    });
+
+    onBeforeUnmount(() => {
+      stopAnimation();
+    });
+
+    return {
+      textLinesVar,
+      vibratingItems,
+    };
   },
   methods: {
     getTextStyle(index) {
@@ -95,6 +127,25 @@ export default {
         '--color-separation': `${glitchSettings.colorSeparation || 5}px`,
         filter: `hue-rotate(${this.settings.hue}deg)`,
       };
+    },
+    isLetterVibrating(lineIndex, letterIndex) {
+      const key = `${lineIndex}-${letterIndex}`;
+      return this.vibratingItems[key] || false;
+    },
+    getLetterStyle(lineIndex, letterIndex) {
+      const isVibrating = this.isLetterVibrating(lineIndex, letterIndex);
+      const randomRange = this.settings.vibrateIntensity || 5;
+
+      if (isVibrating) {
+        const randomX = (Math.random() - 0.5) * randomRange * 2;
+        const randomY = (Math.random() - 0.5) * randomRange * 2;
+
+        return {
+          transform: `translate(${randomX}px, ${randomY}px)`,
+        };
+      }
+
+      return {};
     },
   },
 };
@@ -115,7 +166,6 @@ export default {
   position: relative;
   font-weight: 900;
   text-transform: uppercase;
-  animation: glitch-skew var(--glitch-speed) infinite;
   will-change: transform, text-shadow;
 }
 
@@ -135,9 +185,14 @@ export default {
   margin-right: 10px;
 }
 
-.glitch-text::before,
-.glitch-text::after {
-  content: attr(data-text);
+.glitch-letter-animated {
+  position: relative;
+  animation: glitch-skew var(--glitch-speed) infinite;
+}
+
+.glitch-letter-animated::before,
+.glitch-letter-animated::after {
+  content: attr(data-letter);
   position: absolute;
   top: 0;
   left: 0;
@@ -145,13 +200,13 @@ export default {
   height: 100%;
 }
 
-.glitch-text::before {
+.glitch-letter-animated::before {
   color: #ff0000;
   z-index: -1;
   animation: glitch-anim-1 calc(var(--glitch-speed) * 2) infinite linear alternate-reverse;
 }
 
-.glitch-text::after {
+.glitch-letter-animated::after {
   color: #00ffff;
   z-index: -2;
   animation: glitch-anim-2 calc(var(--glitch-speed) * 2) infinite linear alternate-reverse;

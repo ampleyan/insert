@@ -91,6 +91,8 @@ const EFFECT_CONFIGS = {
       { key: 'glitchSpeed', label: 'Speed', type: 'range', min: 50, max: 2000, unit: 'ms' },
       { key: 'colorSeparation', label: 'Color Separation', type: 'range', min: 0, max: 20, unit: 'px' },
       { key: 'scanlineFrequency', label: 'Scanlines', type: 'range', min: 0, max: 10 },
+      { key: 'globalRandomAmount', label: 'Letter Movement', type: 'range', min: 0, max: 100, unit: '%', global: true },
+      { key: 'intervalSpeed', label: 'Movement Speed', type: 'range', min: 50, max: 1000, unit: 'ms', global: true },
       { key: 'glitchType', label: 'Type', type: 'select', options: [
         { value: 'digital', label: 'Digital' },
         { value: 'analog', label: 'Analog' },
