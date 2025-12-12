@@ -40,7 +40,13 @@
       </template>
 
       <template v-else>
-        {{ text }}
+        <span
+          v-for="(letter, letterIndex) in text.split('')"
+          :key="`${index}-${letterIndex}`"
+          class="glitch-letter"
+        >
+          {{ letter }}
+        </span>
       </template>
     </div>
 
@@ -122,6 +128,11 @@ export default {
 .path-letter {
   display: inline-block;
   white-space: pre;
+}
+
+.glitch-letter {
+  display: inline-block;
+  margin-right: 10px;
 }
 
 .glitch-text::before,
