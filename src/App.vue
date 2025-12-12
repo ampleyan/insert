@@ -96,11 +96,11 @@
       />
     </ErrorBoundary>
 
-    <QuickActionsBar
+    <!-- <QuickActionsBar
       @reset="resetToDefaults"
       @show-presets="showPresetsModal = true"
       @save-preset="showSavePresetModal = true"
-    />
+    /> -->
   </div>
 </template>
 
@@ -127,7 +127,6 @@ import HolographicEffect from './components/Effects/HolographicEffect.vue';
 import PerspectiveEffect from './components/Effects/PerspectiveEffect.vue';
 import ShatterEffect from './components/Effects/ShatterEffect.vue';
 import ErrorBoundary from './components/ErrorBoundary.vue';
-import QuickActionsBar from './components/QuickActionsBar.vue';
 import { useSettingsStore } from './stores/settings';
 import { useHistoryStore } from './stores/history';
 import { usePresetsStore } from './stores/presets';
@@ -137,7 +136,6 @@ export default {
   components: {
     VideoBackground,
     ControlPanel,
-    QuickActionsBar,
     TextVibration,
     TextDistort,
     GlitchEffect,
