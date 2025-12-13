@@ -30,6 +30,14 @@ export const FORMAT_PRESETS = [
     height: 566,
     aspectRatio: '1.91:1',
     description: 'Instagram Feed Landscape'
+  },
+  {
+    value: 'fullscreen',
+    label: 'Fullscreen (1920x1080)',
+    width: 1920,
+    height: 1080,
+    aspectRatio: '16:9',
+    description: 'Full HD Widescreen'
   }
 ];
 

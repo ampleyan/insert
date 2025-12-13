@@ -5,8 +5,11 @@
       :key="`image-${index}`"
       v-show="image.visible !== false"
       class="image-overlay"
-      :class="{ draggable: dragMode }"
-      :style="getImageStyle(image, index)"
+      :class="[
+        { draggable: dragMode },
+        getAnimationClass(image)
+      ]"
+      :style="[getImageStyle(image, index), getAnimationStyle(image)]"
       @mousedown="handleMouseDown($event, index)"
       @touchstart="handleTouchStart($event, index)"
     >
@@ -266,9 +269,33 @@ export default {
         opacity,
         filter: `hue-rotate(${hue}deg)`,
         mixBlendMode: blendMode,
-        maxWidth: '100%',
-        maxHeight: '100%',
+        maxWidth: '300px',
+        maxHeight: '300px',
         objectFit: 'contain'
+      };
+    };
+
+    const getAnimationClass = (image) => {
+      const animation = image.animation;
+      if (!animation || animation.preset === 'none') {
+        return '';
+      }
+      return `text-animation-${animation.preset}`;
+    };
+
+    const getAnimationStyle = (image) => {
+      const animation = image.animation;
+      if (!animation || animation.preset === 'none') {
+        return {};
+      }
+
+      const iterationCount = animation.loop ? 'infinite' : '1';
+
+      return {
+        '--animation-duration': `${animation.duration || 1000}ms`,
+        '--animation-delay': `${animation.delay || 0}ms`,
+        '--animation-iteration': iterationCount,
+        '--animation-timing': 'ease-out',
       };
     };
 
@@ -281,7 +308,9 @@ export default {
       handleRotateStart,
       handleScaleStart,
       getImageStyle,
-      getImageTransform
+      getImageTransform,
+      getAnimationClass,
+      getAnimationStyle
     };
   }
 };

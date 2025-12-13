@@ -31,6 +31,11 @@
         </label>
       </div>
 
+      <button @click="exportSVG" class="export-button">
+        <span class="icon">🎨</span>
+        Export SVG (for Illustrator)
+      </button>
+
       <button @click="exportJSON" class="export-button">
         <span class="icon">💾</span>
         Export Settings (JSON)
@@ -251,6 +256,74 @@ export default {
       } else {
         this.startVideoRecording();
       }
+    },
+
+    exportSVG() {
+      const width = this.settings.videoWidth || 1080;
+      const height = this.settings.videoHeight || 1920;
+
+      let svgContent = `<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">
+  <defs>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=${this.settings.fontFamily?.map(f => f.replace(/ /g, '+')).join('&amp;family=')}&amp;display=swap');
+    </style>
+  </defs>
+  <rect width="${width}" height="${height}" fill="none"/>
+`;
+
+      this.settings.textLines.forEach((line, index) => {
+        if (this.settings.textVisible?.[index] === false) return;
+
+        const fontSize = this.settings.fontSize?.[index] || 120;
+        const fontFamily = this.settings.fontFamily?.[index] || 'Arial';
+        const fontWeight = this.settings.fontWeight?.[index] || '900';
+        const fontStyle = this.settings.fontStyle?.[index] || 'normal';
+        const letterSpacing = this.settings.letterSpacing?.[index] || 0;
+        const margin = this.settings.margin?.[index] || 0;
+        const marginTop = this.settings.marginTop?.[index] || 0;
+        const color = this.settings.color || '#ffffff';
+        const opacity = (this.settings.opacity || 100) / 100;
+
+        const x = width / 2 + margin;
+        const y = height / 2 + marginTop;
+
+        svgContent += `  <text
+    x="${x}"
+    y="${y}"
+    font-family="${fontFamily}"
+    font-size="${fontSize}px"
+    font-weight="${fontWeight}"
+    font-style="${fontStyle}"
+    fill="${color}"
+    opacity="${opacity}"
+    text-anchor="middle"
+    dominant-baseline="middle"
+    letter-spacing="${letterSpacing}px"
+    style="text-transform: uppercase;"
+  >${this.escapeXML(line)}</text>
+`;
+      });
+
+      svgContent += '</svg>';
+
+      const blob = new Blob([svgContent], { type: 'image/svg+xml' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+      a.href = url;
+      a.download = `text-layer-${timestamp}.svg`;
+      a.click();
+      URL.revokeObjectURL(url);
+    },
+
+    escapeXML(text) {
+      return text
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&apos;');
     },
 
     exportJSON() {

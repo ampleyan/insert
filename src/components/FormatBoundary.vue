@@ -1,6 +1,5 @@
 <template>
   <div v-if="settings.showFormatBoundary" class="format-boundary" :style="boundaryStyle">
-    <div class="boundary-label">{{ formatLabel }}</div>
   </div>
 </template>
 
@@ -27,7 +26,8 @@ export default {
         'vertical': 'Stories/Reels (1080×1920)',
         'square': 'Square (1080×1080)',
         'portrait': 'Portrait (1080×1350)',
-        'landscape': 'Landscape (1080×566)'
+        'landscape': 'Landscape (1080×566)',
+        'fullscreen': 'Fullscreen (1920×1080)'
       };
       return formats[this.settings.videoFormat] || `${this.settings.videoWidth}×${this.settings.videoHeight}`;
     }

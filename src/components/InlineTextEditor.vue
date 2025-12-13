@@ -27,59 +27,91 @@
           </div>
 
           <div class="form-group">
-            <label>
-              Font Size
-              <span class="value">{{ currentFontSize }}px</span>
-            </label>
-            <input
-              type="range"
-              min="12"
-              max="300"
-              :value="currentFontSize"
-              @input="updateFontSize(Number($event.target.value))"
-            />
+            <label>Font Size</label>
+            <div class="input-group">
+              <input
+                type="range"
+                min="12"
+                max="300"
+                :value="currentFontSize"
+                @input="updateFontSize(Number($event.target.value))"
+              />
+              <input
+                type="number"
+                class="number-input"
+                min="12"
+                max="300"
+                :value="currentFontSize"
+                @input="updateFontSize(Number($event.target.value))"
+              />
+              <span class="unit">px</span>
+            </div>
           </div>
 
           <div class="form-group">
-            <label>
-              Letter Spacing
-              <span class="value">{{ currentLetterSpacing }}px</span>
-            </label>
-            <input
-              type="range"
-              min="-20"
-              max="100"
-              :value="currentLetterSpacing"
-              @input="updateLetterSpacing(Number($event.target.value))"
-            />
+            <label>Letter Spacing</label>
+            <div class="input-group">
+              <input
+                type="range"
+                min="-20"
+                max="100"
+                :value="currentLetterSpacing"
+                @input="updateLetterSpacing(Number($event.target.value))"
+              />
+              <input
+                type="number"
+                class="number-input"
+                min="-20"
+                max="100"
+                :value="currentLetterSpacing"
+                @input="updateLetterSpacing(Number($event.target.value))"
+              />
+              <span class="unit">px</span>
+            </div>
           </div>
 
           <div class="form-group">
-            <label>
-              Horizontal Position
-              <span class="value">{{ currentMargin }}px</span>
-            </label>
-            <input
-              type="range"
-              min="-500"
-              max="500"
-              :value="currentMargin"
-              @input="updateMargin(Number($event.target.value))"
-            />
+            <label>Horizontal Position</label>
+            <div class="input-group">
+              <input
+                type="range"
+                min="-500"
+                max="500"
+                :value="currentMargin"
+                @input="updateMargin(Number($event.target.value))"
+              />
+              <input
+                type="number"
+                class="number-input"
+                min="-500"
+                max="500"
+                :value="currentMargin"
+                @input="updateMargin(Number($event.target.value))"
+              />
+              <span class="unit">px</span>
+            </div>
           </div>
 
           <div class="form-group">
-            <label>
-              Vertical Position
-              <span class="value">{{ currentMarginTop }}px</span>
-            </label>
-            <input
-              type="range"
-              min="-500"
-              max="500"
-              :value="currentMarginTop"
-              @input="updateMarginTop(Number($event.target.value))"
-            />
+            <label>Vertical Position</label>
+            <div class="input-group">
+              <input
+                type="range"
+                min="-500"
+                max="500"
+                :value="currentMarginTop"
+                @input="updateMarginTop(Number($event.target.value))"
+              />
+              <input
+                type="number"
+                class="number-input"
+                min="-500"
+                max="500"
+                :value="currentMarginTop"
+                @input="updateMarginTop(Number($event.target.value))"
+              />
+              <span class="unit">px</span>
+            </div>
           </div>
         </div>
       </div>
@@ -264,19 +296,42 @@ export default {
 }
 
 .form-group label {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+  display: block;
   font-size: 11px;
   font-weight: 500;
   color: rgba(255, 255, 255, 0.7);
   margin-bottom: 8px;
 }
 
-.form-group label .value {
-  font-family: 'Courier New', monospace;
-  color: rgba(255, 255, 255, 0.85);
+.input-group {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 8px;
+  align-items: center;
+}
+
+.number-input {
+  width: 60px;
+  background: rgba(0, 0, 0, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+  color: white;
+  padding: 4px 8px;
   font-size: 11px;
+  text-align: center;
+  transition: border-color 0.2s;
+}
+
+.number-input:focus {
+  outline: none;
+  border-color: rgba(255, 255, 255, 0.4);
+  box-shadow: 0 0 0 2px rgba(74, 158, 255, 0.2);
+}
+
+.unit {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.6);
+  min-width: 25px;
 }
 
 .form-group textarea {
@@ -298,7 +353,7 @@ export default {
   box-shadow: 0 0 0 2px rgba(74, 158, 255, 0.2);
 }
 
-.form-group input[type='range'] {
+.input-group input[type='range'] {
   width: 100%;
   height: 4px;
   background: rgba(255, 255, 255, 0.15);
@@ -307,7 +362,7 @@ export default {
   -webkit-appearance: none;
 }
 
-.form-group input[type='range']::-webkit-slider-thumb {
+.input-group input[type='range']::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
   width: 14px;
@@ -319,12 +374,12 @@ export default {
   transition: all 0.2s;
 }
 
-.form-group input[type='range']::-webkit-slider-thumb:hover {
+.input-group input[type='range']::-webkit-slider-thumb:hover {
   background: #4A9EFF;
   box-shadow: 0 0 0 4px rgba(74, 158, 255, 0.2);
 }
 
-.form-group input[type='range']::-moz-range-thumb {
+.input-group input[type='range']::-moz-range-thumb {
   width: 14px;
   height: 14px;
   background: white;
@@ -335,7 +390,7 @@ export default {
   transition: all 0.2s;
 }
 
-.form-group input[type='range']::-moz-range-thumb:hover {
+.input-group input[type='range']::-moz-range-thumb:hover {
   background: #4A9EFF;
   box-shadow: 0 0 0 4px rgba(74, 158, 255, 0.2);
 }

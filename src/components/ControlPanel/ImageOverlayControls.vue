@@ -164,6 +164,87 @@
             <span class="layer-number">Layer {{ index + 1 }}</span>
           </div>
         </div>
+
+        <div class="control-row">
+          <label>Animation</label>
+          <select
+            :value="image.animation?.preset || 'none'"
+            @change="updateAnimation(index, 'preset', $event.target.value)"
+          >
+            <option value="none">None</option>
+            <option value="fade-in">Fade In</option>
+            <option value="fade-out">Fade Out</option>
+            <option value="slide-left">Slide Left</option>
+            <option value="slide-right">Slide Right</option>
+            <option value="slide-up">Slide Up</option>
+            <option value="slide-down">Slide Down</option>
+            <option value="zoom-in">Zoom In</option>
+            <option value="zoom-out">Zoom Out</option>
+            <option value="bounce">Bounce</option>
+            <option value="split-flicker">Split Flicker</option>
+          </select>
+        </div>
+
+        <div v-if="image.animation?.preset !== 'none'" class="animation-params">
+          <div class="control-row">
+            <label>Duration</label>
+            <div class="range-control">
+              <input
+                type="range"
+                :value="image.animation?.duration || 1000"
+                @input="updateAnimation(index, 'duration', parseInt($event.target.value))"
+                min="100"
+                max="5000"
+                step="100"
+              />
+              <input
+                type="number"
+                class="value-input"
+                :value="image.animation?.duration || 1000"
+                @input="updateAnimation(index, 'duration', parseInt($event.target.value))"
+                min="100"
+                max="5000"
+                step="100"
+              />
+              <span class="unit">ms</span>
+            </div>
+          </div>
+
+          <div class="control-row">
+            <label>Delay</label>
+            <div class="range-control">
+              <input
+                type="range"
+                :value="image.animation?.delay || 0"
+                @input="updateAnimation(index, 'delay', parseInt($event.target.value))"
+                min="0"
+                max="5000"
+                step="100"
+              />
+              <input
+                type="number"
+                class="value-input"
+                :value="image.animation?.delay || 0"
+                @input="updateAnimation(index, 'delay', parseInt($event.target.value))"
+                min="0"
+                max="5000"
+                step="100"
+              />
+              <span class="unit">ms</span>
+            </div>
+          </div>
+
+          <div class="control-row">
+            <label>
+              <input
+                type="checkbox"
+                :checked="image.animation?.loop || false"
+                @change="updateAnimation(index, 'loop', $event.target.checked)"
+              />
+              <span>Loop Animation</span>
+            </label>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -249,6 +330,33 @@ export default {
       if (index === this.images.length - 1) return;
       const newImages = [...this.images];
       [newImages[index], newImages[index + 1]] = [newImages[index + 1], newImages[index]];
+      this.$emit('update', { imageOverlays: newImages });
+    },
+
+    updateAnimation(index, property, value) {
+      const newImages = [...this.images];
+      const currentAnimation = newImages[index].animation || { preset: 'none', duration: 1000, delay: 0, loop: false };
+
+      if (property === 'preset') {
+        newImages[index] = {
+          ...newImages[index],
+          animation: {
+            preset: value,
+            duration: value === 'none' ? 1000 : (currentAnimation.duration || 1000),
+            delay: currentAnimation.delay || 0,
+            loop: currentAnimation.loop || false
+          }
+        };
+      } else {
+        newImages[index] = {
+          ...newImages[index],
+          animation: {
+            ...currentAnimation,
+            [property]: value
+          }
+        };
+      }
+
       this.$emit('update', { imageOverlays: newImages });
     }
   }
