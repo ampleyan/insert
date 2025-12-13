@@ -1,6 +1,7 @@
 <template>
-  <div class="app" :style="appStyle">
+  <div class="app" :style="appStyle" :class="{ 'fit-mode': settingsStore.fitToFormat }">
     <VideoBackground :settings="settingsStore.$state" />
+    <FormatBoundary :settings="settingsStore.$state" />
     <GridOverlay :settings="settingsStore.$state" />
 
     <button class="toggle-controls" @click="toggleControls" v-show="!isControlsHidden">
@@ -107,6 +108,7 @@
 
 <script>
 import VideoBackground from './components/VideoBackground.vue';
+import FormatBoundary from './components/FormatBoundary.vue';
 import GridOverlay from './components/GridOverlay.vue';
 import ControlPanel from './components/ControlPanel/ControlPanel.vue';
 import TextVibration from './components/Effects/TextVibration.vue';
@@ -137,6 +139,7 @@ export default {
   name: 'App',
   components: {
     VideoBackground,
+    FormatBoundary,
     GridOverlay,
     ControlPanel,
     TextVibration,
@@ -266,6 +269,20 @@ export default {
   position: relative;
   margin: 0 auto;
   overflow: hidden;
+}
+
+.app.fit-mode {
+  box-shadow: 0 0 40px rgba(0, 0, 0, 0.5);
+}
+
+body {
+  background: #1a1a1a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  margin: 0;
+  padding: 20px;
 }
 
 .toggle-controls {

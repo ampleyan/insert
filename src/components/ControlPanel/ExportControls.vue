@@ -63,16 +63,29 @@ export default {
   },
   methods: {
     async exportPNG() {
-      const canvas = await this.captureTextLayer();
-      canvas.toBlob((blob) => {
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-        a.href = url;
-        a.download = `text-layer-${timestamp}.png`;
-        a.click();
-        URL.revokeObjectURL(url);
-      }, 'image/png');
+      try {
+        const canvas = await this.captureTextLayer();
+        if (!canvas) {
+          alert('Failed to capture text layer');
+          return;
+        }
+        canvas.toBlob((blob) => {
+          if (!blob) {
+            alert('Failed to create image');
+            return;
+          }
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+          a.href = url;
+          a.download = `text-layer-${timestamp}.png`;
+          a.click();
+          URL.revokeObjectURL(url);
+        }, 'image/png');
+      } catch (error) {
+        console.error('Export PNG error:', error);
+        alert('Failed to export PNG: ' + error.message);
+      }
     },
 
     async captureTextLayer() {

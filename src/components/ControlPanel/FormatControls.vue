@@ -16,6 +16,17 @@
     <div class="format-info" v-if="selectedFormatData">
       <span>{{ selectedFormatData.width }}×{{ selectedFormatData.height }}px</span>
     </div>
+
+    <div class="format-options">
+      <label class="option-label">
+        <input type="checkbox" v-model="showBoundary" @change="updateOptions" />
+        <span>Show Format Boundary</span>
+      </label>
+      <label class="option-label">
+        <input type="checkbox" v-model="fitToFormat" @change="updateOptions" />
+        <span>Fit Video to Format</span>
+      </label>
+    </div>
   </div>
 </template>
 
@@ -34,7 +45,9 @@ export default {
   data() {
     return {
       selectedFormat: DEFAULT_FORMAT,
-      formats: FORMAT_PRESETS
+      formats: FORMAT_PRESETS,
+      showBoundary: true,
+      fitToFormat: false
     };
   },
   computed: {
@@ -52,6 +65,12 @@ export default {
         videoFormat: format.value,
         videoWidth: format.width,
         videoHeight: format.height
+      });
+    },
+    updateOptions() {
+      this.$emit('update', {
+        showFormatBoundary: this.showBoundary,
+        fitToFormat: this.fitToFormat
       });
     }
   }
@@ -123,5 +142,33 @@ export default {
   font-size: 12px;
   text-align: center;
   opacity: 0.7;
+}
+
+.format-options {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 15px;
+  padding-top: 15px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.option-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: white;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.option-label input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
+.option-label span {
+  user-select: none;
 }
 </style>
