@@ -234,6 +234,7 @@
       <template #settings>
         <div class="tab-section">
           <FormatControls @update="onUpdate" />
+          <ExportControls :settings="settings" />
           <VideoLayerControls />
           <RecordingControls />
         </div>
@@ -249,6 +250,7 @@
   import BackdropControls from './BackdropFilterControls.vue';
   import RecordingControls from './RecordingControls.vue';
   import FormatControls from './FormatControls.vue';
+  import ExportControls from './ExportControls.vue';
   import VideoLayerControls from '../VideoLayerControls.vue';
   import TabContainer from './TabContainer.vue';
   import EffectSelector from './EffectSelector.vue';
@@ -264,6 +266,7 @@
       BackdropControls,
       RecordingControls,
       FormatControls,
+      ExportControls,
       VideoLayerControls,
       TabContainer,
       EffectSelector,
