@@ -255,6 +255,7 @@
           <FormatControls @update="onUpdate" />
           <GridControls @update="onUpdate" />
           <ImageOverlayControls :images="settings.imageOverlays || []" @update="onUpdate" />
+          <VideoOverlayControls :videos="settings.videoOverlays || []" @update="onUpdate" />
           <ExportControls :settings="settings" />
           <VideoLayerControls />
           <RecordingControls />
@@ -275,6 +276,7 @@
   import AlignmentControls from './AlignmentControls.vue';
   import AnimationPresetControls from './AnimationPresetControls.vue';
   import ImageOverlayControls from './ImageOverlayControls.vue';
+  import VideoOverlayControls from './VideoOverlayControls.vue';
   import FontControls from './FontControls.vue';
   import ExportControls from './ExportControls.vue';
   import VideoLayerControls from '../VideoLayerControls.vue';
@@ -296,6 +298,7 @@
       AlignmentControls,
       AnimationPresetControls,
       ImageOverlayControls,
+      VideoOverlayControls,
       FontControls,
       ExportControls,
       VideoLayerControls,

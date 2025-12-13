@@ -117,6 +117,7 @@ export const useSettingsStore = defineStore('settings', {
     ],
 
     imageOverlays: [],
+    videoOverlays: [],
 
     vibration: {
       jitterMode: 'random',

@@ -192,36 +192,50 @@ export default {
         };
 
         const captureFrame = () => {
-          const textContainer = document.querySelector('.text-effect, .text-vibration, .glitch-effect, .wave-effect, .particle-burst, .rotation-3d, .neon-glow, .liquid-distortion, .typewriter-effect, .chromatic-aberration, .split-text, .wavy-text, .flicker-text, .stroke-text, .gradient-text, .scanlines-effect, .holographic-effect, .perspective-effect, .shatter-effect');
-
-          if (textContainer) {
-            if (this.videoFormat === 'webm-alpha') {
-              ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-            } else {
-              ctx.fillStyle = '#000000';
-              ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-            }
-
-            const htmlContent = `
-              <svg xmlns="http://www.w3.org/2000/svg" width="${this.canvas.width}" height="${this.canvas.height}">
-                <foreignObject width="100%" height="100%">
-                  <div xmlns="http://www.w3.org/1999/xhtml" style="width:${this.canvas.width}px;height:${this.canvas.height}px;">
-                    ${textContainer.outerHTML}
-                  </div>
-                </foreignObject>
-              </svg>
-            `;
-
-            const img = new Image();
-            const blob = new Blob([htmlContent], { type: 'image/svg+xml' });
-            const url = URL.createObjectURL(blob);
-
-            img.onload = () => {
-              ctx.drawImage(img, 0, 0);
-              URL.revokeObjectURL(url);
-            };
-            img.src = url;
+          if (this.videoFormat === 'webm-alpha') {
+            ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+          } else {
+            ctx.fillStyle = '#000000';
+            ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
           }
+
+          const appContainer = document.querySelector('.app');
+          if (!appContainer) return;
+
+          const formatWidth = this.canvas.width;
+          const formatHeight = this.canvas.height;
+          const appRect = appContainer.getBoundingClientRect();
+          const centerX = appRect.width / 2;
+          const centerY = appRect.height / 2;
+
+          const cropX = centerX - formatWidth / 2;
+          const cropY = centerY - formatHeight / 2;
+
+          const scale = window.devicePixelRatio || 1;
+
+          ctx.save();
+          ctx.translate(-cropX * scale, -cropY * scale);
+
+          const htmlContent = `
+            <svg xmlns="http://www.w3.org/2000/svg" width="${appRect.width}" height="${appRect.height}">
+              <foreignObject width="100%" height="100%">
+                <div xmlns="http://www.w3.org/1999/xhtml" style="width:${appRect.width}px;height:${appRect.height}px;">
+                  ${appContainer.innerHTML}
+                </div>
+              </foreignObject>
+            </svg>
+          `;
+
+          const img = new Image();
+          const blob = new Blob([htmlContent], { type: 'image/svg+xml' });
+          const url = URL.createObjectURL(blob);
+
+          img.onload = () => {
+            ctx.drawImage(img, 0, 0);
+            ctx.restore();
+            URL.revokeObjectURL(url);
+          };
+          img.src = url;
         };
 
         this.captureInterval = setInterval(captureFrame, 1000 / 60);
