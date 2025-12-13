@@ -1,5 +1,5 @@
 <template>
-  <div class="app">
+  <div class="app" :style="appStyle">
     <VideoBackground :settings="settingsStore.$state" />
 
     <button class="toggle-controls" @click="toggleControls" v-show="!isControlsHidden">
@@ -195,6 +195,14 @@ export default {
     document.removeEventListener('dblclick', this.handleDoubleClick);
     document.removeEventListener('keydown', this.handleKeyDown);
   },
+  computed: {
+    appStyle() {
+      return {
+        width: `${this.settingsStore.videoWidth}px`,
+        height: `${this.settingsStore.videoHeight}px`
+      };
+    }
+  },
   methods: {
     resetToDefaults() {
       localStorage.removeItem('appState');
@@ -251,6 +259,12 @@ export default {
 </script>
 
 <style>
+.app {
+  position: relative;
+  margin: 0 auto;
+  overflow: hidden;
+}
+
 .toggle-controls {
   position: fixed;
   top: 20px;

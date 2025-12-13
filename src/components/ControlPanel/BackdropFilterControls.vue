@@ -3,63 +3,91 @@
     <h3>Backdrop Filter</h3>
 
     <div class="filter-control">
-      <label>
-        Blur
-        <input
-          type="range"
-          v-model.number="settings.backdropBlur"
-          min="0"
-          max="20"
-          step="0.5"
-          @input="updateSettings"
-        />
-        <span>{{ settings.backdropBlur }}px</span>
-      </label>
+      <label>Blur</label>
+      <input
+        type="range"
+        v-model.number="settings.backdropBlur"
+        min="0"
+        max="20"
+        step="0.5"
+        @input="updateSettings"
+      />
+      <input
+        type="number"
+        class="value-input"
+        v-model.number="settings.backdropBlur"
+        min="0"
+        max="20"
+        step="0.5"
+        @input="updateSettings"
+      />
+      <span class="unit">px</span>
     </div>
 
     <div class="filter-control">
-      <label>
-        Brightness
-        <input
-          type="range"
-          v-model.number="settings.backdropBrightness"
-          min="0"
-          max="200"
-          step="5"
-          @input="updateSettings"
-        />
-        <span>{{ settings.backdropBrightness }}%</span>
-      </label>
+      <label>Brightness</label>
+      <input
+        type="range"
+        v-model.number="settings.backdropBrightness"
+        min="0"
+        max="200"
+        step="5"
+        @input="updateSettings"
+      />
+      <input
+        type="number"
+        class="value-input"
+        v-model.number="settings.backdropBrightness"
+        min="0"
+        max="200"
+        step="5"
+        @input="updateSettings"
+      />
+      <span class="unit">%</span>
     </div>
 
     <div class="filter-control">
-      <label>
-        Contrast
-        <input
-          type="range"
-          v-model.number="settings.backdropContrast"
-          min="0"
-          max="200"
-          step="5"
-          @input="updateSettings"
-        />
-        <span>{{ settings.backdropContrast }}%</span>
-      </label>
+      <label>Contrast</label>
+      <input
+        type="range"
+        v-model.number="settings.backdropContrast"
+        min="0"
+        max="200"
+        step="5"
+        @input="updateSettings"
+      />
+      <input
+        type="number"
+        class="value-input"
+        v-model.number="settings.backdropContrast"
+        min="0"
+        max="200"
+        step="5"
+        @input="updateSettings"
+      />
+      <span class="unit">%</span>
     </div>
 
     <div class="filter-control">
-      <label>
-        Saturation
-        <input
-          type="range"
-          v-model.number="settings.backdropSaturate"
-          min="0"
-          max="200"
-          step="5"
-          @input="updateSettings"
-        />
-        <span>{{ settings.backdropSaturate }}%</span>
-      </label>
+      <label>Saturation</label>
+      <input
+        type="range"
+        v-model.number="settings.backdropSaturate"
+        min="0"
+        max="200"
+        step="5"
+        @input="updateSettings"
+      />
+      <input
+        type="number"
+        class="value-input"
+        v-model.number="settings.backdropSaturate"
+        min="0"
+        max="200"
+        step="5"
+        @input="updateSettings"
+      />
+      <span class="unit">%</span>
     </div>
   </div>
 </template>
@@ -102,23 +130,41 @@
 
   .filter-control {
     margin-bottom: 10px;
+    display: grid;
+    grid-template-columns: auto 1fr auto auto;
+    gap: 10px;
+    align-items: center;
   }
 
   .filter-control label {
     color: white;
-    display: flex;
-    align-items: center;
-    gap: 10px;
     font-size: 14px;
   }
 
   .filter-control input[type='range'] {
-    flex: 1;
     accent-color: #ffffff;
   }
 
-  .filter-control span {
-    min-width: 50px;
+  .value-input {
+    width: 60px;
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 13px;
     text-align: right;
+  }
+
+  .value-input:focus {
+    outline: none;
+    border-color: rgba(255, 255, 255, 0.4);
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.1);
+  }
+
+  .unit {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 13px;
+    min-width: 20px;
   }
 </style>

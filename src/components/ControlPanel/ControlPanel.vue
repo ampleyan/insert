@@ -148,7 +148,15 @@
                               max="200"
                               @input="onUpdate(settings)"
                             />
-                            <span class="value">{{ settings.fontSize[index] }}px</span>
+                            <input
+                              type="number"
+                              class="value-input"
+                              v-model.number="settings.fontSize[index]"
+                              min="12"
+                              max="200"
+                              @input="onUpdate(settings)"
+                            />
+                            <span class="unit">px</span>
                           </div>
                         </div>
                         <div class="option-item">
@@ -161,7 +169,15 @@
                               max="100"
                               @input="onUpdate(settings)"
                             />
-                            <span class="value">{{ settings.letterSpacing[index] }}px</span>
+                            <input
+                              type="number"
+                              class="value-input"
+                              v-model.number="settings.letterSpacing[index]"
+                              min="-20"
+                              max="100"
+                              @input="onUpdate(settings)"
+                            />
+                            <span class="unit">px</span>
                           </div>
                         </div>
                         <div class="option-item">
@@ -174,7 +190,15 @@
                               max="100"
                               @input="onUpdate(settings)"
                             />
-                            <span class="value">{{ settings.randomAmount[index] }}%</span>
+                            <input
+                              type="number"
+                              class="value-input"
+                              v-model.number="settings.randomAmount[index]"
+                              min="0"
+                              max="100"
+                              @input="onUpdate(settings)"
+                            />
+                            <span class="unit">%</span>
                           </div>
                         </div>
                       </div>
@@ -209,6 +233,7 @@
 
       <template #settings>
         <div class="tab-section">
+          <FormatControls @update="onUpdate" />
           <VideoLayerControls />
           <RecordingControls />
         </div>
@@ -223,6 +248,7 @@
   import ColorControls from './ColorControls.vue';
   import BackdropControls from './BackdropFilterControls.vue';
   import RecordingControls from './RecordingControls.vue';
+  import FormatControls from './FormatControls.vue';
   import VideoLayerControls from '../VideoLayerControls.vue';
   import TabContainer from './TabContainer.vue';
   import EffectSelector from './EffectSelector.vue';
@@ -237,6 +263,7 @@
       ColorControls,
       BackdropControls,
       RecordingControls,
+      FormatControls,
       VideoLayerControls,
       TabContainer,
       EffectSelector,
@@ -815,11 +842,27 @@ textarea:focus {
   flex: 1;
 }
 
-.slider-container .value {
-  min-width: 60px;
-  text-align: right;
+.slider-container .value-input {
+  width: 60px;
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 4px 8px;
+  border-radius: 4px;
   font-size: 12px;
-  color: rgba(255, 255, 255, 0.8);
+  text-align: right;
+}
+
+.slider-container .value-input:focus {
+  outline: none;
+  border-color: rgba(255, 255, 255, 0.4);
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.1);
+}
+
+.slider-container .unit {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 12px;
+  min-width: 20px;
 }
 
 .remove-button {

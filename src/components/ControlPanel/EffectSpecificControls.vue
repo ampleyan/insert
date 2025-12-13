@@ -12,21 +12,29 @@
       >
         <label class="control-label">
           <span>{{ control.label }}</span>
-          <span v-if="control.type === 'range'" class="value-display">
-            {{ getCurrentValue(control.key) }}{{ control.unit || '' }}
-          </span>
         </label>
 
-        <input
-          v-if="control.type === 'range'"
-          type="range"
-          :min="control.min"
-          :max="control.max"
-          :step="control.step || 1"
-          :value="getCurrentValue(control.key)"
-          @input="updateValue(control.key, Number($event.target.value))"
-          class="range-input"
-        />
+        <div v-if="control.type === 'range'" class="range-control">
+          <input
+            type="range"
+            :min="control.min"
+            :max="control.max"
+            :step="control.step || 1"
+            :value="getCurrentValue(control.key)"
+            @input="updateValue(control.key, Number($event.target.value))"
+            class="range-input"
+          />
+          <input
+            type="number"
+            class="value-input"
+            :min="control.min"
+            :max="control.max"
+            :step="control.step || 1"
+            :value="getCurrentValue(control.key)"
+            @input="updateValue(control.key, Number($event.target.value))"
+          />
+          <span class="unit">{{ control.unit || '' }}</span>
+        </div>
 
         <input
           v-else-if="control.type === 'color'"
@@ -410,14 +418,43 @@ export default {
   font-size: 11px;
 }
 
+.range-control {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
 .range-input {
-  width: 100%;
+  flex: 1;
   height: 4px;
   background: rgba(255, 255, 255, 0.15);
   border-radius: 2px;
   outline: none;
   -webkit-appearance: none;
   cursor: pointer;
+}
+
+.value-input {
+  width: 60px;
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  text-align: right;
+}
+
+.value-input:focus {
+  outline: none;
+  border-color: rgba(255, 255, 255, 0.4);
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.1);
+}
+
+.unit {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 12px;
+  min-width: 20px;
 }
 
 .range-input::-webkit-slider-thumb {

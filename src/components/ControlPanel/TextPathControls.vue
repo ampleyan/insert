@@ -39,7 +39,16 @@
                 max="1000"
                 step="10"
               />
-              <span class="value-display">{{ path.arcRadius }}px</span>
+              <input
+                type="number"
+                class="value-input"
+                :value="path.arcRadius"
+                @input="updatePath(lineIndex, 'arcRadius', Number($event.target.value))"
+                min="100"
+                max="1000"
+                step="10"
+              />
+              <span class="unit">px</span>
             </label>
 
             <label>
@@ -52,7 +61,16 @@
                 max="180"
                 step="5"
               />
-              <span class="value-display">{{ path.arcStart }}°</span>
+              <input
+                type="number"
+                class="value-input"
+                :value="path.arcStart"
+                @input="updatePath(lineIndex, 'arcStart', Number($event.target.value))"
+                min="-180"
+                max="180"
+                step="5"
+              />
+              <span class="unit">°</span>
             </label>
 
             <label>
@@ -65,7 +83,16 @@
                 max="360"
                 step="5"
               />
-              <span class="value-display">{{ path.arcSpan }}°</span>
+              <input
+                type="number"
+                class="value-input"
+                :value="path.arcSpan"
+                @input="updatePath(lineIndex, 'arcSpan', Number($event.target.value))"
+                min="30"
+                max="360"
+                step="5"
+              />
+              <span class="unit">°</span>
             </label>
 
             <label class="checkbox-label">
@@ -89,7 +116,16 @@
                 max="100"
                 step="5"
               />
-              <span class="value-display">{{ path.waveAmplitude }}px</span>
+              <input
+                type="number"
+                class="value-input"
+                :value="path.waveAmplitude"
+                @input="updatePath(lineIndex, 'waveAmplitude', Number($event.target.value))"
+                min="0"
+                max="100"
+                step="5"
+              />
+              <span class="unit">px</span>
             </label>
 
             <label>
@@ -102,7 +138,15 @@
                 max="5"
                 step="0.1"
               />
-              <span class="value-display">{{ path.waveFrequency }}</span>
+              <input
+                type="number"
+                class="value-input"
+                :value="path.waveFrequency"
+                @input="updatePath(lineIndex, 'waveFrequency', Number($event.target.value))"
+                min="0.1"
+                max="5"
+                step="0.1"
+              />
             </label>
 
             <label>
@@ -115,7 +159,16 @@
                 max="360"
                 step="10"
               />
-              <span class="value-display">{{ path.waveOffset }}°</span>
+              <input
+                type="number"
+                class="value-input"
+                :value="path.waveOffset"
+                @input="updatePath(lineIndex, 'waveOffset', Number($event.target.value))"
+                min="0"
+                max="360"
+                step="10"
+              />
+              <span class="unit">°</span>
             </label>
 
             <label class="checkbox-label">
@@ -139,7 +192,16 @@
                 max="500"
                 step="10"
               />
-              <span class="value-display">{{ path.circleRadius }}px</span>
+              <input
+                type="number"
+                class="value-input"
+                :value="path.circleRadius"
+                @input="updatePath(lineIndex, 'circleRadius', Number($event.target.value))"
+                min="50"
+                max="500"
+                step="10"
+              />
+              <span class="unit">px</span>
             </label>
 
             <label>
@@ -475,6 +537,29 @@ export default {
   font-weight: 600;
   color: rgb(147, 197, 253);
   font-size: 11px;
+}
+
+.value-input {
+  width: 60px;
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  text-align: right;
+}
+
+.value-input:focus {
+  outline: none;
+  border-color: rgba(255, 255, 255, 0.4);
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.1);
+}
+
+.unit {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 12px;
+  min-width: 20px;
 }
 
 .checkbox-label {

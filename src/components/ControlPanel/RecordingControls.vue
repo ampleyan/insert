@@ -1,6 +1,6 @@
 <template>
   <div class="control-group">
-    <h3>Screen Recording</h3>
+    <h3>Tab Recording</h3>
     <div class="recording-controls">
       <button @click="toggleRecording" :class="{ recording: isRecording }">
         {{ isRecording ? 'Stop Recording' : 'Start Recording' }}
@@ -62,13 +62,15 @@
         try {
           const config = this.qualityPresets[this.settings.quality];
 
-          // Request screen capture
           const displayStream = await navigator.mediaDevices.getDisplayMedia({
             video: {
               frameRate: { ideal: config.frameRate },
               displaySurface: 'browser',
             },
             audio: false,
+            preferCurrentTab: true,
+            selfBrowserSurface: 'include',
+            surfaceSwitching: 'include',
           });
 
           let finalStream = displayStream;

@@ -25,6 +25,9 @@ export const useSettingsStore = defineStore('settings', {
     backdropSaturate: 100,
     textTypes: [],
     dragMode: true,
+    videoFormat: 'vertical',
+    videoWidth: 1080,
+    videoHeight: 1920,
 
     textPaths: [
       {
@@ -260,6 +263,9 @@ export const useSettingsStore = defineStore('settings', {
       this.$state.backdropSaturate = 100;
       this.$state.textTypes = [];
       this.$state.dragMode = false;
+      this.$state.videoFormat = 'vertical';
+      this.$state.videoWidth = 1080;
+      this.$state.videoHeight = 1920;
       localStorage.removeItem('appSettings');
     },
 
