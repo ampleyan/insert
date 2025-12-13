@@ -285,13 +285,15 @@ export default {
     }, { deep: true });
 
     const getVideoStyle = (video, index) => {
+      const blendMode = video.blendMode || 'normal';
       const style = {
         position: 'absolute',
         left: '50%',
         top: '50%',
         transform: `translate(calc(-50% + ${video.x || 0}px), calc(-50% + ${video.y || 0}px))`,
         zIndex: video.zIndex || index + 20,
-        pointerEvents: props.dragMode ? 'auto' : 'none'
+        pointerEvents: props.dragMode ? 'auto' : 'none',
+        mixBlendMode: blendMode
       };
 
       if (props.dragMode) {
@@ -310,13 +312,11 @@ export default {
       const scale = video.scale || 1;
       const opacity = (video.opacity !== undefined ? video.opacity : 100) / 100;
       const hue = video.hue || 0;
-      const blendMode = video.blendMode || 'normal';
 
       return {
         transform: `rotate(${rotation}deg) scale(${scale})`,
         opacity,
         filter: `hue-rotate(${hue}deg)`,
-        mixBlendMode: blendMode,
         maxWidth: '400px',
         maxHeight: '400px',
         objectFit: 'contain'

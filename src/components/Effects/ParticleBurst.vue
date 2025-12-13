@@ -207,7 +207,7 @@ canvas {
 
 .text-overlay.has-path {
   position: relative;
-  width: 100vw;
+  width: auto;
   height: 100vh;
 }
 

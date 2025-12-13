@@ -1,9 +1,5 @@
 <template>
   <div class="vibration-demo" @mousemove="handleMouseMove" @touchmove="handleTouchMove">
-    <div class="position-guides" v-if="settings.dragMode">
-      <div class="position-guide x-axis"></div>
-      <div class="position-guide y-axis"></div>
-    </div>
     <div
       class="vibration"
       v-for="(text, index) in textLinesVar"
@@ -318,7 +314,7 @@ export default {
 <style scoped>
 .vibration.is-paragraph {
   text-align: left;
-  max-width: 800px;
+  max-width: none;
   margin: 0 auto;
 }
 .vibration.is-paragraph span {
@@ -422,36 +418,6 @@ export default {
 
 .vibration.has-path span {
   display: inline-block;
-}
-
-.position-guides {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  z-index: 0;
-}
-
-.position-guide {
-  position: fixed;
-  pointer-events: none;
-  border: 1px dashed rgba(255, 255, 255, 0.2);
-}
-
-.position-guide.x-axis {
-  width: 100%;
-  height: 1px;
-  top: 50%;
-  left: 0;
-}
-
-.position-guide.y-axis {
-  height: 100%;
-  width: 1px;
-  left: 50%;
-  top: 0;
 }
 
 .vibration span {

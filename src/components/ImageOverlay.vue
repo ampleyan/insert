@@ -237,13 +237,15 @@ export default {
     };
 
     const getImageStyle = (image, index) => {
+      const blendMode = image.blendMode || 'normal';
       const style = {
         position: 'absolute',
         left: '50%',
         top: '50%',
         transform: `translate(calc(-50% + ${image.x || 0}px), calc(-50% + ${image.y || 0}px))`,
         zIndex: image.zIndex || index + 10,
-        pointerEvents: props.dragMode ? 'auto' : 'none'
+        pointerEvents: props.dragMode ? 'auto' : 'none',
+        mixBlendMode: blendMode
       };
 
       if (props.dragMode) {
@@ -262,13 +264,11 @@ export default {
       const scale = image.scale || 1;
       const opacity = (image.opacity !== undefined ? image.opacity : 100) / 100;
       const hue = image.hue || 0;
-      const blendMode = image.blendMode || 'normal';
 
       return {
         transform: `rotate(${rotation}deg) scale(${scale})`,
         opacity,
         filter: `hue-rotate(${hue}deg)`,
-        mixBlendMode: blendMode,
         maxWidth: '300px',
         maxHeight: '300px',
         objectFit: 'contain'

@@ -1,9 +1,5 @@
 <template>
   <div class="stroke-container">
-    <div class="position-guides" v-if="settings.dragMode">
-      <div class="position-guide x-axis"></div>
-      <div class="position-guide y-axis"></div>
-    </div>
     <div
       v-for="(text, index) in settings.textLines"
       :key="index"
@@ -190,33 +186,4 @@ export default {
   opacity: 1;
 }
 
-.position-guides {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  z-index: 0;
-}
-
-.position-guide {
-  position: fixed;
-  pointer-events: none;
-  border: 1px dashed rgba(255, 255, 255, 0.2);
-}
-
-.position-guide.x-axis {
-  width: 100%;
-  height: 1px;
-  top: 50%;
-  left: 0;
-}
-
-.position-guide.y-axis {
-  height: 100%;
-  width: 1px;
-  left: 50%;
-  top: 0;
-}
 </style>

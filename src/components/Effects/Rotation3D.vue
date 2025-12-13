@@ -115,7 +115,7 @@ export default {
 
 .rotation3d-text.has-path {
   position: relative;
-  width: 100vw;
+  width: auto;
   height: 100vh;
 }
 

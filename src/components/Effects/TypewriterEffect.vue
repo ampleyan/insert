@@ -166,7 +166,7 @@ export default {
 
 .typewriter-text.has-path {
   position: relative;
-  width: 100vw;
+  width: auto;
   height: 100vh;
 }
 
