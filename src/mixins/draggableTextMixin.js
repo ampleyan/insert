@@ -15,6 +15,7 @@ export default {
       resizing: {
         active: false,
         index: null,
+        axis: null, // 'x' | 'y'
         startX: 0,
         startY: 0,
         initialSize: 0,
@@ -95,19 +96,24 @@ export default {
       }
     },
 
-    startResize(event, index, currentFontSizes) {
+    startResize(event, index, currentFontSizes, axis) {
       event.stopPropagation();
       const e = event.touches ? event.touches[0] : event;
 
       this.resizing = {
         active: true,
         index,
+            axis,
+
         startX: e.clientX,
         startY: e.clientY,
         initialSize: currentFontSizes[index] || 120,
       };
 
-      document.body.style.cursor = 'nwse-resize';
+        document.body.style.cursor =
+    axis === 'x' ? 'ew-resize' :
+    axis === 'y' ? 'ns-resize' :
+    'nwse-resize';
       document.body.style.userSelect = 'none';
     },
 
@@ -120,7 +126,15 @@ export default {
       const deltaX = e.clientX - this.resizing.startX;
       const deltaY = e.clientY - this.resizing.startY;
 
-      const delta = (deltaX + deltaY) / 2;
+        let delta = 0;
+
+  if (this.resizing.axis === 'x') {
+    delta = deltaX;
+  } else if (this.resizing.axis === 'y') {
+    delta = deltaY;
+  } else {
+    delta = (deltaX + deltaY) / 2;
+  }
 
       let newSize = this.resizing.initialSize + delta;
       newSize = Math.max(12, Math.min(300, newSize));
@@ -163,7 +177,7 @@ export default {
       this.startDrag(event, index, this.settings.margin, this.settings.marginTop);
     },
 
-    handleResizeStart(event, index) {
+    handleResizeStart(event, index, axis='xy') {
       console.log('[Resize] handleResizeStart called', {
         index,
         dragMode: this.settings.dragMode,
@@ -176,7 +190,7 @@ export default {
       console.log('[Resize] Starting resize...', {
         fontSizes: this.settings.fontSize
       });
-      this.startResize(event, index, this.settings.fontSize);
+      this.startResize(event, index, this.settings.fontSize, axis);
     },
 
     handleMouseMove(event) {

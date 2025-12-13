@@ -13,8 +13,10 @@
   "dependencies": {
     "core-js": "^3.8.3",
     "lodash-es": "^4.17.21",
+    "osc": "^2.4.5",
     "pinia": "^3.0.4",
-    "vue": "^3.2.13"
+    "vue": "^3.2.13",
+    "ws": "^8.18.3"
   },
   "devDependencies": {
     "@babel/core": "^7.12.16",

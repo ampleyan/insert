@@ -233,6 +233,8 @@ export default {
       const fontFamily = this.settings.fontFamily?.[lineIndex] || 'Arial';
       const fontWeight = this.settings.fontWeight?.[lineIndex] || '900';
       const fontStyle = this.settings.fontStyle?.[lineIndex] || 'normal';
+      const scaleX = this.settings.scaleX?.[lineIndex] || 1;
+      const scaleY = this.settings.scaleY?.[lineIndex] || 1;
 
       const hue = `hue-rotate(${this.settings.hue}deg)`;
       const blur = isVibrating ? `blur(${this.settings.blurAmount}px)` : '';
@@ -241,7 +243,7 @@ export default {
         : '';
       const filter = [hue, blur, glow].filter(Boolean).join(' ');
 
-      const scale = isVibrating ? 1.05 : 1;
+      const vibrateScale = isVibrating ? 1.05 : 1;
 
       const baseStyle = {
         fontSize: `${fontSize}px`,
@@ -251,7 +253,7 @@ export default {
         color: this.settings.color,
         opacity: this.settings.opacity / 100,
         filter,
-        transform: `scale(${scale})`,
+        transform: `scale(${scaleX * vibrateScale}, ${scaleY * vibrateScale})`,
         transition: 'all 300ms ease',
         letterSpacing,
       };
@@ -418,6 +420,11 @@ export default {
 
 .vibration.has-path span {
   display: inline-block;
+}
+
+.vibration {
+  white-space: nowrap;
+  max-width: none;
 }
 
 .vibration span {

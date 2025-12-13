@@ -20,6 +20,8 @@ export const useSettingsStore = defineStore('settings', {
     margin: [0, 0, 0],
     marginTop: [0, 0, 0],
     letterSpacing: [0, 0, 0],
+    scaleX: [1, 1, 1],
+    scaleY: [1, 1, 1],
     globalRandomAmount: 50,
     randomAmount: [0, 0, 0],
     textVisible: [true, true, true],
@@ -329,6 +331,8 @@ export const useSettingsStore = defineStore('settings', {
       this.margin.push(0);
       this.marginTop.push(0);
       this.letterSpacing.push(0);
+      this.scaleX.push(1);
+      this.scaleY.push(1);
       this.randomAmount.push(0);
       this.textTypes.push(null);
       this.textVisible.push(true);
@@ -349,6 +353,8 @@ export const useSettingsStore = defineStore('settings', {
       this.margin.splice(index, 1);
       this.marginTop.splice(index, 1);
       this.letterSpacing.splice(index, 1);
+      this.scaleX.splice(index, 1);
+      this.scaleY.splice(index, 1);
       this.randomAmount.splice(index, 1);
       this.textTypes.splice(index, 1);
       this.textVisible.splice(index, 1);

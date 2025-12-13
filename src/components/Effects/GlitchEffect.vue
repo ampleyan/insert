@@ -10,7 +10,9 @@
       @touchstart="handleTouchStart($event, index)"
       @contextmenu="handleContextMenu($event, index)"
     >
-      <span class="drag-handle" v-if="settings.dragMode">⋮⋮</span>
+      <span  class="drag-handle" v-if="settings.dragMode"        
+         @mousedown="handleResizeStart($event, index,'y')"
+        @touchstart="handleResizeStart($event, index,'y')">^</span>
       <span
         class="resize-handle"
         v-if="settings.dragMode"
@@ -20,6 +22,7 @@
       <span
         class="edit-icon"
         v-if="settings.dragMode"
+         @mousedown="handleResizeStart($event, index,'x')"
         @click.stop="openInlineEditor(index, $event)"
       >✏</span>
 
@@ -110,6 +113,8 @@ export default {
     getTextStyle(index) {
       const fontSize = this.settings.fontSize?.[index] || 120;
       const letterSpacing = this.settings.letterSpacing?.[index] || 0;
+      const scaleX = this.settings.scaleX?.[index] || 1;
+      const scaleY = this.settings.scaleY?.[index] || 1;
       const glitchSettings = this.settings.glitch || {};
 
       return {
@@ -118,6 +123,7 @@ export default {
         opacity: this.settings.opacity / 100,
         letterSpacing: `${letterSpacing}px`,
         mixBlendMode: this.settings.blendMode,
+        transform: `scale(${scaleX}, ${scaleY})`,
         '--glitch-intensity': `${glitchSettings.glitchIntensity || 10}px`,
         '--glitch-speed': `${glitchSettings.glitchSpeed || 500}ms`,
         '--color-separation': `${glitchSettings.colorSeparation || 5}px`,
@@ -163,6 +169,8 @@ export default {
   font-weight: 900;
   text-transform: uppercase;
   will-change: transform, text-shadow;
+  white-space: nowrap;
+  max-width: none;
 }
 
 .glitch-text.has-path {
@@ -318,9 +326,12 @@ export default {
   opacity: 0;
   transition: opacity 0.2s;
   font-size: 12px;
-  cursor: grab;
   pointer-events: none;
   color: white;
+  z-index: 10;
+    cursor: nwse-resize;
+  color: white;
+  pointer-events: all;
   z-index: 10;
 }
 
