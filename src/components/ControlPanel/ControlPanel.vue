@@ -85,11 +85,22 @@
             </label>
           </div>
 
+          <AlignmentControls :settings="settings" @align="handleAlign" />
+
+          <AnimationPresetControls :settings="settings" @update="onUpdate" />
+
           <div class="text-input-group">
             <div class="text-line" v-for="(line, index) in settings.textLines" :key="index">
               <div class="text-block">
                 <div class="text-header">
                   <div class="text-type-controls">
+                    <button
+                      :class="['visibility-button', { hidden: !settings.textVisible?.[index] }]"
+                      @click="toggleVisibility(index)"
+                      :title="settings.textVisible?.[index] ? 'Hide line' : 'Show line'"
+                    >
+                      {{ settings.textVisible?.[index] ? '👁' : '👁‍🗨' }}
+                    </button>
                     <button
                       :class="{ active: !settings.textTypes?.[index] }"
                       @click="setTextType(index, 'line')"
@@ -138,6 +149,14 @@
                   <transition name="expand">
                     <div v-show="expanded.textOptions[index]" class="text-options">
                       <div class="options-grid">
+                        <div class="option-item full-width">
+                          <FontControls
+                            :fontFamily="settings.fontFamily?.[index] || 'Arial'"
+                            :fontWeight="settings.fontWeight?.[index] || '900'"
+                            :fontStyle="settings.fontStyle?.[index] || 'normal'"
+                            @update="(fontData) => updateFont(index, fontData)"
+                          />
+                        </div>
                         <div class="option-item">
                           <label>Font Size</label>
                           <div class="slider-container">
@@ -235,6 +254,7 @@
         <div class="tab-section">
           <FormatControls @update="onUpdate" />
           <GridControls @update="onUpdate" />
+          <ImageOverlayControls :images="settings.imageOverlays || []" @update="onUpdate" />
           <ExportControls :settings="settings" />
           <VideoLayerControls />
           <RecordingControls />
@@ -252,6 +272,10 @@
   import RecordingControls from './RecordingControls.vue';
   import FormatControls from './FormatControls.vue';
   import GridControls from './GridControls.vue';
+  import AlignmentControls from './AlignmentControls.vue';
+  import AnimationPresetControls from './AnimationPresetControls.vue';
+  import ImageOverlayControls from './ImageOverlayControls.vue';
+  import FontControls from './FontControls.vue';
   import ExportControls from './ExportControls.vue';
   import VideoLayerControls from '../VideoLayerControls.vue';
   import TabContainer from './TabContainer.vue';
@@ -269,6 +293,10 @@
       RecordingControls,
       FormatControls,
       GridControls,
+      AlignmentControls,
+      AnimationPresetControls,
+      ImageOverlayControls,
+      FontControls,
       ExportControls,
       VideoLayerControls,
       TabContainer,
@@ -360,6 +388,14 @@
     this.settingsStore.setTextType(index, type);
   },
 
+  toggleVisibility(index) {
+    this.settingsStore.toggleTextVisibility(index);
+  },
+
+  handleAlign(alignmentConfig) {
+    this.settingsStore.alignText(alignmentConfig);
+  },
+
 addLine() {
   this.settingsStore.addTextLine();
   this.expanded.textOptions.push(false);
@@ -395,6 +431,22 @@ addLine() {
       onEffectChoice() {
         console.log(this.settings.effectType);
         this.$emit('changeEffect', this.settings);
+      },
+      updateFont(index, fontData) {
+        const newSettings = { ...this.settings };
+        if (fontData.fontFamily) {
+          newSettings.fontFamily = [...this.settings.fontFamily];
+          newSettings.fontFamily[index] = fontData.fontFamily;
+        }
+        if (fontData.fontWeight) {
+          newSettings.fontWeight = [...this.settings.fontWeight];
+          newSettings.fontWeight[index] = fontData.fontWeight;
+        }
+        if (fontData.fontStyle) {
+          newSettings.fontStyle = [...this.settings.fontStyle];
+          newSettings.fontStyle[index] = fontData.fontStyle;
+        }
+        this.$emit('update', newSettings);
       },
       onUpdate(val) {
         this.$emit('update', val);
@@ -810,6 +862,26 @@ textarea:focus {
   padding: 0;
 }
 
+.visibility-button {
+  background: rgba(0, 122, 255, 0.3) !important;
+  border-color: rgba(0, 122, 255, 0.5) !important;
+  transition: all 0.2s ease;
+}
+
+.visibility-button:hover {
+  background: rgba(0, 122, 255, 0.5) !important;
+}
+
+.visibility-button.hidden {
+  background: rgba(255, 59, 48, 0.3) !important;
+  border-color: rgba(255, 59, 48, 0.5) !important;
+  opacity: 0.6;
+}
+
+.visibility-button.hidden:hover {
+  background: rgba(255, 59, 48, 0.5) !important;
+}
+
 .text-input-container {
   margin-bottom: 15px;
 }
@@ -831,6 +903,10 @@ textarea:focus {
   display: flex;
   flex-direction: column;
   gap: 8px;
+}
+
+.option-item.full-width {
+  grid-column: 1 / -1;
 }
 
 .option-item label {

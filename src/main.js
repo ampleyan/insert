@@ -5,6 +5,7 @@ import './assets/styles/tokens.css';
 import './assets/styles/main.css';
 import './assets/styles/controls.css';
 import './assets/styles/animation.css';
+import './assets/styles/text-animations.css';
 
 const app = createApp(App);
 const pinia = createPinia();

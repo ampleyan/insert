@@ -8,8 +8,12 @@
       class="vibration"
       v-for="(text, index) in textLinesVar"
       :key="index"
-      :style="[rootStyles, getDraggableStyle(index)]"
-      :class="{ 'is-paragraph': isParagraph(index), 'draggable': settings.dragMode, 'has-path': isPathEnabled(index) }"
+      v-show="settings.textVisible?.[index] !== false"
+      :style="[rootStyles, getDraggableStyle(index), getAnimationStyle(index)]"
+      :class="[
+        { 'is-paragraph': isParagraph(index), 'draggable': settings.dragMode, 'has-path': isPathEnabled(index) },
+        getAnimationClass(index)
+      ]"
       @mousedown="handleMouseDown($event, index)"
       @touchstart="handleTouchStart($event, index)"
       @contextmenu="handleContextMenu($event, index)"
@@ -230,6 +234,9 @@ export default {
       const isVibrating = this.isLetterVibrating(lineIndex, letterIndex);
       const fontSize = this.textLineFontSize[lineIndex] || this.settings.fontSize;
       const letterSpacing = `${this.settings.letterSpacing?.[lineIndex] || 0}px`;
+      const fontFamily = this.settings.fontFamily?.[lineIndex] || 'Arial';
+      const fontWeight = this.settings.fontWeight?.[lineIndex] || '900';
+      const fontStyle = this.settings.fontStyle?.[lineIndex] || 'normal';
 
       const hue = `hue-rotate(${this.settings.hue}deg)`;
       const blur = isVibrating ? `blur(${this.settings.blurAmount}px)` : '';
@@ -242,6 +249,9 @@ export default {
 
       const baseStyle = {
         fontSize: `${fontSize}px`,
+        fontFamily,
+        fontWeight,
+        fontStyle,
         color: this.settings.color,
         opacity: this.settings.opacity / 100,
         filter,
@@ -278,6 +288,28 @@ export default {
     isLetterVibrating(lineIndex, letterIndex) {
       const key = `${lineIndex}-${letterIndex}`;
       return this.vibratingItems[key] || false;
+    },
+    getAnimationClass(index) {
+      const animation = this.settings.textAnimations?.[index];
+      if (!animation || animation.preset === 'none') {
+        return '';
+      }
+      return `text-animation-${animation.preset}`;
+    },
+    getAnimationStyle(index) {
+      const animation = this.settings.textAnimations?.[index];
+      if (!animation || animation.preset === 'none') {
+        return {};
+      }
+
+      const iterationCount = animation.loop ? 'infinite' : '1';
+
+      return {
+        '--animation-duration': `${animation.duration}ms`,
+        '--animation-delay': `${animation.delay}ms`,
+        '--animation-iteration': iterationCount,
+        '--animation-timing': 'ease-out',
+      };
     },
   },
 };

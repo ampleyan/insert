@@ -1,0 +1,86 @@
+export const ANIMATION_PRESETS = [
+  {
+    value: 'none',
+    label: 'None',
+    description: 'No animation',
+  },
+  {
+    value: 'fade-in',
+    label: 'Fade In',
+    description: 'Gradually appear',
+    defaultDuration: 1000,
+    defaultDelay: 0,
+  },
+  {
+    value: 'fade-out',
+    label: 'Fade Out',
+    description: 'Gradually disappear',
+    defaultDuration: 1000,
+    defaultDelay: 0,
+  },
+  {
+    value: 'slide-left',
+    label: 'Slide Left',
+    description: 'Slide in from right',
+    defaultDuration: 800,
+    defaultDelay: 0,
+  },
+  {
+    value: 'slide-right',
+    label: 'Slide Right',
+    description: 'Slide in from left',
+    defaultDuration: 800,
+    defaultDelay: 0,
+  },
+  {
+    value: 'slide-up',
+    label: 'Slide Up',
+    description: 'Slide in from bottom',
+    defaultDuration: 800,
+    defaultDelay: 0,
+  },
+  {
+    value: 'slide-down',
+    label: 'Slide Down',
+    description: 'Slide in from top',
+    defaultDuration: 800,
+    defaultDelay: 0,
+  },
+  {
+    value: 'zoom-in',
+    label: 'Zoom In',
+    description: 'Scale from small',
+    defaultDuration: 600,
+    defaultDelay: 0,
+  },
+  {
+    value: 'zoom-out',
+    label: 'Zoom Out',
+    description: 'Scale from large',
+    defaultDuration: 600,
+    defaultDelay: 0,
+  },
+  {
+    value: 'typewriter',
+    label: 'Typewriter',
+    description: 'Type out letter by letter',
+    defaultDuration: 2000,
+    defaultDelay: 0,
+  },
+  {
+    value: 'split-flicker',
+    label: 'Split Flicker',
+    description: 'Flicker and split',
+    defaultDuration: 1000,
+    defaultDelay: 0,
+  },
+  {
+    value: 'bounce',
+    label: 'Bounce',
+    description: 'Bounce in from top',
+    defaultDuration: 1200,
+    defaultDelay: 0,
+  },
+];
+
+export const DEFAULT_ANIMATION = 'none';

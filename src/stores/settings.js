@@ -14,11 +14,15 @@ export const useSettingsStore = defineStore('settings', {
     intervalSpeed: 200,
     textLines: ['INSERT', "SUN'O3.08", 'BAR OOST'],
     fontSize: [120, 120, 120],
+    fontFamily: ['Arial', 'Arial', 'Arial'],
+    fontWeight: ['900', '900', '900'],
+    fontStyle: ['normal', 'normal', 'normal'],
     margin: [0, 0, 0],
     marginTop: [0, 0, 0],
     letterSpacing: [0, 0, 0],
     globalRandomAmount: 50,
     randomAmount: [0, 0, 0],
+    textVisible: [true, true, true],
     backdropBlur: 0,
     backdropBrightness: 100,
     backdropContrast: 100,
@@ -90,6 +94,29 @@ export const useSettingsStore = defineStore('settings', {
         inwardFacing: false,
       },
     ],
+
+    textAnimations: [
+      {
+        preset: 'none',
+        duration: 1000,
+        delay: 0,
+        loop: false,
+      },
+      {
+        preset: 'none',
+        duration: 1000,
+        delay: 0,
+        loop: false,
+      },
+      {
+        preset: 'none',
+        duration: 1000,
+        delay: 0,
+        loop: false,
+      },
+    ],
+
+    imageOverlays: [],
 
     vibration: {
       jitterMode: 'random',
@@ -268,6 +295,7 @@ export const useSettingsStore = defineStore('settings', {
       this.$state.margin = [0, 0, 0];
       this.$state.marginTop = [0, 0, 0];
       this.$state.letterSpacing = [0, 0, 0];
+      this.$state.textVisible = [true, true, true];
       this.$state.backdropBlur = 0;
       this.$state.backdropBrightness = 100;
       this.$state.backdropContrast = 100;
@@ -294,25 +322,88 @@ export const useSettingsStore = defineStore('settings', {
     addTextLine() {
       this.textLines.push('');
       this.fontSize.push(120);
+      this.fontFamily.push('Arial');
+      this.fontWeight.push('900');
+      this.fontStyle.push('normal');
       this.margin.push(0);
       this.marginTop.push(0);
       this.letterSpacing.push(0);
       this.randomAmount.push(0);
       this.textTypes.push(null);
+      this.textVisible.push(true);
+      this.textAnimations.push({
+        preset: 'none',
+        duration: 1000,
+        delay: 0,
+        loop: false,
+      });
     },
 
     removeTextLine(index) {
       this.textLines.splice(index, 1);
       this.fontSize.splice(index, 1);
+      this.fontFamily.splice(index, 1);
+      this.fontWeight.splice(index, 1);
+      this.fontStyle.splice(index, 1);
       this.margin.splice(index, 1);
       this.marginTop.splice(index, 1);
       this.letterSpacing.splice(index, 1);
       this.randomAmount.splice(index, 1);
       this.textTypes.splice(index, 1);
+      this.textVisible.splice(index, 1);
+      this.textAnimations.splice(index, 1);
+    },
+
+    toggleTextVisibility(index) {
+      this.textVisible[index] = !this.textVisible[index];
     },
 
     setTextType(index, type) {
       this.textTypes[index] = type === 'paragraph' ? 'paragraph' : null;
+    },
+
+    alignText(alignmentConfig) {
+      const { type, alignment, axis, videoWidth, videoHeight } = alignmentConfig;
+
+      if (type === 'horizontal') {
+        const width = videoWidth || 1080;
+        this.margin.forEach((_, index) => {
+          if (this.textVisible[index] !== false) {
+            if (alignment === 'left') {
+              this.margin[index] = -width / 2 + 50;
+            } else if (alignment === 'center') {
+              this.margin[index] = 0;
+            } else if (alignment === 'right') {
+              this.margin[index] = width / 2 - 50;
+            }
+          }
+        });
+      } else if (type === 'vertical') {
+        const height = videoHeight || 1920;
+        this.marginTop.forEach((_, index) => {
+          if (this.textVisible[index] !== false) {
+            if (alignment === 'top') {
+              this.marginTop[index] = -height / 2 + 100;
+            } else if (alignment === 'middle') {
+              this.marginTop[index] = 0;
+            } else if (alignment === 'bottom') {
+              this.marginTop[index] = height / 2 - 100;
+            }
+          }
+        });
+      } else if (type === 'distribute') {
+        const height = videoHeight || 1920;
+        const visibleIndices = this.textVisible
+          .map((visible, index) => (visible !== false ? index : -1))
+          .filter(index => index !== -1);
+
+        if (visibleIndices.length > 1) {
+          const spacing = height / (visibleIndices.length + 1);
+          visibleIndices.forEach((originalIndex, i) => {
+            this.marginTop[originalIndex] = -height / 2 + spacing * (i + 1);
+          });
+        }
+      }
     },
   },
 });

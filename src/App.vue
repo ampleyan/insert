@@ -3,6 +3,11 @@
     <VideoBackground :settings="settingsStore.$state" />
     <FormatBoundary :settings="settingsStore.$state" />
     <GridOverlay :settings="settingsStore.$state" />
+    <ImageOverlay
+      :images="settingsStore.imageOverlays || []"
+      :dragMode="settingsStore.dragMode"
+      @update="onUpdate"
+    />
 
     <button class="toggle-controls" @click="toggleControls" v-show="!isControlsHidden">
       <span class="icon" :class="{ hidden: isControlsHidden }">◀</span>
@@ -110,6 +115,7 @@
 import VideoBackground from './components/VideoBackground.vue';
 import FormatBoundary from './components/FormatBoundary.vue';
 import GridOverlay from './components/GridOverlay.vue';
+import ImageOverlay from './components/ImageOverlay.vue';
 import ControlPanel from './components/ControlPanel/ControlPanel.vue';
 import TextVibration from './components/Effects/TextVibration.vue';
 import TextDistort from './components/Effects/TextDistort.vue';
@@ -141,6 +147,7 @@ export default {
     VideoBackground,
     FormatBoundary,
     GridOverlay,
+    ImageOverlay,
     ControlPanel,
     TextVibration,
     TextDistort,

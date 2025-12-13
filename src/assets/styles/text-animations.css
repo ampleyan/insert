@@ -1,0 +1,155 @@
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes slideLeft {
+  from {
+    transform: translateX(100vw);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideRight {
+  from {
+    transform: translateX(-100vw);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(100vh);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideDown {
+  from {
+    transform: translateY(-100vh);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes zoomIn {
+  from {
+    transform: scale(0);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes zoomOut {
+  from {
+    transform: scale(3);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes bounce {
+  0% {
+    transform: translateY(-100vh);
+    opacity: 0;
+  }
+  60% {
+    transform: translateY(30px);
+    opacity: 1;
+  }
+  80% {
+    transform: translateY(-10px);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
+@keyframes splitFlicker {
+  0%, 10%, 20%, 30%, 40%, 60%, 80%, 100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  5%, 25%, 35%, 45%, 70%, 90% {
+    opacity: 0.3;
+    transform: translateX(-10px);
+  }
+  15%, 50%, 85% {
+    opacity: 0.6;
+    transform: translateX(10px);
+  }
+}
+
+.text-animation-fade-in {
+  animation: fadeIn var(--animation-duration, 1000ms) var(--animation-timing, ease-out) var(--animation-delay, 0ms) var(--animation-iteration, 1) forwards;
+}
+
+.text-animation-fade-out {
+  animation: fadeOut var(--animation-duration, 1000ms) var(--animation-timing, ease-out) var(--animation-delay, 0ms) var(--animation-iteration, 1) forwards;
+}
+
+.text-animation-slide-left {
+  animation: slideLeft var(--animation-duration, 800ms) var(--animation-timing, ease-out) var(--animation-delay, 0ms) var(--animation-iteration, 1) forwards;
+}
+
+.text-animation-slide-right {
+  animation: slideRight var(--animation-duration, 800ms) var(--animation-timing, ease-out) var(--animation-delay, 0ms) var(--animation-iteration, 1) forwards;
+}
+
+.text-animation-slide-up {
+  animation: slideUp var(--animation-duration, 800ms) var(--animation-timing, ease-out) var(--animation-delay, 0ms) var(--animation-iteration, 1) forwards;
+}
+
+.text-animation-slide-down {
+  animation: slideDown var(--animation-duration, 800ms) var(--animation-timing, ease-out) var(--animation-delay, 0ms) var(--animation-iteration, 1) forwards;
+}
+
+.text-animation-zoom-in {
+  animation: zoomIn var(--animation-duration, 600ms) var(--animation-timing, cubic-bezier(0.175, 0.885, 0.32, 1.275)) var(--animation-delay, 0ms) var(--animation-iteration, 1) forwards;
+}
+
+.text-animation-zoom-out {
+  animation: zoomOut var(--animation-duration, 600ms) var(--animation-timing, cubic-bezier(0.175, 0.885, 0.32, 1.275)) var(--animation-delay, 0ms) var(--animation-iteration, 1) forwards;
+}
+
+.text-animation-bounce {
+  animation: bounce var(--animation-duration, 1200ms) var(--animation-timing, cubic-bezier(0.68, -0.55, 0.265, 1.55)) var(--animation-delay, 0ms) var(--animation-iteration, 1) forwards;
+}
+
+.text-animation-split-flicker {
+  animation: splitFlicker var(--animation-duration, 1000ms) var(--animation-timing, linear) var(--animation-delay, 0ms) var(--animation-iteration, 1) forwards;
+}
