@@ -234,6 +234,7 @@
       <template #settings>
         <div class="tab-section">
           <FormatControls @update="onUpdate" />
+          <GridControls @update="onUpdate" />
           <ExportControls :settings="settings" />
           <VideoLayerControls />
           <RecordingControls />
@@ -250,6 +251,7 @@
   import BackdropControls from './BackdropFilterControls.vue';
   import RecordingControls from './RecordingControls.vue';
   import FormatControls from './FormatControls.vue';
+  import GridControls from './GridControls.vue';
   import ExportControls from './ExportControls.vue';
   import VideoLayerControls from '../VideoLayerControls.vue';
   import TabContainer from './TabContainer.vue';
@@ -266,6 +268,7 @@
       BackdropControls,
       RecordingControls,
       FormatControls,
+      GridControls,
       ExportControls,
       VideoLayerControls,
       TabContainer,

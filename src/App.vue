@@ -1,6 +1,7 @@
 <template>
   <div class="app" :style="appStyle">
     <VideoBackground :settings="settingsStore.$state" />
+    <GridOverlay :settings="settingsStore.$state" />
 
     <button class="toggle-controls" @click="toggleControls" v-show="!isControlsHidden">
       <span class="icon" :class="{ hidden: isControlsHidden }">◀</span>
@@ -106,6 +107,7 @@
 
 <script>
 import VideoBackground from './components/VideoBackground.vue';
+import GridOverlay from './components/GridOverlay.vue';
 import ControlPanel from './components/ControlPanel/ControlPanel.vue';
 import TextVibration from './components/Effects/TextVibration.vue';
 import TextDistort from './components/Effects/TextDistort.vue';
@@ -135,6 +137,7 @@ export default {
   name: 'App',
   components: {
     VideoBackground,
+    GridOverlay,
     ControlPanel,
     TextVibration,
     TextDistort,

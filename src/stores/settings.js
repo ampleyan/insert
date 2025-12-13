@@ -28,6 +28,15 @@ export const useSettingsStore = defineStore('settings', {
     videoFormat: 'vertical',
     videoWidth: 1080,
     videoHeight: 1920,
+    showGrid: false,
+    gridSize: 50,
+    gridColor: '#00ffff',
+    gridOpacity: 0.3,
+    showCenterGuides: true,
+    showThirdsGuides: false,
+    guideColor: '#ff00ff',
+    guideOpacity: 0.5,
+    snapToGrid: true,
 
     textPaths: [
       {
@@ -266,6 +275,15 @@ export const useSettingsStore = defineStore('settings', {
       this.$state.videoFormat = 'vertical';
       this.$state.videoWidth = 1080;
       this.$state.videoHeight = 1920;
+      this.$state.showGrid = false;
+      this.$state.gridSize = 50;
+      this.$state.gridColor = '#00ffff';
+      this.$state.gridOpacity = 0.3;
+      this.$state.showCenterGuides = true;
+      this.$state.showThirdsGuides = false;
+      this.$state.guideColor = '#ff00ff';
+      this.$state.guideOpacity = 0.5;
+      this.$state.snapToGrid = true;
       localStorage.removeItem('appSettings');
     },
 
