@@ -1,4 +1,4 @@
-const GOOGLE_FONTS_API_KEY = 'AIzaSyBEwq9aVq1qQdcGqFqZqN6B8h6rEBa6Z5Q';
+// const GOOGLE_FONTS_API_KEY = 'AIzaSyBEwq9aVq1qQdcGqFqZqN6B8h6rEBa6Z5Q';
 const POPULAR_FONTS = [
   'Roboto',
   'Open Sans',

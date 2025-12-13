@@ -364,7 +364,7 @@ export const useSettingsStore = defineStore('settings', {
 
     alignText(alignmentConfig) {
       const { type, alignment, axis, videoWidth, videoHeight } = alignmentConfig;
-
+      console.log(axis)
       if (type === 'horizontal') {
         const width = videoWidth || 1080;
         this.margin.forEach((_, index) => {
