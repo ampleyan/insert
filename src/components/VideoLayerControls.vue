@@ -56,7 +56,6 @@
               <input
                 type="text"
                 v-model="layer.src"
-                @keyup.enter="loadVideo(layer.id)"
                 placeholder="Enter video URL or YouTube link"
                 class="url-input"
               />

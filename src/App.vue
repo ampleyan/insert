@@ -202,7 +202,6 @@ export default {
   },
   mounted() {
     document.addEventListener('dblclick', this.handleDoubleClick);
-    document.addEventListener('keydown', this.handleKeyDown);
 
     setTimeout(() => {
       this.isShortcutHintVisible = true;
@@ -213,7 +212,6 @@ export default {
   },
   beforeUnmount() {
     document.removeEventListener('dblclick', this.handleDoubleClick);
-    document.removeEventListener('keydown', this.handleKeyDown);
   },
   computed: {
     appStyle() {
@@ -241,31 +239,6 @@ export default {
     handleDoubleClick(e) {
       if (!e.target.closest('.controls') && !e.target.closest('.toggle-controls')) {
         this.toggleControls();
-      }
-    },
-    handleKeyDown(e) {
-      if (e.key === 'h' || e.key === 'H') {
-        this.toggleControls();
-      }
-
-      if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
-        e.preventDefault();
-        this.historyStore.undo(this.settingsStore);
-      }
-
-      if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'z') {
-        e.preventDefault();
-        this.historyStore.redo(this.settingsStore);
-      }
-
-      const effectMap = {
-        '1': 'vibration', '2': 'glitch', '3': 'wave', '4': 'particle',
-        '5': 'rotation3d', '6': 'neon', '7': 'liquid', '8': 'typewriter',
-        '9': 'chromatic'
-      };
-
-      if (effectMap[e.key]) {
-        this.settingsStore.updateSettings({ effectType: effectMap[e.key] });
       }
     },
     showShortcutHint() {

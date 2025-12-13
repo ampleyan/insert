@@ -197,17 +197,8 @@ export default {
     },
   },
   mounted() {
-    document.addEventListener('keydown', this.handleEscape);
   },
   beforeUnmount() {
-    document.removeEventListener('keydown', this.handleEscape);
-  },
-  created() {
-    this.handleEscape = (e) => {
-      if (e.key === 'Escape' && this.visible) {
-        this.$emit('close');
-      }
-    };
   },
 };
 </script>
