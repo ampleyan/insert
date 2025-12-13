@@ -255,7 +255,7 @@ export default {
 .app {
   position: relative;
   margin: 0 auto;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .app.fit-mode {

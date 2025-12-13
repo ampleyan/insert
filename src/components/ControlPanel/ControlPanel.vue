@@ -200,6 +200,52 @@
                           </div>
                         </div>
                         <div class="option-item">
+                          <label>Scale X</label>
+                          <div class="slider-container">
+                            <input
+                              type="range"
+                              v-model.number="settings.scaleX[index]"
+                              min="0.1"
+                              max="5"
+                              step="0.1"
+                              @input="onUpdate(settings)"
+                            />
+                            <input
+                              type="number"
+                              class="value-input"
+                              v-model.number="settings.scaleX[index]"
+                              min="0.1"
+                              max="5"
+                              step="0.1"
+                              @input="onUpdate(settings)"
+                            />
+                            <span class="unit">x</span>
+                          </div>
+                        </div>
+                        <div class="option-item">
+                          <label>Scale Y</label>
+                          <div class="slider-container">
+                            <input
+                              type="range"
+                              v-model.number="settings.scaleY[index]"
+                              min="0.1"
+                              max="5"
+                              step="0.1"
+                              @input="onUpdate(settings)"
+                            />
+                            <input
+                              type="number"
+                              class="value-input"
+                              v-model.number="settings.scaleY[index]"
+                              min="0.1"
+                              max="5"
+                              step="0.1"
+                              @input="onUpdate(settings)"
+                            />
+                            <span class="unit">x</span>
+                          </div>
+                        </div>
+                        <div class="option-item">
                           <label>Random Amount</label>
                           <div class="slider-container">
                             <input

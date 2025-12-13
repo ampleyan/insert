@@ -48,45 +48,46 @@
     props: {
       settings: {
         type: Object,
-        default: () => ({
-          hue: 0,
-          opacity: 100,
-          color: '#ffffff',
-          blendMode: 'difference',
-          randomAmount: 50,
-          intervalSpeed: 200,
-          blurAmount: 2,
-          vibrateIntensity: 2,
-          vibrateSpeed: 200,
-          textLines: ['TEXT'],
-          fontSize: 80,
-        }),
+        required: true,
       },
     },
     computed: {
       rootStyles() {
-        const gooSettings = this.settings.goo || {};
+        const distortSettings = this.settings.distort || {};
         return {
-          '--translate-x': `${gooSettings.gooAmount || 20}px`,
-          '--translate-y': `${gooSettings.gooAmount || 20}px`,
-          '--vibrate-speed': `${1000 / (gooSettings.morphSpeed || 1)}ms`,
-          '--turbulence-intensity': gooSettings.turbulenceIntensity || 30,
+          '--translate-x': `${distortSettings.distortAmount || 20}px`,
+          '--translate-y': `${distortSettings.distortAmount || 20}px`,
+          '--vibrate-speed': `${1000 / (distortSettings.morphSpeed || 1)}ms`,
+          '--turbulence-intensity': distortSettings.turbulenceIntensity || 30,
         };
       },
     },
     data() {
       return {
         textLinesVar: this.settings.textLines,
-        textLineFontSize: Array.isArray(this.settings.fontSize)
-          ? this.settings.fontSize
-          : this.settings.textLines.map(() => this.settings.fontSize),
-        vibratingLetters: {},
-        animationInterval: null,
       };
     },
     watch: {
       'settings.textLines'(newValue) {
         this.textLinesVar = newValue;
+      },
+    },
+    methods: {
+      getTextStyle(index) {
+        const fontSize = this.settings.fontSize?.[index] || 120;
+        const letterSpacing = this.settings.letterSpacing?.[index] || 0;
+        const scaleX = this.settings.scaleX?.[index] || 1;
+        const scaleY = this.settings.scaleY?.[index] || 1;
+
+        return {
+          fontSize: `${fontSize}px`,
+          color: this.settings.color,
+          opacity: this.settings.opacity / 100,
+          letterSpacing: `${letterSpacing}px`,
+          mixBlendMode: this.settings.blendMode,
+          transform: `scale(${scaleX}, ${scaleY})`,
+          filter: `hue-rotate(${this.settings.hue}deg)`,
+        };
       },
     },
   };
@@ -110,7 +111,6 @@
     text-align: center;
   }
   h1 {
-    font-size: calc(10vw + 0.5rem);
     font-weight: 900;
     text-transform: uppercase;
     color: black;
@@ -118,6 +118,8 @@
     background: linear-gradient(transparent 50%, #000 50%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
+    white-space: nowrap;
+    max-width: none;
 
     &::after {
       content: attr(data-heading);
