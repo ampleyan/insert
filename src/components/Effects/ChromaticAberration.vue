@@ -58,6 +58,8 @@ export default {
     getTextStyle(index) {
       const fontSize = this.settings.fontSize?.[index] || 120;
       const letterSpacing = this.settings.letterSpacing?.[index] || 0;
+      const scaleX = this.settings.scaleX?.[index] || 1;
+      const scaleY = this.settings.scaleY?.[index] || 1;
       const chromaticSettings = this.settings.chromatic || {};
 
       return {
@@ -66,6 +68,7 @@ export default {
         opacity: this.settings.opacity / 100,
         letterSpacing: `${letterSpacing}px`,
         mixBlendMode: this.settings.blendMode,
+        transform: `scale(${scaleX}, ${scaleY})`,
         filter: `hue-rotate(${this.settings.hue}deg)`,
         '--aberration-distance': `${chromaticSettings.aberrationDistance || 8}px`,
         '--red-offset': `${chromaticSettings.redOffset || 5}px`,
@@ -92,6 +95,8 @@ export default {
   font-weight: 900;
   text-transform: uppercase;
   color: transparent;
+  white-space: nowrap;
+  max-width: none;
 }
 
 .chromatic-text::before,

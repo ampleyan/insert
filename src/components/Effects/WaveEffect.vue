@@ -97,6 +97,8 @@ export default {
     },
     getLetterStyle(lineIndex, letterIndex) {
       const fontSize = this.settings.fontSize?.[lineIndex] || 120;
+      const scaleX = this.settings.scaleX?.[lineIndex] || 1;
+      const scaleY = this.settings.scaleY?.[lineIndex] || 1;
       const waveSettings = this.settings.wave || {};
       const frequency = waveSettings.waveFrequency || 1;
       const amplitude = waveSettings.waveAmplitude || 20;
@@ -108,7 +110,7 @@ export default {
         fontSize: `${fontSize}px`,
         color: this.settings.color,
         opacity: this.settings.opacity / 100,
-        transform: `translateY(${y}px)`,
+        transform: `translateY(${y}px) scale(${scaleX}, ${scaleY})`,
         filter: `hue-rotate(${this.settings.hue}deg) blur(${this.settings.blurAmount}px)`,
       };
     },
@@ -130,6 +132,8 @@ export default {
 .wave-text {
   position: relative;
   overflow: visible;
+  white-space: nowrap;
+  max-width: none;
 }
 
 .wave-letter {

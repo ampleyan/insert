@@ -112,6 +112,8 @@ export default {
     getTextStyle(index) {
       const fontSize = this.settings.fontSize?.[index] || 120;
       const letterSpacing = this.settings.letterSpacing?.[index] || 0;
+      const scaleX = this.settings.scaleX?.[index] || 1;
+      const scaleY = this.settings.scaleY?.[index] || 1;
 
       return {
         fontSize: `${fontSize}px`,
@@ -119,6 +121,7 @@ export default {
         opacity: this.settings.opacity / 100,
         letterSpacing: `${letterSpacing}px`,
         mixBlendMode: this.settings.blendMode,
+        transform: `scale(${scaleX}, ${scaleY})`,
         filter: `url(#liquid-${this.uid}) hue-rotate(${this.settings.hue}deg)`,
       };
     },
@@ -141,6 +144,8 @@ export default {
   font-weight: 900;
   text-transform: uppercase;
   will-change: filter;
+  white-space: nowrap;
+  max-width: none;
 }
 
 .liquid-text.has-path {

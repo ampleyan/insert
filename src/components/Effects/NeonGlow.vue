@@ -57,6 +57,8 @@ export default {
     getTextStyle(index) {
       const fontSize = this.settings.fontSize?.[index] || 120;
       const letterSpacing = this.settings.letterSpacing?.[index] || 0;
+      const scaleX = this.settings.scaleX?.[index] || 1;
+      const scaleY = this.settings.scaleY?.[index] || 1;
       const neonSettings = this.settings.neon || {};
 
       return {
@@ -65,6 +67,7 @@ export default {
         opacity: this.settings.opacity / 100,
         letterSpacing: `${letterSpacing}px`,
         mixBlendMode: this.settings.blendMode,
+        transform: `scale(${scaleX}, ${scaleY})`,
         filter: `hue-rotate(${this.settings.hue}deg) blur(${neonSettings.glowBlur || 20}px)`,
         '--glow-intensity': `${neonSettings.glowIntensity || 80}px`,
         '--pulse-speed': `${neonSettings.pulseSpeed || 2000}ms`,
@@ -91,6 +94,8 @@ export default {
   text-transform: uppercase;
   animation: neon-pulse var(--pulse-speed) ease-in-out infinite;
   will-change: text-shadow;
+  white-space: nowrap;
+  max-width: none;
 }
 
 @keyframes neon-pulse {

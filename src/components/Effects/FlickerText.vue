@@ -58,6 +58,8 @@ export default {
     getTextStyle(index) {
       const fontSize = this.settings.fontSize?.[index] || 120;
       const letterSpacing = this.settings.letterSpacing?.[index] || 0;
+      const scaleX = this.settings.scaleX?.[index] || 1;
+      const scaleY = this.settings.scaleY?.[index] || 1;
       const flickerSettings = this.settings.flicker || {};
 
       return {
@@ -66,6 +68,7 @@ export default {
         opacity: this.settings.opacity / 100,
         letterSpacing: `${letterSpacing}px`,
         mixBlendMode: this.settings.blendMode,
+        transform: `scale(${scaleX}, ${scaleY})`,
         filter: `hue-rotate(${this.settings.hue}deg)`,
         '--flicker-speed': `${flickerSettings.flickerSpeed || 200}ms`,
         '--min-opacity': (flickerSettings.minOpacity || 30) / 100,
@@ -92,6 +95,8 @@ export default {
   position: relative;
   animation: flicker 3s linear infinite;
   text-shadow: 0 0 10px currentColor, 0 0 20px currentColor, 0 0 30px currentColor;
+  white-space: nowrap;
+  max-width: none;
 }
 
 .flicker-text::before,

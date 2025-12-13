@@ -1,9 +1,5 @@
 <template>
   <div class="scanlines-container">
-    <div class="position-guides" v-if="settings.dragMode">
-      <div class="position-guide x-axis"></div>
-      <div class="position-guide y-axis"></div>
-    </div>
     <div
       v-for="(text, index) in settings.textLines"
       :key="index"
@@ -78,6 +74,8 @@ export default {
     getTextStyle(index) {
       const fontSize = this.settings.fontSize?.[index] || 120;
       const letterSpacing = this.settings.letterSpacing?.[index] || 0;
+      const scaleX = this.settings.scaleX?.[index] || 1;
+      const scaleY = this.settings.scaleY?.[index] || 1;
       const scanlinesSettings = this.settings.scanlines || {};
 
       return {
@@ -86,6 +84,7 @@ export default {
         opacity: this.settings.opacity / 100,
         letterSpacing: `${letterSpacing}px`,
         mixBlendMode: this.settings.blendMode,
+        transform: `scale(${scaleX}, ${scaleY})`,
         filter: `hue-rotate(${this.settings.hue}deg)`,
         '--scanline-intensity': (scanlinesSettings.scanlineIntensity || 50) / 100,
         '--scanline-count': scanlinesSettings.scanlineCount || 200,
@@ -118,6 +117,8 @@ export default {
   transform: translateZ(0);
   backface-visibility: hidden;
   animation: vhs-distort 0.3s infinite;
+  white-space: nowrap;
+  max-width: none;
 }
 
 .scanlines-overlay {
@@ -256,35 +257,5 @@ export default {
 
 .scanlines-text.draggable:hover .edit-icon {
   opacity: 1;
-}
-
-.position-guides {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  z-index: 0;
-}
-
-.position-guide {
-  position: fixed;
-  pointer-events: none;
-  border: 1px dashed rgba(255, 255, 255, 0.2);
-}
-
-.position-guide.x-axis {
-  width: 100%;
-  height: 1px;
-  top: 50%;
-  left: 0;
-}
-
-.position-guide.y-axis {
-  height: 100%;
-  width: 1px;
-  left: 50%;
-  top: 0;
 }
 </style>

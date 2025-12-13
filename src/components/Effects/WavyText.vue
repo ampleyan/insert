@@ -64,12 +64,15 @@ export default {
     getTextStyle(index) {
       const fontSize = this.settings.fontSize?.[index] || 120;
       const letterSpacing = this.settings.letterSpacing?.[index] || 0;
+      const scaleX = this.settings.scaleX?.[index] || 1;
+      const scaleY = this.settings.scaleY?.[index] || 1;
       const wavySettings = this.settings.wavy || {};
 
       return {
         fontSize: `${fontSize}px`,
         letterSpacing: `${letterSpacing}px`,
         mixBlendMode: this.settings.blendMode,
+        transform: `scale(${scaleX}, ${scaleY})`,
         filter: `hue-rotate(${this.settings.hue}deg)`,
         '--wave-height': `${wavySettings.waveHeight || 20}px`,
         '--wave-speed': `${wavySettings.waveSpeed || 2}s`,
@@ -101,6 +104,8 @@ export default {
 .wavy-text {
   font-weight: 900;
   text-transform: uppercase;
+  white-space: nowrap;
+  max-width: none;
 }
 
 .wavy-letter {

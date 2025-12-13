@@ -58,12 +58,15 @@ export default {
     getTextStyle(index) {
       const fontSize = this.settings.fontSize?.[index] || 120;
       const letterSpacing = this.settings.letterSpacing?.[index] || 0;
+      const scaleX = this.settings.scaleX?.[index] || 1;
+      const scaleY = this.settings.scaleY?.[index] || 1;
       const strokeSettings = this.settings.stroke || {};
 
       return {
         fontSize: `${fontSize}px`,
         letterSpacing: `${letterSpacing}px`,
         mixBlendMode: this.settings.blendMode,
+        transform: `scale(${scaleX}, ${scaleY})`,
         filter: `hue-rotate(${this.settings.hue}deg)`,
         '--stroke-width': `${strokeSettings.strokeWidth || 2}px`,
         '--stroke-color': strokeSettings.strokeColor || '#ffffff',

@@ -1,9 +1,5 @@
 <template>
   <div class="shatter-container">
-    <div class="position-guides" v-if="settings.dragMode">
-      <div class="position-guide x-axis"></div>
-      <div class="position-guide y-axis"></div>
-    </div>
     <div
       v-for="(text, index) in settings.textLines"
       :key="index"
@@ -67,6 +63,8 @@ export default {
     getTextStyle(index) {
       const fontSize = this.settings.fontSize?.[index] || 120;
       const letterSpacing = this.settings.letterSpacing?.[index] || 0;
+      const scaleX = this.settings.scaleX?.[index] || 1;
+      const scaleY = this.settings.scaleY?.[index] || 1;
 
       return {
         fontSize: `${fontSize}px`,
@@ -74,6 +72,7 @@ export default {
         opacity: this.settings.opacity / 100,
         letterSpacing: `${letterSpacing}px`,
         mixBlendMode: this.settings.blendMode,
+        transform: `scale(${scaleX}, ${scaleY})`,
         filter: `hue-rotate(${this.settings.hue}deg)`,
       };
     },
@@ -122,7 +121,8 @@ export default {
   transform: translateZ(0);
   backface-visibility: hidden;
   display: flex;
-  white-space: pre;
+  white-space: nowrap;
+  max-width: none;
 }
 
 .shatter-fragment {
@@ -213,35 +213,5 @@ export default {
 
 .shatter-text.draggable:hover .edit-icon {
   opacity: 1;
-}
-
-.position-guides {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  z-index: 0;
-}
-
-.position-guide {
-  position: fixed;
-  pointer-events: none;
-  border: 1px dashed rgba(255, 255, 255, 0.2);
-}
-
-.position-guide.x-axis {
-  width: 100%;
-  height: 1px;
-  top: 50%;
-  left: 0;
-}
-
-.position-guide.y-axis {
-  height: 100%;
-  width: 1px;
-  left: 50%;
-  top: 0;
 }
 </style>

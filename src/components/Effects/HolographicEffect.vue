@@ -1,9 +1,5 @@
 <template>
   <div class="holographic-container">
-    <div class="position-guides" v-if="settings.dragMode">
-      <div class="position-guide x-axis"></div>
-      <div class="position-guide y-axis"></div>
-    </div>
     <div
       v-for="(text, index) in settings.textLines"
       :key="index"
@@ -103,11 +99,14 @@ export default {
     getTextStyle(index) {
       const fontSize = this.settings.fontSize?.[index] || 120;
       const letterSpacing = this.settings.letterSpacing?.[index] || 0;
+      const scaleX = this.settings.scaleX?.[index] || 1;
+      const scaleY = this.settings.scaleY?.[index] || 1;
       const holoSettings = this.settings.holographic || {};
 
       return {
         fontSize: `${fontSize}px`,
         letterSpacing: `${letterSpacing}px`,
+        transform: `scale(${scaleX}, ${scaleY})`,
         '--holo-hue': `${this.settings.hue}deg`,
         '--holo-opacity': (holoSettings.holoOpacity || 70) / 100,
         '--holo-shift': `${holoSettings.holoShift || 8}px`,
@@ -139,6 +138,8 @@ export default {
   will-change: transform;
   transform: translateZ(0);
   backface-visibility: hidden;
+  white-space: nowrap;
+  max-width: none;
 }
 
 .holo-layer {
@@ -265,35 +266,5 @@ export default {
 
 .holographic-text.draggable:hover .edit-icon {
   opacity: 1;
-}
-
-.position-guides {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  z-index: 0;
-}
-
-.position-guide {
-  position: fixed;
-  pointer-events: none;
-  border: 1px dashed rgba(255, 255, 255, 0.2);
-}
-
-.position-guide.x-axis {
-  width: 100%;
-  height: 1px;
-  top: 50%;
-  left: 0;
-}
-
-.position-guide.y-axis {
-  height: 100%;
-  width: 1px;
-  left: 50%;
-  top: 0;
 }
 </style>

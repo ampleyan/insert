@@ -64,12 +64,15 @@ export default {
     getTextStyle(index) {
       const fontSize = this.settings.fontSize?.[index] || 120;
       const letterSpacing = this.settings.letterSpacing?.[index] || 0;
+      const scaleX = this.settings.scaleX?.[index] || 1;
+      const scaleY = this.settings.scaleY?.[index] || 1;
       const splitSettings = this.settings.split || {};
 
       return {
         fontSize: `${fontSize}px`,
         letterSpacing: `${letterSpacing}px`,
         mixBlendMode: this.settings.blendMode,
+        transform: `scale(${scaleX}, ${scaleY})`,
         filter: `hue-rotate(${this.settings.hue}deg)`,
         '--split-distance': `${splitSettings.splitDistance || 50}px`,
         '--split-speed': `${splitSettings.splitSpeed || 800}ms`,
@@ -105,6 +108,8 @@ export default {
   font-weight: 900;
   text-transform: uppercase;
   perspective: 1000px;
+  white-space: nowrap;
+  max-width: none;
 }
 
 .split-letter {

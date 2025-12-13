@@ -57,12 +57,15 @@ export default {
     getTextStyle(index) {
       const fontSize = this.settings.fontSize?.[index] || 120;
       const letterSpacing = this.settings.letterSpacing?.[index] || 0;
+      const scaleX = this.settings.scaleX?.[index] || 1;
+      const scaleY = this.settings.scaleY?.[index] || 1;
       const gradientSettings = this.settings.gradient || {};
 
       return {
         fontSize: `${fontSize}px`,
         letterSpacing: `${letterSpacing}px`,
         mixBlendMode: this.settings.blendMode,
+        transform: `scale(${scaleX}, ${scaleY})`,
         filter: `hue-rotate(${this.settings.hue}deg)`,
         opacity: this.settings.opacity / 100,
         '--gradient-color1': gradientSettings.gradientColor1 || '#ff0080',
@@ -101,6 +104,8 @@ export default {
   background-clip: text;
   -webkit-text-fill-color: transparent;
   animation: gradient-shift 3s ease infinite;
+  white-space: nowrap;
+  max-width: none;
 }
 
 @keyframes gradient-shift {

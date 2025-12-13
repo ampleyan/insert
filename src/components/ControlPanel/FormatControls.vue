@@ -26,6 +26,10 @@
         <input type="checkbox" v-model="fitToFormat" @change="updateOptions" />
         <span>Fit Video to Format</span>
       </label>
+      <label class="option-label">
+        <input type="checkbox" v-model="allowOutsideFormat" @change="updateOptions" />
+        <span>Allow Elements Outside Format</span>
+      </label>
     </div>
   </div>
 </template>
@@ -47,7 +51,8 @@ export default {
       selectedFormat: DEFAULT_FORMAT,
       formats: FORMAT_PRESETS,
       showBoundary: true,
-      fitToFormat: false
+      fitToFormat: false,
+      allowOutsideFormat: true
     };
   },
   computed: {
@@ -70,7 +75,8 @@ export default {
     updateOptions() {
       this.$emit('update', {
         showFormatBoundary: this.showBoundary,
-        fitToFormat: this.fitToFormat
+        fitToFormat: this.fitToFormat,
+        allowElementsOutsideFormat: this.allowOutsideFormat
       });
     }
   }

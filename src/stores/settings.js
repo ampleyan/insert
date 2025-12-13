@@ -36,6 +36,7 @@ export const useSettingsStore = defineStore('settings', {
     videoHeight: 1920,
     showFormatBoundary: true,
     fitToFormat: false,
+    allowElementsOutsideFormat: true,
     showGrid: false,
     gridSize: 50,
     gridColor: '#00ffff',
@@ -310,6 +311,7 @@ export const useSettingsStore = defineStore('settings', {
       this.$state.videoHeight = 1920;
       this.$state.showFormatBoundary = true;
       this.$state.fitToFormat = false;
+      this.$state.allowElementsOutsideFormat = true;
       this.$state.showGrid = false;
       this.$state.gridSize = 50;
       this.$state.gridColor = '#00ffff';
