@@ -22,6 +22,8 @@ export const useSettingsStore = defineStore('settings', {
     letterSpacing: [0, 0, 0],
     scaleX: [1, 1, 1],
     scaleY: [1, 1, 1],
+    letterTransforms: [{}, {}, {}],
+    letterEditMode: false,
     globalRandomAmount: 50,
     randomAmount: [0, 0, 0],
     textVisible: [true, true, true],
@@ -258,6 +260,13 @@ export const useSettingsStore = defineStore('settings', {
       shatterDelay: 0,
       reassemble: false,
     },
+    audioSync: {
+      enabled: false,
+      influence: 50,
+      target: 'amplitude',
+      applyTo: 'intensity',
+      volume: 1,
+    },
   }),
 
   actions: {
@@ -299,6 +308,10 @@ export const useSettingsStore = defineStore('settings', {
       this.$state.margin = [0, 0, 0];
       this.$state.marginTop = [0, 0, 0];
       this.$state.letterSpacing = [0, 0, 0];
+      this.$state.scaleX = [1, 1, 1];
+      this.$state.scaleY = [1, 1, 1];
+      this.$state.letterTransforms = [{}, {}, {}];
+      this.$state.letterEditMode = false;
       this.$state.textVisible = [true, true, true];
       this.$state.backdropBlur = 0;
       this.$state.backdropBrightness = 100;
@@ -321,6 +334,13 @@ export const useSettingsStore = defineStore('settings', {
       this.$state.guideColor = '#ff00ff';
       this.$state.guideOpacity = 0.5;
       this.$state.snapToGrid = true;
+      this.$state.audioSync = {
+        enabled: false,
+        influence: 50,
+        target: 'amplitude',
+        applyTo: 'intensity',
+        volume: 1,
+      };
       localStorage.removeItem('appSettings');
     },
 
@@ -338,6 +358,7 @@ export const useSettingsStore = defineStore('settings', {
       this.randomAmount.push(0);
       this.textTypes.push(null);
       this.textVisible.push(true);
+      this.letterTransforms.push({});
       this.textAnimations.push({
         preset: 'none',
         duration: 1000,
@@ -360,6 +381,7 @@ export const useSettingsStore = defineStore('settings', {
       this.randomAmount.splice(index, 1);
       this.textTypes.splice(index, 1);
       this.textVisible.splice(index, 1);
+      this.letterTransforms.splice(index, 1);
       this.textAnimations.splice(index, 1);
     },
 

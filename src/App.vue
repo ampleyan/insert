@@ -14,7 +14,7 @@
       @update="onUpdate"
     />
 
-    <button class="toggle-controls" @click="toggleControls" v-show="!isControlsHidden">
+    <button class="toggle-controls" @click="toggleControls">
       <span class="icon" :class="{ hidden: isControlsHidden }">◀</span>
       <span class="text">{{ isControlsHidden ? 'Show Controls' : 'Hide Controls' }}</span>
     </button>
@@ -28,6 +28,10 @@
       @update="onUpdate"
       @change-effect="onUpdate"
       @reset="resetToDefaults"
+      @audioPlay="handleAudioPlay"
+      @audioPause="handleAudioPause"
+      @audioStop="handleAudioStop"
+      @audioFile="handleAudioFile"
     />
 
     <ErrorBoundary>
@@ -67,11 +71,7 @@
       <TextDistort
         v-if="settingsStore.effectType === 'goo'"
         :settings="settingsStore.$state"
-        text="Wavy Text"
-        baseFrequency="0.02 0.02"
-        scale="30"
-        fontSize="12vw"
-        color="#ff0"
+        @update="onUpdate"
       />
       <SplitText v-if="settingsStore.effectType === 'split'" :settings="settingsStore.$state" @update="onUpdate" />
       <WavyText v-if="settingsStore.effectType === 'wavy'" :settings="settingsStore.$state" @update="onUpdate" />
@@ -146,6 +146,7 @@ import ErrorBoundary from './components/ErrorBoundary.vue';
 import { useSettingsStore } from './stores/settings';
 import { useHistoryStore } from './stores/history';
 import { usePresetsStore } from './stores/presets';
+import { useAudioSync } from './composables/useAudioSync';
 
 export default {
   name: 'App',
@@ -194,11 +195,23 @@ export default {
     const settingsStore = useSettingsStore();
     const historyStore = useHistoryStore();
     const presetsStore = usePresetsStore();
+    const { audioData, isPlaying, initAudio, play, pause, stop, setVolume } = useAudioSync();
 
     settingsStore.loadFromLocalStorage();
     presetsStore.loadFromLocalStorage();
 
-    return { settingsStore, historyStore, presetsStore };
+    return {
+      settingsStore,
+      historyStore,
+      presetsStore,
+      audioData,
+      audioIsPlaying: isPlaying,
+      audioInit: initAudio,
+      audioPlay: play,
+      audioPause: pause,
+      audioStop: stop,
+      audioSetVolume: setVolume,
+    };
   },
   mounted() {
     document.addEventListener('dblclick', this.handleDoubleClick);
@@ -209,9 +222,63 @@ export default {
         this.isShortcutHintVisible = false;
       }, 3000);
     }, 1000);
+
+    this.$watch(
+      () => [this.audioData, this.settingsStore.audioSync],
+      ([audioData, audioSync]) => {
+        if (!audioSync?.enabled || !audioData) return;
+
+        const influence = (audioSync.influence || 50) / 100;
+        let audioValue = 0;
+
+        switch (audioSync.target) {
+          case 'amplitude':
+            audioValue = audioData.amplitude;
+            break;
+          case 'bass':
+            audioValue = audioData.bass;
+            break;
+          case 'mid':
+            audioValue = audioData.mid;
+            break;
+          case 'treble':
+            audioValue = audioData.treble;
+            break;
+          case 'beat':
+            audioValue = audioData.beat ? 1 : 0;
+            break;
+        }
+
+        const modulation = audioValue * influence;
+
+        switch (audioSync.applyTo) {
+          case 'intensity':
+            this.settingsStore.vibrateIntensity = 1 + modulation * 10;
+            break;
+          case 'scale':
+            this.settingsStore.scaleX = this.settingsStore.scaleX.map(() => 1 + modulation * 0.5);
+            this.settingsStore.scaleY = this.settingsStore.scaleY.map(() => 1 + modulation * 0.5);
+            break;
+          case 'color':
+            this.settingsStore.hue = (this.settingsStore.hue + modulation * 360) % 360;
+            break;
+          case 'glitch':
+            if (this.settingsStore.glitch) {
+              this.settingsStore.glitch.glitchIntensity = 10 + modulation * 20;
+            }
+            break;
+        }
+      },
+      { deep: true }
+    );
   },
   beforeUnmount() {
     document.removeEventListener('dblclick', this.handleDoubleClick);
+  },
+  provide() {
+    return {
+      audioData: this.audioData,
+    };
   },
   computed: {
     appStyle() {
@@ -246,6 +313,23 @@ export default {
       setTimeout(() => {
         this.isShortcutHintVisible = false;
       }, 2000);
+    },
+    handleAudioFile(file) {
+      if (file) {
+        this.audioInit(file);
+        if (this.settingsStore.audioSync?.volume) {
+          this.audioSetVolume(this.settingsStore.audioSync.volume);
+        }
+      }
+    },
+    handleAudioPlay() {
+      this.audioPlay();
+    },
+    handleAudioPause() {
+      this.audioPause();
+    },
+    handleAudioStop() {
+      this.audioStop();
     },
   },
 };

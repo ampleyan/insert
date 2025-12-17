@@ -7,7 +7,10 @@
       "Bash(git commit -m \"$(cat <<''EOF''\nAdd GitHub Actions deployment and CI workflows\n\n- Add deploy.yml: Automatic deployment to GitHub Pages on push to main\n- Add ci.yml: Lint and build checks on PRs and non-main branches\n- Add DEPLOYMENT.md: Comprehensive deployment guide\n- Update README.md: Add badges, usage instructions, and better documentation\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>\nEOF\n)\")",
       "Bash(git push)",
       "Bash(grep:*)",
-      "Bash(done)"
+      "Bash(done)",
+      "WebFetch(domain:www.anthropic.com)",
+      "Bash(node:*)",
+      "Bash(del DEPLOYMENT-NEW-REPO.md setup-new-repo.cmd)"
     ],
     "deny": [],
     "ask": []

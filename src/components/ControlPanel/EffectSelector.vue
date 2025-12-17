@@ -248,6 +248,14 @@ export default {
 .preview-glitch { animation: preview-glitch 0.8s infinite; }
 .preview-wave { animation: preview-wave 2s infinite; }
 .preview-neon { text-shadow: 0 0 10px #fff, 0 0 20px #ff00ff; }
+.preview-gradient {
+  background: linear-gradient(45deg, #ff0080, #7928ca, #0070f3, #ff0080);
+  background-size: 200% 200%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: preview-gradient-shift 2s ease infinite;
+}
 .preview-scanlines { text-shadow: 2px 0 #ff0000, -2px 0 #00ffff; }
 .preview-holographic { background: linear-gradient(45deg, #ff00ff, #00ffff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
 
@@ -267,6 +275,11 @@ export default {
 @keyframes preview-wave {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-5px); }
+}
+
+@keyframes preview-gradient-shift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
 }
 
 .effect-info {

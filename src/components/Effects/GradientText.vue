@@ -1,5 +1,8 @@
 <template>
-  <div class="gradient-container">
+  <div class="gradient-container" @mousemove="onMouseMoveWithManipulation" @touchmove="onTouchMoveWithManipulation">
+    <div v-if="keyboardModeLabel" class="keyboard-mode-indicator">
+      {{ keyboardModeLabel }}
+    </div>
     <div
       v-for="(text, index) in settings.textLines"
       :key="index"
@@ -22,7 +25,24 @@
         v-if="settings.dragMode"
         @click.stop="openInlineEditor(index, $event)"
       >✏</span>
-      {{ text }}
+
+      <span v-if="settings.letterEditMode" class="letter-container">
+        <LetterRenderer
+          v-for="(letter, letterIndex) in text.split('')"
+          :key="`${index}-${letterIndex}`"
+          :letter="letter"
+          :lineIndex="index"
+          :letterIndex="letterIndex"
+          :settings="settings"
+          :letterStyle="applyLetterTransform({}, index, letterIndex)"
+          :isLetterSelected="isLetterSelected"
+          :onLetterClick="handleLetterClick"
+          :onManipulationStart="handleManipulationStart"
+        />
+      </span>
+      <template v-else>
+        {{ text }}
+      </template>
     </div>
 
     <InlineTextEditor
@@ -38,14 +58,17 @@
 
 <script>
 import draggableTextMixin from '@/mixins/draggableTextMixin';
+import letterManipulationMixin from '@/mixins/letterManipulationMixin';
 import InlineTextEditor from '@/components/InlineTextEditor.vue';
+import LetterRenderer from '@/components/LetterRenderer.vue';
 
 export default {
   name: 'GradientText',
   components: {
     InlineTextEditor,
+    LetterRenderer,
   },
-  mixins: [draggableTextMixin],
+  mixins: [draggableTextMixin, letterManipulationMixin],
   emits: ['update'],
   props: {
     settings: {
@@ -80,6 +103,35 @@ export default {
 </script>
 
 <style scoped>
+.keyboard-mode-indicator {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(0, 0, 0, 0.9);
+  color: #00ffff;
+  padding: 20px 40px;
+  border-radius: 8px;
+  font-size: 18px;
+  font-weight: bold;
+  z-index: 9999;
+  pointer-events: none;
+  border: 2px solid #00ffff;
+  box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
+  animation: pulse 1s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 0.8;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.05);
+  }
+}
+
 .gradient-container {
   display: flex;
   flex-direction: column;
@@ -93,19 +145,24 @@ export default {
   font-weight: 900;
   text-transform: uppercase;
   background: linear-gradient(
-    45deg,
-    var(--gradient-color),
-    #ff00ff,
-    #00ffff,
-    var(--gradient-color)
+    var(--gradient-angle, 45deg),
+    var(--gradient-color1, #ff0080),
+    var(--gradient-color2, #7928ca),
+    var(--gradient-color3, #0070f3),
+    var(--gradient-color1, #ff0080)
   );
   background-size: 400% 400%;
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
-  animation: gradient-shift 3s ease infinite;
+  animation: gradient-shift var(--gradient-speed, 3000ms) ease infinite;
   white-space: nowrap;
   max-width: none;
+  position: relative;
+}
+
+.letter-container {
+  display: inline;
 }
 
 @keyframes gradient-shift {

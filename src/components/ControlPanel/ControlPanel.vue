@@ -83,6 +83,11 @@
               <span>Enable Drag Mode</span>
               <span class="help-text">Click and drag text to reposition. Hold Shift for grid snap.</span>
             </label>
+            <label class="drag-mode-toggle">
+              <input type="checkbox" v-model="settings.letterEditMode" @change="onUpdate(settings)" />
+              <span>Enable Letter Edit Mode</span>
+              <span class="help-text">Click letters to select and manipulate individually. Hotkeys: Ctrl+S (scale), Ctrl+R (rotate), Ctrl+X (skew X), Ctrl+Y (skew Y), ESC (cancel/deselect).</span>
+            </label>
           </div>
 
           <AlignmentControls :settings="settings" @align="handleAlign" />
@@ -298,6 +303,14 @@
 
       <template #settings>
         <div class="tab-section">
+          <AudioControls
+            :settings="settings"
+            @update="onUpdate"
+            @play="$emit('audioPlay')"
+            @pause="$emit('audioPause')"
+            @stop="$emit('audioStop')"
+            @audioFile="$emit('audioFile', $event)"
+          />
           <FormatControls @update="onUpdate" />
           <GridControls @update="onUpdate" />
           <ImageOverlayControls :images="settings.imageOverlays || []" @update="onUpdate" />
@@ -330,6 +343,7 @@
   import EffectSelector from './EffectSelector.vue';
   import EffectSpecificControls from './EffectSpecificControls.vue';
   import TextPathControls from './TextPathControls.vue';
+  import AudioControls from './AudioControls.vue';
   import { useSettingsStore } from '@/stores/settings';
 
   export default {
@@ -352,6 +366,7 @@
       EffectSelector,
       EffectSpecificControls,
       TextPathControls,
+      AudioControls,
     },
     emits: [
       'update',
@@ -363,6 +378,10 @@
       'audioFileUpload',
       'audioUrlInput',
       'audioMuteChange',
+      'audioPlay',
+      'audioPause',
+      'audioStop',
+      'audioFile',
     ],
     setup() {
       const settingsStore = useSettingsStore();

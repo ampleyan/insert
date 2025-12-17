@@ -1,5 +1,8 @@
 <template>
   <div class="vibration-demo" @mousemove="handleMouseMove" @touchmove="handleTouchMove">
+    <div v-if="keyboardModeLabel" class="keyboard-mode-indicator">
+      {{ keyboardModeLabel }}
+    </div>
     <div
       class="vibration"
       v-for="(text, index) in textLinesVar"
@@ -47,10 +50,44 @@
         <span
           v-for="(letter, letterIndex) in text.split('')"
           :key="`${index}-${letterIndex}`"
-          :class="{ vibrate: isLetterVibrating(index, letterIndex) }"
+          :class="{
+            vibrate: isLetterVibrating(index, letterIndex),
+            'letter-selectable': settings.letterEditMode,
+            'letter-selected': isLetterSelected(index, letterIndex)
+          }"
           :style="getFullStyle(index, letterIndex, letter)"
+          @click.stop="handleLetterClick(index, letterIndex)"
         >
           {{ letter }}
+          <div
+            v-if="isLetterSelected(index, letterIndex) && settings.letterEditMode"
+            class="letter-handles"
+          >
+            <button
+              class="letter-handle scale-handle"
+              @mousedown="handleManipulationStart($event, 'scale', index, letterIndex)"
+              @touchstart="handleManipulationStart($event, 'scale', index, letterIndex)"
+              title="Scale"
+            >⤢</button>
+            <button
+              class="letter-handle rotate-handle"
+              @mousedown="handleManipulationStart($event, 'rotate', index, letterIndex)"
+              @touchstart="handleManipulationStart($event, 'rotate', index, letterIndex)"
+              title="Rotate"
+            >↻</button>
+            <button
+              class="letter-handle skew-x-handle"
+              @mousedown="handleManipulationStart($event, 'skewX', index, letterIndex)"
+              @touchstart="handleManipulationStart($event, 'skewX', index, letterIndex)"
+              title="Skew X"
+            >⇆</button>
+            <button
+              class="letter-handle skew-y-handle"
+              @mousedown="handleManipulationStart($event, 'skewY', index, letterIndex)"
+              @touchstart="handleManipulationStart($event, 'skewY', index, letterIndex)"
+              title="Skew Y"
+            >⇅</button>
+          </div>
         </span>
       </template>
     </div>
@@ -70,6 +107,7 @@
 import { useTextAnimation } from '@/composables/useTextAnimation';
 import { useDraggable } from '@/composables/useDraggable';
 import { useResizable } from '@/composables/useResizable';
+import { useLetterManipulation } from '@/composables/useLetterManipulation';
 import InlineTextEditor from '@/components/InlineTextEditor.vue';
 import textPathMixin from '@/mixins/textPathMixin';
 import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue';
@@ -106,6 +144,16 @@ export default {
 
     const { dragging, startDrag, onDrag } = useDraggable(emit);
     const { resizing, startResize, onResize } = useResizable(emit);
+    const {
+      selectedLetter,
+      manipulating,
+      selectLetter,
+      deselectLetter,
+      isLetterSelected: checkLetterSelected,
+      startManipulation,
+      onManipulate,
+      stopManipulation,
+    } = useLetterManipulation(emit);
 
     watch(
       () => props.settings.textLines,
@@ -138,20 +186,26 @@ export default {
     };
 
     const handleMouseMove = (event) => {
-      if (!props.settings.dragMode) return;
-      if (resizing.value.active) {
-        onResize(event, props.settings.fontSize);
-      } else {
-        onDrag(event, props.settings.margin, props.settings.marginTop, true);
+      if (manipulating.value.active) {
+        onManipulate(event, props.settings.letterTransforms || [{}, {}, {}]);
+      } else if (props.settings.dragMode) {
+        if (resizing.value.active) {
+          onResize(event, props.settings.fontSize);
+        } else {
+          onDrag(event, props.settings.margin, props.settings.marginTop, true);
+        }
       }
     };
 
     const handleTouchMove = (event) => {
-      if (!props.settings.dragMode) return;
-      if (resizing.value.active) {
-        onResize(event, props.settings.fontSize);
-      } else {
-        onDrag(event, props.settings.margin, props.settings.marginTop, true);
+      if (manipulating.value.active) {
+        onManipulate(event, props.settings.letterTransforms || [{}, {}, {}]);
+      } else if (props.settings.dragMode) {
+        if (resizing.value.active) {
+          onResize(event, props.settings.fontSize);
+        } else {
+          onDrag(event, props.settings.margin, props.settings.marginTop, true);
+        }
       }
     };
 
@@ -182,17 +236,32 @@ export default {
       }
     };
 
+    onMounted(() => {
+      window.addEventListener('mouseup', stopManipulation);
+      window.addEventListener('touchend', stopManipulation);
+    });
+
+    onBeforeUnmount(() => {
+      window.removeEventListener('mouseup', stopManipulation);
+      window.removeEventListener('touchend', stopManipulation);
+    });
+
     return {
       textLinesVar,
       vibratingItems,
       dragging,
       resizing,
+      selectedLetter,
       handleMouseDown,
       handleTouchStart,
       handleResizeStart,
       handleMouseMove,
       handleTouchMove,
       getDraggableStyle,
+      selectLetter,
+      deselectLetter,
+      checkLetterSelected,
+      startManipulation,
     };
   },
   computed: {
@@ -236,6 +305,14 @@ export default {
       const scaleX = this.settings.scaleX?.[lineIndex] || 1;
       const scaleY = this.settings.scaleY?.[lineIndex] || 1;
 
+      const letterTransforms = this.settings.letterTransforms || [{}, {}, {}];
+      const letterTransform = letterTransforms[lineIndex]?.[letterIndex] || {
+        scale: 1,
+        rotate: 0,
+        skewX: 0,
+        skewY: 0,
+      };
+
       const hue = `hue-rotate(${this.settings.hue}deg)`;
       const blur = isVibrating ? `blur(${this.settings.blurAmount}px)` : '';
       const glow = isVibrating
@@ -244,6 +321,7 @@ export default {
       const filter = [hue, blur, glow].filter(Boolean).join(' ');
 
       const vibrateScale = isVibrating ? 1.05 : 1;
+      const finalScale = scaleX * scaleY * vibrateScale * letterTransform.scale;
 
       const baseStyle = {
         fontSize: `${fontSize}px`,
@@ -253,9 +331,14 @@ export default {
         color: this.settings.color,
         opacity: this.settings.opacity / 100,
         filter,
-        transform: `scale(${scaleX * vibrateScale}, ${scaleY * vibrateScale})`,
+        transform: `scale(${finalScale}) rotate(${letterTransform.rotate}deg) skew(${letterTransform.skewX}deg, ${letterTransform.skewY}deg)`,
+        '--letter-scale': finalScale,
+        '--letter-rotate': `${letterTransform.rotate}deg`,
+        '--letter-skew-x': `${letterTransform.skewX}deg`,
+        '--letter-skew-y': `${letterTransform.skewY}deg`,
         transition: 'all 300ms ease',
         letterSpacing,
+        position: 'relative',
       };
 
       if (letter.trim() === '') {
@@ -263,6 +346,27 @@ export default {
       }
 
       return this.getLetterPositionStyle(lineIndex, letterIndex, baseStyle);
+    },
+    handleLetterClick(lineIndex, letterIndex) {
+      if (!this.settings.letterEditMode) return;
+      if (this.checkLetterSelected(lineIndex, letterIndex)) {
+        this.deselectLetter();
+      } else {
+        this.selectLetter(lineIndex, letterIndex);
+      }
+    },
+    isLetterSelected(lineIndex, letterIndex) {
+      return this.checkLetterSelected(lineIndex, letterIndex);
+    },
+    handleManipulationStart(event, type, lineIndex, letterIndex) {
+      const letterTransforms = this.settings.letterTransforms || [{}, {}, {}];
+      const letterTransform = letterTransforms[lineIndex]?.[letterIndex] || {
+        scale: 1,
+        rotate: 0,
+        skewX: 0,
+        skewY: 0,
+      };
+      this.startManipulation(event, type, letterTransform[type]);
     },
     openInlineEditor(lineIndex, event) {
       this.inlineEditor = {
@@ -314,6 +418,35 @@ export default {
 </script>
 
 <style scoped>
+.keyboard-mode-indicator {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(0, 0, 0, 0.9);
+  color: #00ffff;
+  padding: 20px 40px;
+  border-radius: 8px;
+  font-size: 18px;
+  font-weight: bold;
+  z-index: 9999;
+  pointer-events: none;
+  border: 2px solid #00ffff;
+  box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
+  animation: pulse 1s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 0.8;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.05);
+  }
+}
+
 .vibration.is-paragraph {
   text-align: left;
   max-width: none;
@@ -445,31 +578,105 @@ export default {
 @keyframes vibrate {
   0% {
     transform: translateX(calc(-4 * var(--translate-x))) translateY(calc(2 * var(--translate-y)))
-      scale(1.1);
+      scale(calc(var(--letter-scale, 1) * 1.1)) rotate(var(--letter-rotate, 0deg)) skew(var(--letter-skew-x, 0deg), var(--letter-skew-y, 0deg));
   }
   16.66% {
     transform: translateX(calc(3 * var(--translate-x))) translateY(calc(-3 * var(--translate-y)))
-      scale(0.95);
+      scale(calc(var(--letter-scale, 1) * 0.95)) rotate(var(--letter-rotate, 0deg)) skew(var(--letter-skew-x, 0deg), var(--letter-skew-y, 0deg));
   }
   33.33% {
     transform: translateX(calc(-2 * var(--translate-x))) translateY(calc(4 * var(--translate-y)))
-      scale(1.05);
+      scale(calc(var(--letter-scale, 1) * 1.05)) rotate(var(--letter-rotate, 0deg)) skew(var(--letter-skew-x, 0deg), var(--letter-skew-y, 0deg));
   }
   50% {
     transform: translateX(calc(4 * var(--translate-x))) translateY(calc(-2 * var(--translate-y)))
-      scale(0.9);
+      scale(calc(var(--letter-scale, 1) * 0.9)) rotate(var(--letter-rotate, 0deg)) skew(var(--letter-skew-x, 0deg), var(--letter-skew-y, 0deg));
   }
   66.66% {
     transform: translateX(calc(-3 * var(--translate-x))) translateY(calc(3 * var(--translate-y)))
-      scale(1.15);
+      scale(calc(var(--letter-scale, 1) * 1.15)) rotate(var(--letter-rotate, 0deg)) skew(var(--letter-skew-x, 0deg), var(--letter-skew-y, 0deg));
   }
   83.33% {
     transform: translateX(calc(2 * var(--translate-x))) translateY(calc(-4 * var(--translate-y)))
-      scale(0.92);
+      scale(calc(var(--letter-scale, 1) * 0.92)) rotate(var(--letter-rotate, 0deg)) skew(var(--letter-skew-x, 0deg), var(--letter-skew-y, 0deg));
   }
   100% {
     transform: translateX(calc(-4 * var(--translate-x))) translateY(calc(2 * var(--translate-y)))
-      scale(1.1);
+      scale(calc(var(--letter-scale, 1) * 1.1)) rotate(var(--letter-rotate, 0deg)) skew(var(--letter-skew-x, 0deg), var(--letter-skew-y, 0deg));
   }
+}
+
+.letter-selectable {
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.letter-selectable:hover {
+  opacity: 0.8;
+  outline: 1px dashed rgba(255, 255, 255, 0.5);
+  outline-offset: 2px;
+}
+
+.letter-selected {
+  outline: 2px solid rgba(0, 255, 255, 0.8) !important;
+  outline-offset: 3px;
+  background: rgba(0, 255, 255, 0.1);
+}
+
+.letter-handles {
+  position: absolute;
+  top: -60px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 4px;
+  z-index: 100;
+  background: rgba(0, 0, 0, 0.9);
+  padding: 6px;
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+}
+
+.letter-handle {
+  min-width: 36px;
+  min-height: 36px;
+  padding: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 4px;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.letter-handle:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(0, 255, 255, 0.8);
+  transform: scale(1.1);
+}
+
+.letter-handle:active {
+  transform: scale(0.95);
+  background: rgba(0, 255, 255, 0.3);
+}
+
+.scale-handle {
+  border-color: rgba(255, 100, 100, 0.5);
+}
+
+.rotate-handle {
+  border-color: rgba(100, 255, 100, 0.5);
+}
+
+.skew-x-handle {
+  border-color: rgba(100, 100, 255, 0.5);
+}
+
+.skew-y-handle {
+  border-color: rgba(255, 255, 100, 0.5);
 }
 </style>

@@ -94,10 +94,13 @@ export default {
     },
 
     async captureTextLayer() {
-      const textContainer = document.querySelector('.text-effect, .text-vibration, .glitch-effect, .wave-effect, .particle-burst, .rotation-3d, .neon-glow, .liquid-distortion, .typewriter-effect, .chromatic-aberration, .split-text, .wavy-text, .flicker-text, .stroke-text, .gradient-text, .scanlines-effect, .holographic-effect, .perspective-effect, .shatter-effect');
+      const textContainer = document.querySelector('.vibration-demo, .glitch-container, .wave-container, .particle-container, .rotation-container, .neon-container, .liquid-container, .typewriter-container, .chromatic-container, .split-container, .wavy-container, .flicker-container, .stroke-container, .gradient-container, .scanlines-container, .holographic-container, .perspective-container, .shatter-container');
 
       if (!textContainer) {
-        alert('No text layer found');
+        console.error('No text container found. Available containers:',
+          Array.from(document.querySelectorAll('[class*="container"], [class*="demo"]')).map(el => el.className)
+        );
+        alert('No text layer found. Make sure a text effect is active.');
         return;
       }
 

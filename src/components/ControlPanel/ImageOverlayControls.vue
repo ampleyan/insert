@@ -269,7 +269,7 @@ export default {
       const files = Array.from(event.target.files);
 
       for (const file of files) {
-        if (file.type.startsWith('image/')) {
+        if (file && file.type && file.type.startsWith('image/')) {
           const reader = new FileReader();
           reader.onload = (e) => {
             const newImages = [...this.images];

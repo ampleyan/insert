@@ -2,7 +2,10 @@
   <div class="video-overlay-controls">
     <div class="section-header">
       <h4>Video Overlays</h4>
-      <button class="add-video-button" @click="triggerFileInput">+ Add Video</button>
+      <div class="header-buttons">
+        <button class="add-video-button" @click="triggerFileInput">+ Add Video</button>
+        <button class="capture-video-button" @click="captureFromCamera" title="Capture from camera">📷 Camera</button>
+      </div>
     </div>
 
     <input
@@ -13,6 +16,12 @@
       @change="handleFileUpload"
       style="display: none"
     />
+
+    <div v-if="isRecording" class="recording-status">
+      <div class="recording-indicator"></div>
+      <span>Recording... Click "Stop" to finish</span>
+      <button class="stop-recording-button" @click="stopRecording">⏹ Stop</button>
+    </div>
 
     <div v-if="videos.length === 0" class="empty-state">
       <p>No videos added yet. Click "+ Add Video" to upload.</p>
@@ -309,6 +318,14 @@ export default {
     }
   },
   emits: ['update'],
+  data() {
+    return {
+      isRecording: false,
+      mediaRecorder: null,
+      recordedChunks: [],
+      stream: null
+    };
+  },
   methods: {
     triggerFileInput() {
       this.$refs.fileInput.click();
@@ -318,7 +335,7 @@ export default {
       const files = Array.from(event.target.files);
 
       for (const file of files) {
-        if (file.type.startsWith('video/')) {
+        if (file && file.type && file.type.startsWith('video/')) {
           const url = URL.createObjectURL(file);
           const newVideos = [...this.videos];
           newVideos.push({
@@ -413,6 +430,79 @@ export default {
       }
 
       this.$emit('update', { videoOverlays: newVideos });
+    },
+
+    async captureFromCamera() {
+      try {
+        this.stream = await navigator.mediaDevices.getUserMedia({
+          video: {
+            facingMode: 'environment',
+            width: { ideal: 1920 },
+            height: { ideal: 1080 }
+          },
+          audio: true
+        });
+
+        this.recordedChunks = [];
+        const options = {
+          mimeType: 'video/webm;codecs=vp9',
+          videoBitsPerSecond: 2500000
+        };
+
+        if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+          options.mimeType = 'video/webm';
+        }
+
+        this.mediaRecorder = new MediaRecorder(this.stream, options);
+
+        this.mediaRecorder.ondataavailable = (event) => {
+          if (event.data && event.data.size > 0) {
+            this.recordedChunks.push(event.data);
+          }
+        };
+
+        this.mediaRecorder.onstop = () => {
+          const blob = new Blob(this.recordedChunks, { type: 'video/webm' });
+          const url = URL.createObjectURL(blob);
+          const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+          const newVideos = [...this.videos];
+          newVideos.push({
+            src: url,
+            name: `camera-${timestamp}.webm`,
+            x: 0,
+            y: 0,
+            rotation: 0,
+            scale: 1,
+            opacity: 100,
+            hue: 0,
+            blendMode: 'normal',
+            visible: true,
+            playing: true,
+            loop: true,
+            muted: false,
+            playbackRate: 1
+          });
+          this.$emit('update', { videoOverlays: newVideos });
+
+          if (this.stream) {
+            this.stream.getTracks().forEach(track => track.stop());
+            this.stream = null;
+          }
+        };
+
+        this.mediaRecorder.start();
+        this.isRecording = true;
+      } catch (error) {
+        console.error('Error accessing camera:', error);
+        alert('Failed to access camera. Please ensure camera permissions are granted.');
+      }
+    },
+
+    stopRecording() {
+      if (this.mediaRecorder && this.mediaRecorder.state !== 'inactive') {
+        this.mediaRecorder.stop();
+        this.isRecording = false;
+      }
     }
   }
 };
@@ -454,6 +544,67 @@ export default {
 
 .add-video-button:hover {
   background: rgba(0, 255, 255, 0.5);
+}
+
+.header-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.capture-video-button {
+  background: rgba(255, 100, 0, 0.3);
+  border: 1px solid rgba(255, 100, 0, 0.5);
+  color: white;
+  padding: 4px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: all 0.2s;
+}
+
+.capture-video-button:hover {
+  background: rgba(255, 100, 0, 0.5);
+}
+
+.recording-status {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  background: rgba(255, 0, 0, 0.2);
+  border: 1px solid rgba(255, 0, 0, 0.5);
+  border-radius: 4px;
+  margin-bottom: 10px;
+  color: white;
+  font-size: 13px;
+}
+
+.recording-indicator {
+  width: 12px;
+  height: 12px;
+  background: red;
+  border-radius: 50%;
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+.stop-recording-button {
+  background: rgba(255, 0, 0, 0.5);
+  border: 1px solid rgba(255, 0, 0, 0.7);
+  color: white;
+  padding: 4px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  margin-left: auto;
+}
+
+.stop-recording-button:hover {
+  background: rgba(255, 0, 0, 0.7);
 }
 
 .empty-state {

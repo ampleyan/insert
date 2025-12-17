@@ -74,8 +74,6 @@ export default {
     getTextStyle(index) {
       const fontSize = this.settings.fontSize?.[index] || 120;
       const letterSpacing = this.settings.letterSpacing?.[index] || 0;
-      const scaleX = this.settings.scaleX?.[index] || 1;
-      const scaleY = this.settings.scaleY?.[index] || 1;
       const scanlinesSettings = this.settings.scanlines || {};
 
       return {
@@ -84,13 +82,35 @@ export default {
         opacity: this.settings.opacity / 100,
         letterSpacing: `${letterSpacing}px`,
         mixBlendMode: this.settings.blendMode,
-        transform: `scale(${scaleX}, ${scaleY})`,
         filter: `hue-rotate(${this.settings.hue}deg)`,
         '--scanline-intensity': (scanlinesSettings.scanlineIntensity || 50) / 100,
         '--scanline-count': scanlinesSettings.scanlineCount || 200,
         '--vhs-noise': (scanlinesSettings.vhsNoise || 30) / 100,
         '--chromatic-shift': `${scanlinesSettings.chromaticShift || 3}px`,
       };
+    },
+    getDraggableStyle(index) {
+      const scaleX = this.settings.scaleX?.[index] || 1;
+      const scaleY = this.settings.scaleY?.[index] || 1;
+
+      if (this.settings.dragMode) {
+        return {
+          position: 'absolute',
+          left: '50%',
+          top: '50%',
+          transform: `translate(calc(-50% + ${this.settings.margin[index]}px), calc(-50% + ${
+            this.settings.marginTop[index]
+          }px)) scale(${scaleX}, ${scaleY})`,
+          cursor: 'grab',
+          userSelect: 'none',
+        };
+      } else {
+        return {
+          marginRight: `${this.settings.margin?.[index] || 0}px`,
+          marginTop: `${this.settings.marginTop?.[index] || 0}px`,
+          transform: `scale(${scaleX}, ${scaleY})`,
+        };
+      }
     },
   },
 };
@@ -114,11 +134,10 @@ export default {
   font-weight: 900;
   text-transform: uppercase;
   will-change: transform;
-  transform: translateZ(0);
   backface-visibility: hidden;
-  animation: vhs-distort 0.3s infinite;
   white-space: nowrap;
   max-width: none;
+  text-shadow: 2px 0 #ff0000, -2px 0 #00ffff;
 }
 
 .scanlines-overlay {
