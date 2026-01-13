@@ -12,7 +12,8 @@
       "Bash(node:*)",
       "Bash(del DEPLOYMENT-NEW-REPO.md setup-new-repo.cmd)",
       "Bash(find:*)",
-      "Bash(test:*)"
+      "Bash(test:*)",
+      "Skill(brainstorming)"
     ],
     "deny": [],
     "ask": []
