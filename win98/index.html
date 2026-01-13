@@ -1,0 +1,1434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Windows 98 Desktop</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'MS Sans Serif', Arial, sans-serif;
+            overflow: hidden;
+            background: #1a1a1a;
+            cursor: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA4AAAAYCAYAAADKx8xXAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyZpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuNi1jMTExIDc5LjE1ODMyNSwgMjAxNS8wOS8xMC0wMToxMDoyMCAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENDIDIwMTUgKFdpbmRvd3MpIiB4bXBNTTpJbnN0YW5jZUlEPSJ4bXAuaWlkOjhGOEI3OTVDOUY3NzExRTU5RTNGQjlBRDJDMTg3MjUwIiB4bXBNTTpEb2N1bWVudElEPSJ4bXAuZGlkOjhGOEI3OTVEOUY3NzExRTU5RTNGQjlBRDJDMTg3MjUwIj4gPHhtcE1NOkRlcml2ZWRGcm9tIHN0UmVmOmluc3RhbmNlSUQ9InhtcC5paWQ6OEY4Qjc5NUE5Rjc3MTFFNTlFM0ZCOUFEQ0E4NzI1MCIgc3RSZWY6ZG9jdW1lbnRJRD0ieG1wLmRpZDo4RjhCNzk1Qjk5Nzc4MTFFNTlFM0ZCOUFEQ0E4NzI1MCIvPiA8L3JkZjpEZXNjcmlwdGlvbj4gPC9yZGY6UkRGPiA8L3g6eG1wbWV0YT4gPD94cGFja2V0IGVuZD0iciI/Pj4WKGsAAABrSURBVHjaYvz//z8DJYCRUgMZoIABqggGWABiayDmBWJOIH4PxK+B+DMQfwFiDSCWgxoEBP+RMBOUsQCqCQj+Y8EsQPoLVDM2jdg0M+LQjE0zEzWdTrUwIDYOGBgIpIHhQEocoBMGAAEGALGMFBP7VT8ZAAAAAElFTkSuQmCC'), auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            --base-icon-scale: 3;
+        }
+
+        /* Format Container */
+        #format-container {
+            position: relative;
+            background: #000;
+            box-shadow: 0 0 50px rgba(0,0,0,0.8);
+            overflow: hidden;
+        }
+
+        #format-container.square {
+            width: 1080px;
+            height: 1080px;
+        }
+
+        #format-container.portrait {
+            width: 1080px;
+            height: 1350px;
+        }
+
+        #format-container.landscape {
+            width: 1080px;
+            height: 566px;
+        }
+
+        #format-container.reels {
+            width: 1080px;
+            height: 1920px;
+        }
+
+        /* Format Info Overlay */
+        .format-info {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: rgba(0,0,0,0.8);
+            color: #fff;
+            padding: 10px 15px;
+            border-radius: 4px;
+            font-size: 12px;
+            z-index: 30000;
+            font-family: monospace;
+        }
+
+        .format-info-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .cursor-trail {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(0,128,255,0.6) 0%, rgba(0,128,255,0) 70%);
+            pointer-events: none;
+            z-index: 9999;
+            animation: trailFade 0.8s forwards;
+        }
+
+        @keyframes trailFade {
+            to {
+                opacity: 0;
+                transform: scale(0.3);
+            }
+        }
+
+        /* Boot Screen */
+        #boot-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+        }
+
+        #boot-screen.hidden {
+            display: none;
+        }
+
+        .boot-logo {
+            font-size: 48px;
+            color: #fff;
+            font-weight: bold;
+            margin-bottom: 40px;
+            animation: bootPulse 2s infinite;
+        }
+
+        @keyframes bootPulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .loading-bar-container {
+            width: 300px;
+            height: 20px;
+            background: #000;
+            border: 2px solid #808080;
+            padding: 2px;
+        }
+
+        .loading-bar {
+            height: 100%;
+            background: #0000ff;
+            width: 0%;
+            transition: width 0.1s linear;
+        }
+
+        .boot-text {
+            color: #808080;
+            margin-top: 20px;
+            font-size: 12px;
+        }
+
+        /* Screensaver */
+        #screensaver {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            display: none;
+            z-index: 9000;
+            cursor: pointer;
+        }
+
+        #screensaver.active {
+            display: block;
+        }
+
+        .screensaver-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #fff;
+            font-size: 24px;
+            text-align: center;
+            opacity: 0.8;
+        }
+
+        .flying-logo {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            background: url('assets/insert_logo.png') center center no-repeat;
+            background-size: contain;
+            opacity: 0.3;
+        }
+
+        /* Desktop */
+        #desktop {
+            width: 100%;
+            height: 100%;
+            background: #000 url('assets/insert_logo.png') center center no-repeat;
+            background-size: contain;
+            position: relative;
+            cursor: default;
+            display: none;
+        }
+
+        #desktop.active {
+            display: block;
+        }
+
+        .icon {
+            position: absolute;
+            width: 180px;
+            text-align: center;
+            cursor: pointer;
+            user-select: none;
+            transition: transform 0.3s ease;
+        }
+
+        .icon.zoomed {
+            transform: scale(var(--icon-scale, 1.8));
+            z-index: 100;
+        }
+
+        .icon.selected {
+            background: rgba(0, 0, 128, 0.3);
+            outline: 1px dotted #fff;
+        }
+
+        .icon.dragging {
+            opacity: 0.7;
+            z-index: 1000;
+        }
+
+        .icon.fade-out {
+            animation: fadeOut 0.5s forwards;
+        }
+
+        @keyframes fadeOut {
+            to {
+                opacity: 0;
+                transform: scale(0.5);
+            }
+        }
+
+        .icon-image {
+            width: calc(48px * var(--base-icon-scale, 1));
+            height: calc(48px * var(--base-icon-scale, 1));
+            margin: 0 auto 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .icon-image img {
+            max-width: 100%;
+            max-height: 100%;
+            image-rendering: pixelated;
+        }
+
+        .icon-label {
+            color: #fff;
+            font-size: 16px;
+            text-shadow: 2px 2px 3px #000;
+            padding: 4px 8px;
+            word-wrap: break-word;
+            line-height: 1.3;
+        }
+
+        .notebook-icon {
+            width: calc(48px * var(--base-icon-scale, 1));
+            height: calc(48px * var(--base-icon-scale, 1));
+            background: #fff;
+            border: 2px solid #808080;
+            border-left: 8px solid #c0c0c0;
+            position: relative;
+            box-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .notebook-icon::before {
+            content: '';
+            position: absolute;
+            top: 8px;
+            left: 4px;
+            right: 4px;
+            height: 0;
+            border-bottom: 1px solid #0000ff;
+            box-shadow: 0 8px 0 #0000ff, 0 16px 0 #0000ff, 0 24px 0 #0000ff;
+        }
+
+        #trash {
+            bottom: 80px;
+            right: 20px;
+        }
+
+        #trash.drag-over .icon-image {
+            filter: brightness(1.3);
+            transform: scale(1.1);
+        }
+
+        /* Window Styles */
+        .window {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 500px;
+            min-height: 300px;
+            background: #c0c0c0;
+            border: 2px solid;
+            border-color: #dfdfdf #000 #000 #dfdfdf;
+            box-shadow: 2px 2px 8px rgba(0,0,0,0.5);
+            display: none;
+            z-index: 1000;
+        }
+
+        .window.active {
+            display: block;
+        }
+
+        .title-bar {
+            background: linear-gradient(to right, #000080, #1084d0);
+            color: #fff;
+            padding: 3px 4px;
+            font-size: 11px;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: move;
+            user-select: none;
+        }
+
+        .title-text {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .close-button {
+            width: 16px;
+            height: 14px;
+            background: #c0c0c0;
+            border: 1px solid;
+            border-color: #fff #000 #000 #fff;
+            font-size: 10px;
+            line-height: 12px;
+            text-align: center;
+            cursor: pointer;
+            color: #000;
+            font-weight: bold;
+        }
+
+        .close-button:active {
+            border-color: #000 #fff #fff #000;
+        }
+
+        .window-content {
+            padding: 20px;
+            background: #fff;
+            margin: 2px;
+            min-height: 250px;
+            font-size: 12px;
+            line-height: 1.6;
+            overflow-y: auto;
+            max-height: 400px;
+        }
+
+        /* Error Dialog */
+        .error-dialog {
+            position: absolute;
+            width: 380px;
+            background: #c0c0c0;
+            border: 2px solid;
+            border-color: #dfdfdf #000 #000 #dfdfdf;
+            box-shadow: 2px 2px 8px rgba(0,0,0,0.5);
+            z-index: 2000;
+        }
+
+        .error-content {
+            padding: 20px;
+            display: flex;
+            gap: 15px;
+            align-items: flex-start;
+        }
+
+        .error-icon {
+            font-size: 32px;
+        }
+
+        .error-message {
+            flex: 1;
+            font-size: 12px;
+        }
+
+        .error-buttons {
+            padding: 10px;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .error-button {
+            padding: 4px 20px;
+            background: #c0c0c0;
+            border: 2px solid;
+            border-color: #fff #000 #000 #fff;
+            font-size: 11px;
+            cursor: pointer;
+        }
+
+        .error-button:active {
+            border-color: #000 #fff #fff #000;
+        }
+
+        /* Settings Panel */
+        #settings-panel {
+            position: absolute;
+            top: 50px;
+            right: 20px;
+            width: 250px;
+            background: #c0c0c0;
+            border: 2px solid;
+            border-color: #dfdfdf #000 #000 #dfdfdf;
+            z-index: 1500;
+            display: none;
+        }
+
+        #settings-panel.active {
+            display: block;
+        }
+
+        .settings-header {
+            background: linear-gradient(to right, #000080, #1084d0);
+            color: #fff;
+            padding: 3px 8px;
+            font-size: 11px;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .settings-content {
+            padding: 15px;
+        }
+
+        .setting-item {
+            margin-bottom: 15px;
+        }
+
+        .setting-label {
+            font-size: 11px;
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        .setting-slider {
+            width: 100%;
+        }
+
+        .setting-select {
+            width: 100%;
+            padding: 4px;
+            font-size: 11px;
+            font-family: 'MS Sans Serif', Arial, sans-serif;
+            background: #fff;
+            border: 1px solid #808080;
+        }
+
+        .setting-checkbox {
+            margin-right: 5px;
+        }
+
+        /* Blue Screen */
+        #blue-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #0000aa;
+            color: #fff;
+            font-family: 'Courier New', monospace;
+            display: none;
+            z-index: 20000;
+            padding: 40px;
+            overflow-y: auto;
+        }
+
+        #blue-screen.active {
+            display: block;
+        }
+
+        .bsod-content {
+            font-size: 16px;
+            line-height: 1.5;
+        }
+
+        /* Video Player */
+        .video-player {
+            position: absolute;
+            width: 640px;
+            background: #c0c0c0;
+            border: 2px solid;
+            border-color: #dfdfdf #000 #000 #dfdfdf;
+            box-shadow: 2px 2px 8px rgba(0,0,0,0.5);
+            display: none;
+            z-index: 1500;
+            animation: windowOpen 0.2s ease-out;
+        }
+
+        @keyframes windowOpen {
+            from {
+                transform: scale(0.8);
+                opacity: 0;
+            }
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .video-player.active {
+            display: block;
+        }
+
+        .video-content {
+            background: #000;
+            margin: 2px;
+            position: relative;
+        }
+
+        .video-player video {
+            width: 100%;
+            display: block;
+        }
+
+        .video-controls {
+            background: #c0c0c0;
+            padding: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border-top: 2px solid #fff;
+        }
+
+        .control-button {
+            width: 24px;
+            height: 24px;
+            background: #c0c0c0;
+            border: 2px solid;
+            border-color: #fff #000 #000 #fff;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+        }
+
+        .control-button:active {
+            border-color: #000 #fff #fff #000;
+        }
+
+        .seek-bar {
+            flex: 1;
+            height: 6px;
+            background: #fff;
+            border: 1px solid #808080;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .seek-progress {
+            height: 100%;
+            background: #000080;
+            width: 0%;
+        }
+
+        .time-display {
+            font-size: 11px;
+            min-width: 80px;
+            text-align: center;
+        }
+
+        /* Taskbar */
+        #taskbar {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 28px;
+            background: #c0c0c0;
+            border-top: 2px solid #fff;
+            display: flex;
+            align-items: center;
+            padding: 2px;
+            gap: 5px;
+        }
+
+        .taskbar-button {
+            height: 22px;
+            padding: 0 8px;
+            background: #c0c0c0;
+            border: 2px solid;
+            border-color: #fff #000 #000 #fff;
+            font-size: 11px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .taskbar-button:active {
+            border-color: #000 #fff #fff #000;
+        }
+
+        #clock {
+            margin-left: auto;
+            font-size: 11px;
+            padding: 0 8px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Format Info -->
+    <div class="format-info" id="format-info">
+        <div class="format-info-title">Instagram Stories/Reels</div>
+        <div>1080 x 1920 px (9:16)</div>
+    </div>
+
+    <!-- Format Container -->
+    <div id="format-container" class="reels">
+        <!-- Boot Screen -->
+        <div id="boot-screen">
+        <div class="boot-logo">Windows 69</div>
+        <div class="loading-bar-container">
+            <div class="loading-bar" id="loading-bar"></div>
+        </div>
+        <div class="boot-text">Starting Windows...</div>
+    </div>
+
+    <!-- Screensaver -->
+    <div id="screensaver">
+        <div class="screensaver-text">Click anywhere to continue...</div>
+    </div>
+
+    <!-- Blue Screen of Death -->
+    <div id="blue-screen">
+        <div class="bsod-content">
+            <p>A problem has been detected and Windows has been shut down to prevent damage</p>
+            <p>to your computer.</p>
+            <br>
+            <p>CHAOS_OVERFLOW</p>
+            <br>
+            <p>If this is the first time you've seen this Stop error screen,</p>
+            <p>restart your computer. If this screen appears again, follow</p>
+            <p>these steps:</p>
+            <br>
+            <p>Join the party at [YOUR LOCATION HERE]</p>
+            <p>Date: [YOUR DATE HERE]</p>
+            <p>Time: [YOUR TIME HERE]</p>
+            <br>
+            <p>Technical information:</p>
+            <p>*** STOP: 0x0000PARTY (0xC0FFEE, 0xBABE, 0xDEADBEEF, 0xFEED)</p>
+        </div>
+    </div>
+
+    <!-- Desktop -->
+    <div id="desktop">
+        <!-- Desktop Icons -->
+        <div class="icon" id="notebook" style="top: 20px; left: 20px;">
+            <div class="icon-image">
+                <div class="notebook-icon"></div>
+            </div>
+            <div class="icon-label">Notebook</div>
+        </div>
+
+        <div class="icon" id="constant" style="top: 20px; left: 220px;">
+            <div class="icon-image">
+                <img src="assets/constant.png" alt="Constant">
+            </div>
+            <div class="icon-label">IN_CONSTANT.mp4</div>
+        </div>
+
+        <div class="icon" id="graftak" style="top: 220px; left: 20px;">
+            <div class="icon-image">
+                <img src="assets/graftak.png" alt="Graftak">
+            </div>
+            <div class="icon-label">GRAFTAK.mp4</div>
+        </div>
+
+        <div class="icon" id="sweat" style="top: 220px; left: 220px;">
+            <div class="icon-image">
+                <img src="assets/sweat.png" alt="Sweat">
+            </div>
+            <div class="icon-label">SWEAT.mp4</div>
+        </div>
+
+        <div class="icon" id="trash">
+            <div class="icon-image">
+                <img id="trash-image" src="assets/insert_trash.png" alt="Trash">
+            </div>
+            <div class="icon-label">Recycle Bin</div>
+        </div>
+
+        <!-- Notebook Window -->
+        <div class="window" id="notebook-window">
+            <div class="title-bar" id="window-title-bar">
+                <div class="title-text">
+                    <span>📓</span>
+                    <span>Notebook</span>
+                </div>
+                <div class="close-button" id="close-button">×</div>
+            </div>
+            <div class="window-content" id="window-content" contenteditable="true">
+                <p><strong>PARTY INFORMATION</strong></p>
+                <br>
+                <p>Date: [YOUR DATE HERE]</p>
+                <p>Time: [YOUR TIME HERE]</p>
+                <p>Location: [YOUR LOCATION HERE]</p>
+                <br>
+                <p>DJ Lineup:</p>
+                <p>- [DJ NAME 1]</p>
+                <p>- [DJ NAME 2]</p>
+                <p>- [DJ NAME 3]</p>
+                <br>
+                <p>Tickets: [TICKET LINK]</p>
+            </div>
+        </div>
+
+        <!-- Settings Panel -->
+        <div id="settings-panel">
+            <div class="settings-header">
+                <span>Settings</span>
+                <div class="close-button" id="settings-close">×</div>
+            </div>
+            <div class="settings-content">
+                <div class="setting-item">
+                    <label class="setting-label">Icon Scale:</label>
+                    <input type="range" class="setting-slider" id="icon-scale" min="0.5" max="5" step="0.1" value="3">
+                    <span id="scale-value">3.0</span>
+                </div>
+                <div class="setting-item">
+                    <label class="setting-label">Zoom Scale:</label>
+                    <input type="range" class="setting-slider" id="zoom-scale" min="1.2" max="3" step="0.1" value="1.8">
+                    <span id="zoom-value">1.8</span>
+                </div>
+                <div class="setting-item">
+                    <label class="setting-label">
+                        <input type="checkbox" class="setting-checkbox" id="sound-toggle" checked>
+                        Enable Sounds
+                    </label>
+                </div>
+                <div class="setting-item">
+                    <label class="setting-label">Volume:</label>
+                    <input type="range" class="setting-slider" id="volume" min="0" max="100" step="1" value="50">
+                    <span id="volume-value">50</span>
+                </div>
+                <div class="setting-item">
+                    <label class="setting-label">
+                        <input type="checkbox" class="setting-checkbox" id="cursor-trail-toggle" checked>
+                        Cursor Trail
+                    </label>
+                </div>
+                <div class="setting-item">
+                    <label class="setting-label">Recording Format:</label>
+                    <select class="setting-select" id="format-select">
+                        <option value="square">Square (1:1) - 1080x1080</option>
+                        <option value="portrait">Portrait (4:5) - 1080x1350</option>
+                        <option value="landscape">Landscape (1.91:1) - 1080x566</option>
+                        <option value="reels" selected>Stories/Reels (9:16) - 1080x1920</option>
+                    </select>
+                </div>
+                <div class="setting-item">
+                    <label class="setting-label">
+                        <input type="checkbox" class="setting-checkbox" id="show-format-info" checked>
+                        Show Format Info
+                    </label>
+                </div>
+                <div class="setting-item">
+                    <button class="error-button" id="trigger-bsod">Trigger BSOD</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Video Players -->
+        <div class="video-player" id="video-player-constant" style="top: 100px; left: 100px;">
+            <div class="title-bar video-title-bar" data-player="constant">
+                <div class="title-text">
+                    <span>📹</span>
+                    <span>IN_CONSTANT.mp4 - Media Player</span>
+                </div>
+                <div class="close-button video-close-btn">×</div>
+            </div>
+            <div class="video-content">
+                <video id="video-constant" preload="metadata">
+                    <source src="videos/in_constant.mp4" type="video/mp4">
+                </video>
+            </div>
+            <div class="video-controls">
+                <div class="control-button play-btn" data-video="video-constant">▶</div>
+                <div class="control-button stop-btn" data-video="video-constant">■</div>
+                <div class="seek-bar" data-video="video-constant">
+                    <div class="seek-progress"></div>
+                </div>
+                <div class="time-display" data-video="video-constant">0:00 / 0:00</div>
+            </div>
+        </div>
+
+        <div class="video-player" id="video-player-graftak" style="top: 120px; left: 120px;">
+            <div class="title-bar video-title-bar" data-player="graftak">
+                <div class="title-text">
+                    <span>📹</span>
+                    <span>GRAFTAK.mp4 - Media Player</span>
+                </div>
+                <div class="close-button video-close-btn">×</div>
+            </div>
+            <div class="video-content">
+                <video id="video-graftak" preload="metadata">
+                    <source src="videos/graftak.mp4" type="video/mp4">
+                </video>
+            </div>
+            <div class="video-controls">
+                <div class="control-button play-btn" data-video="video-graftak">▶</div>
+                <div class="control-button stop-btn" data-video="video-graftak">■</div>
+                <div class="seek-bar" data-video="video-graftak">
+                    <div class="seek-progress"></div>
+                </div>
+                <div class="time-display" data-video="video-graftak">0:00 / 0:00</div>
+            </div>
+        </div>
+
+        <div class="video-player" id="video-player-sweat" style="top: 140px; left: 140px;">
+            <div class="title-bar video-title-bar" data-player="sweat">
+                <div class="title-text">
+                    <span>📹</span>
+                    <span>SWEAT.mp4 - Media Player</span>
+                </div>
+                <div class="close-button video-close-btn">×</div>
+            </div>
+            <div class="video-content">
+                <video id="video-sweat" preload="metadata">
+                    <source src="videos/sweat.mp4" type="video/mp4">
+                </video>
+            </div>
+            <div class="video-controls">
+                <div class="control-button play-btn" data-video="video-sweat">▶</div>
+                <div class="control-button stop-btn" data-video="video-sweat">■</div>
+                <div class="seek-bar" data-video="video-sweat">
+                    <div class="seek-progress"></div>
+                </div>
+                <div class="time-display" data-video="video-sweat">0:00 / 0:00</div>
+            </div>
+        </div>
+
+        <!-- Taskbar -->
+        <div id="taskbar">
+            <div class="taskbar-button" id="start-button">
+                <span>⊞</span>
+                <span>Start</span>
+            </div>
+            <div class="taskbar-button" id="settings-button">
+                <span>⚙</span>
+                <span>Settings</span>
+            </div>
+            <div id="clock"></div>
+        </div>
+    </div>
+
+    <script>
+        // Audio setup
+        const sounds = {
+            click: new Audio('sounds/Single Click.wav'),
+            trash: new Audio('sounds/crumple.mp3'),
+            clink: new Audio('sounds/clink.wav')
+        };
+
+        let soundEnabled = true;
+        let volume = 0.5;
+
+        function playSound(soundName) {
+            if (soundEnabled && sounds[soundName]) {
+                sounds[soundName].volume = volume;
+                sounds[soundName].currentTime = 0;
+                sounds[soundName].play().catch(e => console.log('Sound play failed:', e));
+            }
+        }
+
+        // Boot sequence
+        const bootScreen = document.getElementById('boot-screen');
+        const loadingBar = document.getElementById('loading-bar');
+        const desktop = document.getElementById('desktop');
+        const screensaver = document.getElementById('screensaver');
+        let bootProgress = 0;
+
+        function bootSequence() {
+            const interval = setInterval(() => {
+                bootProgress += Math.random() * 15;
+                if (bootProgress >= 100) {
+                    bootProgress = 100;
+                    loadingBar.style.width = '100%';
+                    clearInterval(interval);
+                    setTimeout(() => {
+                        bootScreen.classList.add('hidden');
+                        desktop.classList.add('active');
+                        startIdleTimer();
+                    }, 500);
+                } else {
+                    loadingBar.style.width = bootProgress + '%';
+                }
+            }, 200);
+        }
+
+        // Screensaver
+        let idleTimer;
+        let idleTime = 0;
+        const IDLE_TIMEOUT = 30000;
+        const flyingLogos = [];
+
+        function startIdleTimer() {
+            resetIdleTimer();
+            document.addEventListener('mousemove', resetIdleTimer);
+            document.addEventListener('click', resetIdleTimer);
+            document.addEventListener('keypress', resetIdleTimer);
+        }
+
+        function resetIdleTimer() {
+            idleTime = 0;
+            clearTimeout(idleTimer);
+            idleTimer = setTimeout(activateScreensaver, IDLE_TIMEOUT);
+        }
+
+        function activateScreensaver() {
+            if (!desktop.classList.contains('active')) return;
+            screensaver.classList.add('active');
+            desktop.classList.remove('active');
+            createFlyingLogos();
+        }
+
+        function createFlyingLogos() {
+            for (let i = 0; i < 5; i++) {
+                const logo = document.createElement('div');
+                logo.className = 'flying-logo';
+                logo.style.left = Math.random() * window.innerWidth + 'px';
+                logo.style.top = Math.random() * window.innerHeight + 'px';
+                screensaver.appendChild(logo);
+                animateLogo(logo);
+            }
+        }
+
+        function animateLogo(logo) {
+            let x = parseFloat(logo.style.left);
+            let y = parseFloat(logo.style.top);
+            let dx = (Math.random() - 0.5) * 4;
+            let dy = (Math.random() - 0.5) * 4;
+
+            function move() {
+                if (!screensaver.classList.contains('active')) {
+                    logo.remove();
+                    return;
+                }
+
+                x += dx;
+                y += dy;
+
+                if (x <= 0 || x >= window.innerWidth - 100) dx = -dx;
+                if (y <= 0 || y >= window.innerHeight - 100) dy = -dy;
+
+                logo.style.left = x + 'px';
+                logo.style.top = y + 'px';
+
+                requestAnimationFrame(move);
+            }
+            move();
+        }
+
+        screensaver.addEventListener('click', () => {
+            screensaver.classList.remove('active');
+            desktop.classList.add('active');
+            screensaver.innerHTML = '<div class="screensaver-text">Click anywhere to continue...</div>';
+            resetIdleTimer();
+        });
+
+        // Cursor trail
+        let cursorTrailEnabled = true;
+        document.addEventListener('mousemove', (e) => {
+            if (cursorTrailEnabled && desktop.classList.contains('active')) {
+                const trail = document.createElement('div');
+                trail.className = 'cursor-trail';
+                trail.style.left = e.clientX + 'px';
+                trail.style.top = e.clientY + 'px';
+                document.body.appendChild(trail);
+                setTimeout(() => trail.remove(), 800);
+            }
+        });
+
+        // Desktop functionality
+        const icons = document.querySelectorAll('.icon');
+        const trash = document.getElementById('trash');
+        const trashImage = document.getElementById('trash-image');
+        const notebookWindow = document.getElementById('notebook-window');
+        const closeButton = document.getElementById('close-button');
+        const windowTitleBar = document.getElementById('window-title-bar');
+
+        let draggedIcon = null;
+        let offsetX = 0;
+        let offsetY = 0;
+        let iconCount = 4;
+        let isDraggingWindow = false;
+        let windowOffsetX = 0;
+        let windowOffsetY = 0;
+
+        // Icon dragging
+        icons.forEach(icon => {
+            let clickTimeout = null;
+            let clickCount = 0;
+
+            icon.addEventListener('mousedown', (e) => {
+                if (icon === trash) return;
+                e.preventDefault();
+                clickCount++;
+
+                if (clickCount === 1) {
+                    clickTimeout = setTimeout(() => {
+                        playSound('click');
+                        icons.forEach(i => i.classList.remove('selected'));
+                        icon.classList.add('selected');
+
+                        draggedIcon = icon;
+                        const rect = icon.getBoundingClientRect();
+                        offsetX = e.clientX - rect.left;
+                        offsetY = e.clientY - rect.top;
+                        icon.classList.add('dragging');
+
+                        clickCount = 0;
+                    }, 200);
+                } else if (clickCount === 2) {
+                    clearTimeout(clickTimeout);
+                    clickCount = 0;
+                    playSound('clink');
+
+                    if (icon.id === 'notebook') {
+                        notebookWindow.classList.add('active');
+                    } else if (icon.id === 'constant' || icon.id === 'graftak' || icon.id === 'sweat') {
+                        const videoPlayer = document.getElementById('video-player-' + icon.id);
+                        videoPlayer.classList.add('active');
+                        const video = document.getElementById('video-' + icon.id);
+
+                        // Mute all other videos
+                        document.querySelectorAll('video').forEach(v => {
+                            if (v !== video) {
+                                v.muted = true;
+                            }
+                        });
+
+                        // Unmute and play the current video
+                        video.muted = false;
+                        video.play();
+                    }
+                }
+            });
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            if (draggedIcon) {
+                const x = e.clientX - offsetX;
+                const y = e.clientY - offsetY;
+                draggedIcon.style.left = x + 'px';
+                draggedIcon.style.top = y + 'px';
+
+                const trashRect = trash.getBoundingClientRect();
+                const iconRect = draggedIcon.getBoundingClientRect();
+
+                if (iconRect.left < trashRect.right &&
+                    iconRect.right > trashRect.left &&
+                    iconRect.top < trashRect.bottom &&
+                    iconRect.bottom > trashRect.top) {
+                    trash.classList.add('drag-over');
+                } else {
+                    trash.classList.remove('drag-over');
+                }
+            }
+
+            if (isDraggingWindow) {
+                const x = e.clientX - windowOffsetX;
+                const y = e.clientY - windowOffsetY;
+                notebookWindow.style.left = x + 'px';
+                notebookWindow.style.top = y + 'px';
+                notebookWindow.style.transform = 'none';
+            }
+        });
+
+        document.addEventListener('mouseup', (e) => {
+            if (draggedIcon) {
+                const trashRect = trash.getBoundingClientRect();
+                const iconRect = draggedIcon.getBoundingClientRect();
+
+                if (iconRect.left < trashRect.right &&
+                    iconRect.right > trashRect.left &&
+                    iconRect.top < trashRect.bottom &&
+                    iconRect.bottom > trashRect.top) {
+
+                    playSound('trash');
+                    draggedIcon.classList.add('fade-out');
+                    setTimeout(() => {
+                        draggedIcon.remove();
+                        iconCount--;
+                        updateTrashIcon();
+                    }, 500);
+                }
+
+                draggedIcon.classList.remove('dragging');
+                trash.classList.remove('drag-over');
+                draggedIcon = null;
+            }
+
+            isDraggingWindow = false;
+        });
+
+        // Window controls
+        closeButton.addEventListener('click', () => {
+            playSound('click');
+            notebookWindow.classList.remove('active');
+        });
+
+        windowTitleBar.addEventListener('mousedown', (e) => {
+            isDraggingWindow = true;
+            const rect = notebookWindow.getBoundingClientRect();
+            windowOffsetX = e.clientX - rect.left;
+            windowOffsetY = e.clientY - rect.top;
+        });
+
+        function updateTrashIcon() {
+            if (iconCount === 0) {
+                trashImage.src = 'assets/insert_trash_empty.png';
+            } else {
+                trashImage.src = 'assets/insert_trash.png';
+            }
+        }
+
+        desktop.addEventListener('click', (e) => {
+            if (e.target === desktop) {
+                icons.forEach(i => i.classList.remove('selected'));
+            }
+        });
+
+        // Video player controls
+        const videoPlayers = document.querySelectorAll('.video-player');
+        const videoCloseBtns = document.querySelectorAll('.video-close-btn');
+        const videoTitleBars = document.querySelectorAll('.video-title-bar');
+        const playBtns = document.querySelectorAll('.play-btn');
+        const stopBtns = document.querySelectorAll('.stop-btn');
+        const seekBars = document.querySelectorAll('.seek-bar');
+
+        let isDraggingVideoWindow = false;
+        let draggedVideoPlayer = null;
+        let videoWindowOffsetX = 0;
+        let videoWindowOffsetY = 0;
+
+        // Close video players
+        videoCloseBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                playSound('click');
+                const player = btn.closest('.video-player');
+                const video = player.querySelector('video');
+                video.pause();
+                video.currentTime = 0;
+                player.classList.remove('active');
+            });
+        });
+
+        // Make video players draggable and handle focus
+        videoTitleBars.forEach(titleBar => {
+            titleBar.addEventListener('mousedown', (e) => {
+                if (e.target.classList.contains('close-button')) return;
+                isDraggingVideoWindow = true;
+                draggedVideoPlayer = titleBar.closest('.video-player');
+                const rect = draggedVideoPlayer.getBoundingClientRect();
+                videoWindowOffsetX = e.clientX - rect.left;
+                videoWindowOffsetY = e.clientY - rect.top;
+
+                // When clicking on a video player, mute all others
+                const clickedVideo = draggedVideoPlayer.querySelector('video');
+                document.querySelectorAll('video').forEach(v => {
+                    if (v !== clickedVideo) {
+                        v.muted = true;
+                    }
+                });
+                clickedVideo.muted = false;
+            });
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            if (isDraggingVideoWindow && draggedVideoPlayer) {
+                const x = e.clientX - videoWindowOffsetX;
+                const y = e.clientY - videoWindowOffsetY;
+                draggedVideoPlayer.style.left = x + 'px';
+                draggedVideoPlayer.style.top = y + 'px';
+            }
+        });
+
+        document.addEventListener('mouseup', () => {
+            isDraggingVideoWindow = false;
+            draggedVideoPlayer = null;
+        });
+
+        // Play/Pause buttons
+        playBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                playSound('click');
+                const videoId = btn.getAttribute('data-video');
+                const video = document.getElementById(videoId);
+
+                if (video.paused) {
+                    // Mute all other videos before playing this one
+                    document.querySelectorAll('video').forEach(v => {
+                        if (v !== video) {
+                            v.muted = true;
+                        }
+                    });
+                    video.muted = false;
+                    video.play();
+                    btn.textContent = '⏸';
+                } else {
+                    video.pause();
+                    btn.textContent = '▶';
+                }
+            });
+        });
+
+        // Stop buttons
+        stopBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                playSound('click');
+                const videoId = btn.getAttribute('data-video');
+                const video = document.getElementById(videoId);
+                video.pause();
+                video.currentTime = 0;
+                const playBtn = document.querySelector(`.play-btn[data-video="${videoId}"]`);
+                playBtn.textContent = '▶';
+            });
+        });
+
+        // Seek bars
+        seekBars.forEach(seekBar => {
+            const videoId = seekBar.getAttribute('data-video');
+            const video = document.getElementById(videoId);
+            const progress = seekBar.querySelector('.seek-progress');
+            const timeDisplay = document.querySelector(`.time-display[data-video="${videoId}"]`);
+
+            seekBar.addEventListener('click', (e) => {
+                const rect = seekBar.getBoundingClientRect();
+                const pos = (e.clientX - rect.left) / rect.width;
+                video.currentTime = pos * video.duration;
+            });
+
+            video.addEventListener('timeupdate', () => {
+                const percent = (video.currentTime / video.duration) * 100;
+                progress.style.width = percent + '%';
+
+                const currentMin = Math.floor(video.currentTime / 60);
+                const currentSec = Math.floor(video.currentTime % 60);
+                const durationMin = Math.floor(video.duration / 60);
+                const durationSec = Math.floor(video.duration % 60);
+
+                timeDisplay.textContent = `${currentMin}:${currentSec.toString().padStart(2, '0')} / ${durationMin}:${durationSec.toString().padStart(2, '0')}`;
+            });
+
+            video.addEventListener('ended', () => {
+                const playBtn = document.querySelector(`.play-btn[data-video="${videoId}"]`);
+                playBtn.textContent = '▶';
+            });
+
+            video.addEventListener('play', () => {
+                const playBtn = document.querySelector(`.play-btn[data-video="${videoId}"]`);
+                playBtn.textContent = '⏸';
+            });
+
+            video.addEventListener('pause', () => {
+                const playBtn = document.querySelector(`.play-btn[data-video="${videoId}"]`);
+                playBtn.textContent = '▶';
+            });
+        });
+
+        // Settings panel
+        const settingsPanel = document.getElementById('settings-panel');
+        const settingsButton = document.getElementById('settings-button');
+        const settingsClose = document.getElementById('settings-close');
+        const iconScaleSlider = document.getElementById('icon-scale');
+        const zoomScaleSlider = document.getElementById('zoom-scale');
+        const soundToggle = document.getElementById('sound-toggle');
+        const volumeSlider = document.getElementById('volume');
+        const cursorTrailToggle = document.getElementById('cursor-trail-toggle');
+
+        settingsButton.addEventListener('click', () => {
+            playSound('click');
+            settingsPanel.classList.toggle('active');
+        });
+
+        settingsClose.addEventListener('click', () => {
+            playSound('click');
+            settingsPanel.classList.remove('active');
+        });
+
+        iconScaleSlider.addEventListener('input', (e) => {
+            const scale = e.target.value;
+            document.documentElement.style.setProperty('--base-icon-scale', scale);
+            document.getElementById('scale-value').textContent = parseFloat(scale).toFixed(1);
+        });
+
+        zoomScaleSlider.addEventListener('input', (e) => {
+            const scale = e.target.value;
+            document.documentElement.style.setProperty('--icon-scale', scale);
+            document.getElementById('zoom-value').textContent = parseFloat(scale).toFixed(1);
+        });
+
+        soundToggle.addEventListener('change', (e) => {
+            soundEnabled = e.target.checked;
+        });
+
+        volumeSlider.addEventListener('input', (e) => {
+            volume = e.target.value / 100;
+            document.getElementById('volume-value').textContent = e.target.value;
+        });
+
+        cursorTrailToggle.addEventListener('change', (e) => {
+            cursorTrailEnabled = e.target.checked;
+        });
+
+        // Error messages
+        const errorMessages = [
+            { title: 'Party Alert', message: 'This system has detected an excessive amount of CHAOS. Please prepare for random night!' },
+            { title: 'Warning', message: 'Your calendar is missing a critical event. Would you like to add the party now?' },
+            { title: 'System Notification', message: 'Dance.exe is not responding. Would you like to restart it at the party?' },
+            { title: 'Error', message: 'FOMO levels critically high. Immediate party attendance required.' }
+        ];
+
+        function showRandomError() {
+            const error = errorMessages[Math.floor(Math.random() * errorMessages.length)];
+            const dialog = document.createElement('div');
+            dialog.className = 'error-dialog';
+            dialog.style.left = (Math.random() * (window.innerWidth - 400)) + 'px';
+            dialog.style.top = (Math.random() * (window.innerHeight - 200)) + 'px';
+
+            dialog.innerHTML = `
+                <div class="title-bar">
+                    <div class="title-text">${error.title}</div>
+                    <div class="close-button error-close">×</div>
+                </div>
+                <div class="error-content">
+                    <div class="error-icon">⚠️</div>
+                    <div class="error-message">${error.message}</div>
+                </div>
+                <div class="error-buttons">
+                    <button class="error-button error-ok">OK</button>
+                </div>
+            `;
+
+            desktop.appendChild(dialog);
+            playSound('clink');
+
+            dialog.querySelector('.error-close').addEventListener('click', () => {
+                playSound('click');
+                dialog.remove();
+            });
+
+            dialog.querySelector('.error-ok').addEventListener('click', () => {
+                playSound('click');
+                dialog.remove();
+            });
+
+            setTimeout(() => dialog.remove(), 8000);
+        }
+
+        setInterval(() => {
+            if (desktop.classList.contains('active') && Math.random() > 0.7) {
+                showRandomError();
+            }
+        }, 15000);
+
+        // Blue screen
+        const blueScreen = document.getElementById('blue-screen');
+        const triggerBsod = document.getElementById('trigger-bsod');
+
+        triggerBsod.addEventListener('click', () => {
+            settingsPanel.classList.remove('active');
+            desktop.classList.remove('active');
+            blueScreen.classList.add('active');
+        });
+
+        // Clock
+        function updateClock() {
+            const now = new Date();
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            document.getElementById('clock').textContent = `${hours}:${minutes}`;
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        // Format selector
+        const formatContainer = document.getElementById('format-container');
+        const formatSelect = document.getElementById('format-select');
+        const formatInfo = document.getElementById('format-info');
+        const showFormatInfo = document.getElementById('show-format-info');
+
+        const formatData = {
+            square: {
+                name: 'Instagram Square Post',
+                dimensions: '1080 x 1080 px (1:1)',
+                class: 'square'
+            },
+            portrait: {
+                name: 'Instagram Portrait Post',
+                dimensions: '1080 x 1350 px (4:5)',
+                class: 'portrait'
+            },
+            landscape: {
+                name: 'Instagram Landscape Post',
+                dimensions: '1080 x 566 px (1.91:1)',
+                class: 'landscape'
+            },
+            reels: {
+                name: 'Instagram Stories/Reels',
+                dimensions: '1080 x 1920 px (9:16)',
+                class: 'reels'
+            }
+        };
+
+        formatSelect.addEventListener('change', (e) => {
+            const format = e.target.value;
+            const data = formatData[format];
+
+            formatContainer.className = data.class;
+
+            formatInfo.querySelector('.format-info-title').textContent = data.name;
+            formatInfo.querySelector('div:last-child').textContent = data.dimensions;
+        });
+
+        showFormatInfo.addEventListener('change', (e) => {
+            formatInfo.style.display = e.target.checked ? 'block' : 'none';
+        });
+
+        // Start boot
+        bootSequence();
+    </script>
+    </div> <!-- Close format-container -->
+</body>
+</html>
