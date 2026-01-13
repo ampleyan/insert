@@ -32,6 +32,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Copy win98 to public directory
+        run: cp -r win98 public/
+
       - name: Build project
         run: npm run build
         env:
@@ -45,6 +48,7 @@ jobs:
   deploy:
     needs: build
     runs-on: ubuntu-latest
+    timeout-minutes: 10
 
     environment:
       name: github-pages
@@ -54,3 +58,4 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+        timeout-minutes: 5
