@@ -2,6 +2,7 @@
   <div class="win98-notebook">
     <div
       class="notebook-content win98-frame-sunken"
+      :style="contentStyle"
       contenteditable="true"
       @input="onInput"
       v-html="content"
@@ -21,6 +22,15 @@ export default {
   computed: {
     content() {
       return this.settingsStore.win98.notebookContent;
+    },
+    textScale() {
+      return this.settingsStore.win98.textScale;
+    },
+    contentStyle() {
+      return {
+        fontSize: (12 * this.textScale) + 'px',
+        lineHeight: 1.4,
+      };
     },
   },
   methods: {

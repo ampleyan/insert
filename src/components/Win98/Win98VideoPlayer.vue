@@ -156,12 +156,16 @@ export default {
 <style scoped>
 .win98-video-player {
   width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
 .video-container {
   background: #000;
   width: 100%;
-  aspect-ratio: 16 / 9;
+  flex: 1;
+  min-height: 0;
 }
 
 .video-container video {

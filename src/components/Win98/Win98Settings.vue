@@ -47,6 +47,19 @@
         </div>
 
         <div class="setting-row">
+          <label class="win98-label">Text Scale: {{ win98.textScale.toFixed(1) }}</label>
+          <input
+            type="range"
+            class="win98-slider"
+            min="0.5"
+            max="5"
+            step="0.1"
+            :value="win98.textScale"
+            @input="updateSetting('textScale', parseFloat($event.target.value))"
+          />
+        </div>
+
+        <div class="setting-row">
           <label class="win98-label">
             <input
               type="checkbox"

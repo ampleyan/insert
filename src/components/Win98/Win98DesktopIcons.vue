@@ -22,6 +22,8 @@
 
     <Win98RecycleBin
       :has-items="win98.deletedIcons.length > 0"
+      :icon-scale="win98.iconScale"
+      :zoom-scale="win98.zoomScale"
       @dragover.prevent="onTrashDragOver"
       @dragleave="onTrashDragLeave"
       @drop="onTrashDrop"

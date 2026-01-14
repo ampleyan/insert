@@ -5,8 +5,8 @@
       <button class="win98-close" @click="dismiss">X</button>
     </div>
     <div class="error-content">
-      <div class="error-icon">⚠</div>
-      <div class="error-message">{{ error.message }}</div>
+      <div class="error-icon" :style="iconStyle">⚠</div>
+      <div class="error-message" :style="messageStyle">{{ error.message }}</div>
     </div>
     <div class="error-buttons">
       <button class="win98-button" @click="dismiss">OK</button>
@@ -15,6 +15,8 @@
 </template>
 
 <script>
+import { useSettingsStore } from '../../stores/settings';
+
 export default {
   name: 'Win98ErrorPopup',
   props: {
@@ -24,16 +26,34 @@ export default {
     },
   },
   emits: ['dismiss'],
+  setup() {
+    const settingsStore = useSettingsStore();
+    return { settingsStore };
+  },
   data() {
     return {
       dismissTimer: null,
     };
   },
   computed: {
+    textScale() {
+      return this.settingsStore.win98.textScale;
+    },
     popupStyle() {
       return {
         left: this.error.position?.x + 'px',
         top: this.error.position?.y + 'px',
+        width: (350 * this.textScale / 2) + 'px',
+      };
+    },
+    iconStyle() {
+      return {
+        fontSize: (32 * this.textScale / 2) + 'px',
+      };
+    },
+    messageStyle() {
+      return {
+        fontSize: (11 * this.textScale) + 'px',
       };
     },
   },
@@ -58,7 +78,7 @@ export default {
 <style scoped>
 .win98-error-popup {
   position: absolute;
-  width: 350px;
+  min-width: 200px;
   z-index: 8000;
   animation: win98-window-open 0.15s ease-out;
 }

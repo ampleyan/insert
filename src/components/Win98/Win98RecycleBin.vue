@@ -2,12 +2,13 @@
   <div
     class="win98-recycle-bin win98-icon"
     :class="{ 'drag-over': isDragOver }"
+    :style="iconStyle"
     @dragover.prevent="onDragOver"
     @dragleave="onDragLeave"
     @drop="onDrop"
   >
-    <div class="icon-image-container">
-      <img :src="trashIcon" alt="Recycle Bin" class="icon-image" />
+    <div class="icon-image-container" :style="containerStyle">
+      <img :src="trashIcon" alt="Recycle Bin" class="icon-image" :style="imageStyle" />
     </div>
     <span class="icon-label">Recycle Bin</span>
   </div>
@@ -23,6 +24,14 @@ export default {
       type: Boolean,
       default: false,
     },
+    iconScale: {
+      type: Number,
+      default: 3,
+    },
+    zoomScale: {
+      type: Number,
+      default: 1.8,
+    },
   },
   emits: ['dragover', 'dragleave', 'drop'],
   data() {
@@ -35,6 +44,24 @@ export default {
       return this.hasItems
         ? getWin98AssetPath('win98/assets/insert_trash.png')
         : getWin98AssetPath('win98/assets/insert_trash_empty.png');
+    },
+    iconStyle() {
+      return {
+        width: (60 * this.iconScale) + 'px',
+        '--zoom-scale': this.zoomScale,
+      };
+    },
+    containerStyle() {
+      return {
+        width: (48 * this.iconScale) + 'px',
+        height: (48 * this.iconScale) + 'px',
+      };
+    },
+    imageStyle() {
+      return {
+        width: (48 * this.iconScale) + 'px',
+        height: (48 * this.iconScale) + 'px',
+      };
     },
   },
   methods: {
@@ -63,9 +90,14 @@ export default {
   flex-direction: column;
   align-items: center;
   padding: 4px;
-  cursor: default;
+  cursor: pointer;
   user-select: none;
   transition: transform 0.15s ease, background 0.15s ease;
+}
+
+.win98-recycle-bin:hover {
+  transform: scale(var(--zoom-scale, 1.8));
+  z-index: 100;
 }
 
 .win98-recycle-bin.drag-over {
@@ -74,8 +106,6 @@ export default {
 }
 
 .icon-image-container {
-  width: 48px;
-  height: 48px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -83,8 +113,6 @@ export default {
 }
 
 .icon-image {
-  width: 48px;
-  height: 48px;
   object-fit: contain;
 }
 

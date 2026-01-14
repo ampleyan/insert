@@ -20,8 +20,8 @@ export const WIN98_ICONS = {
   constant: { id: 'constant', label: 'IN_CONSTANT.mp4', type: 'video', src: 'win98/videos/in_constant.mp4', icon: 'win98/assets/constant.png' },
   graftak: { id: 'graftak', label: 'GRAFTAK.mp4', type: 'video', src: 'win98/videos/graftak.mp4', icon: 'win98/assets/graftak.png' },
   sweat: { id: 'sweat', label: 'SWEAT.mp4', type: 'video', src: 'win98/videos/sweat.mp4', icon: 'win98/assets/sweat.png' },
-  insert_vibe: { id: 'insert_vibe', label: 'INSERT_VIBE.mp4', type: 'video', src: 'win98/videos/insert_vibe.mp4', iconType: 'help-book' },
-  het_bos_vibe: { id: 'het_bos_vibe', label: 'HET_BOS_VIBE.mp4', type: 'video', src: 'win98/videos/het_bos_vibe.mp4', iconType: 'help-book' }
+  insert_vibe: { id: 'insert_vibe', label: 'INSERT_VIBE.mp4', type: 'video', src: 'win98/videos/insert_vibe.mp4', icon: 'win98/assets/vibe1.png' },
+  het_bos_vibe: { id: 'het_bos_vibe', label: 'HET_BOS_VIBE.mp4', type: 'video', src: 'win98/videos/het_bos_vibe.mp4', icon: 'win98/assets/vibe2.png' }
 };
 
 export const WIN98_SOUNDS = {
@@ -75,11 +75,12 @@ export const WIN98_DEFAULT_STATE = {
   },
   iconScale: 3,
   zoomScale: 1.8,
+  textScale: 2,
   autoArrange: false,
   soundEnabled: true,
   volume: 0.5,
   cursorTrailEnabled: true,
-  format: 'reels',
+  format: 'portrait',
   showFormatInfo: true,
   screensaverActive: false,
   screensaverTimeout: 30000,
@@ -97,16 +98,16 @@ export const WIN98_DEFAULT_STATE = {
   errorPopups: [],
   notebookContent: `<p><strong>PARTY INFORMATION</strong></p>
 <br>
-<p>Date: [YOUR DATE HERE]</p>
-<p>Time: [YOUR TIME HERE]</p>
-<p>Location: [YOUR LOCATION HERE]</p>
-<br>
-<p>DJ Lineup:</p>
-<p>- [DJ NAME 1]</p>
-<p>- [DJ NAME 2]</p>
-<p>- [DJ NAME 3]</p>
-<br>
-<p>Tickets: [TICKET LINK]</p>`,
+      <p>Date: <b>30 JANUARY 2026</b></p>
+      <p>Time: <b>TBA</b></p>
+      <p>Location: <b>TRAUM</b></p>
+      <br>
+      <p>DJ Lineup:</p>
+      <p>- INSERT CREW</p>
+      <p>- BASHKKA </p>
+      <p>- DANA MONTANA feat BABU</p>
+      <br>
+      <p>*<small><small>INSERT CREW represented by sweatlana, graftak, in_constant</small></small></p>`,
   bsodContent: {
     location: '[YOUR LOCATION HERE]',
     date: '[YOUR DATE HERE]',

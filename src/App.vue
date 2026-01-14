@@ -1,9 +1,9 @@
 <template>
   <div class="app" :style="currentAppStyle" :class="{ 'fit-mode': settingsStore.fitToFormat && settingsStore.appMode === 'insert' }">
-    <button class="win98-mode-toggle" @click="toggleAppMode">
-      <span class="mode-current">{{ settingsStore.appMode === 'insert' ? 'INSERT' : 'Win98' }}</span>
+    <button v-if="settingsStore.appMode === 'insert'" class="win98-mode-toggle" @click="toggleAppMode">
+      <span class="mode-current">INSERT</span>
       <span class="mode-arrow">→</span>
-      <span class="mode-switch">{{ settingsStore.appMode === 'insert' ? 'Win98' : 'INSERT' }}</span>
+      <span class="mode-switch">Win98</span>
     </button>
 
     <template v-if="settingsStore.appMode === 'insert'">

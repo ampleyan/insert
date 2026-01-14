@@ -11,14 +11,15 @@
       :error="error"
       @dismiss="onErrorDismiss"
     />
-    <div class="hotkey-hint" v-if="win98.desktopActive">
-      R: Reboot | E: Error | B: BSOD | S: Screensaver
+    <div class="hotkey-hint" v-if="win98.desktopActive && showHotkeyHint">
+      R: Reboot | E: Error | B: BSOD | S: Screensaver | P: Settings | F: Format | I: INSERT | H: Hide
     </div>
   </div>
 </template>
 
 <script>
 import { useSettingsStore } from '../../stores/settings';
+import { WIN98_FORMATS } from '../../constants/win98';
 import Win98BootScreen from './Win98BootScreen.vue';
 import Win98FormatContainer from './Win98FormatContainer.vue';
 import Win98Screensaver from './Win98Screensaver.vue';
@@ -45,6 +46,7 @@ export default {
       idleTimer: null,
       errorTimer: null,
       idleTime: 0,
+      showHotkeyHint: true,
     };
   },
   computed: {
@@ -165,7 +167,25 @@ export default {
         } else {
           this.settingsStore.win98ActivateScreensaver();
         }
+      } else if (key === 'p') {
+        e.preventDefault();
+        this.settingsStore.win98OpenWindow('settings');
+      } else if (key === 'f') {
+        e.preventDefault();
+        this.cycleFormat();
+      } else if (key === 'i') {
+        e.preventDefault();
+        this.settingsStore.setAppMode('insert');
+      } else if (key === 'h') {
+        e.preventDefault();
+        this.showHotkeyHint = !this.showHotkeyHint;
       }
+    },
+    cycleFormat() {
+      const formats = Object.keys(WIN98_FORMATS);
+      const currentIndex = formats.indexOf(this.win98.format);
+      const nextIndex = (currentIndex + 1) % formats.length;
+      this.settingsStore.win98UpdateSettings({ format: formats[nextIndex] });
     },
   },
 };
@@ -177,7 +197,7 @@ export default {
   height: 100%;
   position: relative;
   background: #000;
-  overflow: hidden;
+  overflow: auto;
 }
 
 .hotkey-hint {

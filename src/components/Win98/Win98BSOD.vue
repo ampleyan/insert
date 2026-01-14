@@ -1,7 +1,7 @@
 <template>
   <div class="win98-bsod" @click="dismiss">
-    <div class="bsod-content">
-      <div class="bsod-title">Windows</div>
+    <div class="bsod-content" :style="contentStyle">
+      <div class="bsod-title" :style="titleStyle">Windows</div>
       <div class="bsod-message">
         <p>A fatal exception CHAOS_OVERFLOW has occurred at 0028:C0011F69.</p>
         <p>The current application will be terminated.</p>
@@ -9,9 +9,9 @@
         <p>* Press any key to continue to the party.</p>
         <br />
         <p>PARTY DETAILS:</p>
-        <p>Location: {{ bsodContent.location }}</p>
-        <p>Date: {{ bsodContent.date }}</p>
-        <p>Time: {{ bsodContent.time }}</p>
+        <p>Location: <b>TRAUM</b></p>
+        <p>Date: <b>30 JAN 2026</b></p>
+        <p>Time: <b>TBA</b></p>
         <br />
         <p>Press any key to continue <span class="blink">_</span></p>
       </div>
@@ -32,6 +32,19 @@ export default {
   computed: {
     bsodContent() {
       return this.settingsStore.win98.bsodContent;
+    },
+    textScale() {
+      return this.settingsStore.win98.textScale;
+    },
+    contentStyle() {
+      return {
+        fontSize: (16 * this.textScale) + 'px',
+      };
+    },
+    titleStyle() {
+      return {
+        fontSize: (24 * this.textScale) + 'px',
+      };
     },
   },
   mounted() {
