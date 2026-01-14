@@ -1,40 +1,47 @@
 <template>
-  <div class="app" :style="appStyle" :class="{ 'fit-mode': settingsStore.fitToFormat }">
-    <VideoBackground :settings="settingsStore.$state" />
-    <FormatBoundary :settings="settingsStore.$state" />
-    <GridOverlay :settings="settingsStore.$state" />
-    <ImageOverlay
-      :images="settingsStore.imageOverlays || []"
-      :dragMode="settingsStore.dragMode"
-      @update="onUpdate"
-    />
-    <VideoOverlay
-      :videos="settingsStore.videoOverlays || []"
-      :dragMode="settingsStore.dragMode"
-      @update="onUpdate"
-    />
-
-    <button class="toggle-controls" @click="toggleControls">
-      <span class="icon" :class="{ hidden: isControlsHidden }">◀</span>
-      <span class="text">{{ isControlsHidden ? 'Show Controls' : 'Hide Controls' }}</span>
+  <div class="app" :style="currentAppStyle" :class="{ 'fit-mode': settingsStore.fitToFormat && settingsStore.appMode === 'insert' }">
+    <button class="win98-mode-toggle" @click="toggleAppMode">
+      <span class="mode-current">{{ settingsStore.appMode === 'insert' ? 'INSERT' : 'Win98' }}</span>
+      <span class="mode-arrow">→</span>
+      <span class="mode-switch">{{ settingsStore.appMode === 'insert' ? 'Win98' : 'INSERT' }}</span>
     </button>
 
-    <div class="shortcut-hint" :class="{ visible: isShortcutHintVisible }">
-      Double-click anywhere to toggle controls
-    </div>
+    <template v-if="settingsStore.appMode === 'insert'">
+      <VideoBackground :settings="settingsStore.$state" />
+      <FormatBoundary :settings="settingsStore.$state" />
+      <GridOverlay :settings="settingsStore.$state" />
+      <ImageOverlay
+        :images="settingsStore.imageOverlays || []"
+        :dragMode="settingsStore.dragMode"
+        @update="onUpdate"
+      />
+      <VideoOverlay
+        :videos="settingsStore.videoOverlays || []"
+        :dragMode="settingsStore.dragMode"
+        @update="onUpdate"
+      />
 
-    <ControlPanel
-      :class="{ hidden: isControlsHidden }"
-      @update="onUpdate"
-      @change-effect="onUpdate"
-      @reset="resetToDefaults"
-      @audioPlay="handleAudioPlay"
-      @audioPause="handleAudioPause"
-      @audioStop="handleAudioStop"
-      @audioFile="handleAudioFile"
-    />
+      <button class="toggle-controls" @click="toggleControls">
+        <span class="icon" :class="{ hidden: isControlsHidden }">◀</span>
+        <span class="text">{{ isControlsHidden ? 'Show Controls' : 'Hide Controls' }}</span>
+      </button>
 
-    <ErrorBoundary>
+      <div class="shortcut-hint" :class="{ visible: isShortcutHintVisible }">
+        Double-click anywhere to toggle controls
+      </div>
+
+      <ControlPanel
+        :class="{ hidden: isControlsHidden }"
+        @update="onUpdate"
+        @change-effect="onUpdate"
+        @reset="resetToDefaults"
+        @audioPlay="handleAudioPlay"
+        @audioPause="handleAudioPause"
+        @audioStop="handleAudioStop"
+        @audioFile="handleAudioFile"
+      />
+
+      <ErrorBoundary>
       <TextVibration
         v-if="settingsStore.effectType === 'vibration'"
         :settings="settingsStore.$state"
@@ -106,13 +113,10 @@
         :settings="settingsStore.$state"
         @update="onUpdate"
       />
-    </ErrorBoundary>
+      </ErrorBoundary>
+    </template>
 
-    <!-- <QuickActionsBar
-      @reset="resetToDefaults"
-      @show-presets="showPresetsModal = true"
-      @save-preset="showSavePresetModal = true"
-    /> -->
+    <Win98Desktop v-else />
   </div>
 </template>
 
@@ -143,6 +147,7 @@ import HolographicEffect from './components/Effects/HolographicEffect.vue';
 import PerspectiveEffect from './components/Effects/PerspectiveEffect.vue';
 import ShatterEffect from './components/Effects/ShatterEffect.vue';
 import ErrorBoundary from './components/ErrorBoundary.vue';
+import Win98Desktop from './components/Win98/Win98Desktop.vue';
 import { useSettingsStore } from './stores/settings';
 import { useHistoryStore } from './stores/history';
 import { usePresetsStore } from './stores/presets';
@@ -177,6 +182,7 @@ export default {
     PerspectiveEffect,
     ShatterEffect,
     ErrorBoundary,
+    Win98Desktop,
   },
   data() {
     const storedState = localStorage.getItem('appState');
@@ -286,6 +292,22 @@ export default {
         width: `${this.settingsStore.videoWidth}px`,
         height: `${this.settingsStore.videoHeight}px`
       };
+    },
+    win98Style() {
+      const formats = {
+        square: { width: 1080, height: 1080 },
+        portrait: { width: 1080, height: 1350 },
+        landscape: { width: 1080, height: 566 },
+        reels: { width: 1080, height: 1920 }
+      };
+      const format = formats[this.settingsStore.win98.format] || formats.reels;
+      return {
+        width: `${format.width}px`,
+        height: `${format.height}px`
+      };
+    },
+    currentAppStyle() {
+      return this.settingsStore.appMode === 'insert' ? this.appStyle : this.win98Style;
     }
   },
   methods: {
@@ -330,6 +352,10 @@ export default {
     },
     handleAudioStop() {
       this.audioStop();
+    },
+    toggleAppMode() {
+      const newMode = this.settingsStore.appMode === 'insert' ? 'win98' : 'insert';
+      this.settingsStore.setAppMode(newMode);
     },
   },
 };

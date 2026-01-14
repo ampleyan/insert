@@ -7,6 +7,7 @@ import './assets/styles/controls.css';
 import './assets/styles/animation.css';
 import './assets/styles/text-animations.css';
 import './assets/styles/mobile.css';
+import './assets/styles/win98.css';
 
 const app = createApp(App);
 const pinia = createPinia();

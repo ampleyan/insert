@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia';
 import { debounce } from 'lodash-es';
+import { WIN98_DEFAULT_STATE } from '../constants/win98';
 
 export const useSettingsStore = defineStore('settings', {
   state: () => ({
@@ -267,6 +268,9 @@ export const useSettingsStore = defineStore('settings', {
       applyTo: 'intensity',
       volume: 1,
     },
+
+    appMode: 'insert',
+    win98: { ...WIN98_DEFAULT_STATE },
   }),
 
   actions: {
@@ -435,6 +439,125 @@ export const useSettingsStore = defineStore('settings', {
           });
         }
       }
+    },
+
+    setAppMode(mode) {
+      this.appMode = mode;
+      if (mode === 'win98') {
+        this.win98.bootComplete = false;
+        this.win98.desktopActive = false;
+      }
+      this.saveToLocalStorageDebounced();
+    },
+
+    win98CompleteBoot() {
+      this.win98.bootComplete = true;
+      this.win98.desktopActive = true;
+      this.saveToLocalStorageDebounced();
+    },
+
+    win98OpenWindow(windowId) {
+      if (!this.win98.openWindows.includes(windowId)) {
+        this.win98.openWindows.push(windowId);
+      }
+      this.win98BringToFront(windowId);
+      if (windowId.startsWith('video-')) {
+        this.win98SetAudioFocus(windowId.replace('video-', ''));
+      }
+      this.saveToLocalStorageDebounced();
+    },
+
+    win98CloseWindow(windowId) {
+      const index = this.win98.openWindows.indexOf(windowId);
+      if (index > -1) {
+        this.win98.openWindows.splice(index, 1);
+      }
+      if (windowId.startsWith('video-')) {
+        const videoId = windowId.replace('video-', '');
+        this.win98.videoStates[videoId].playing = false;
+      }
+      this.saveToLocalStorageDebounced();
+    },
+
+    win98BringToFront(windowId) {
+      this.win98.topZIndex += 1;
+      this.win98.windowZIndex[windowId] = this.win98.topZIndex;
+    },
+
+    win98SetAudioFocus(videoId) {
+      Object.keys(this.win98.videoStates).forEach(id => {
+        this.win98.videoStates[id].muted = id !== videoId;
+      });
+      this.win98.activeAudioVideo = videoId;
+      this.saveToLocalStorageDebounced();
+    },
+
+    win98DeleteIcon(iconId) {
+      if (!this.win98.deletedIcons.includes(iconId)) {
+        this.win98.deletedIcons.push(iconId);
+      }
+      this.saveToLocalStorageDebounced();
+    },
+
+    win98UpdateIconPosition(iconId, x, y) {
+      this.win98.iconPositions[iconId] = { x, y };
+      this.saveToLocalStorageDebounced();
+    },
+
+    win98UpdateWindowPosition(windowId, x, y) {
+      this.win98.windowPositions[windowId] = { x, y };
+      this.saveToLocalStorageDebounced();
+    },
+
+    win98TriggerBSOD() {
+      this.win98.bsodActive = true;
+      this.win98.desktopActive = false;
+      this.win98.screensaverActive = false;
+    },
+
+    win98DismissBSOD() {
+      this.win98.bsodActive = false;
+      this.win98.desktopActive = true;
+    },
+
+    win98ActivateScreensaver() {
+      if (this.win98.desktopActive) {
+        this.win98.screensaverActive = true;
+        this.win98.desktopActive = false;
+      }
+    },
+
+    win98DismissScreensaver() {
+      this.win98.screensaverActive = false;
+      this.win98.desktopActive = true;
+    },
+
+    win98ShowError(error) {
+      this.win98.errorPopups.push({
+        id: Date.now(),
+        ...error,
+        position: {
+          x: Math.random() * (window.innerWidth - 400),
+          y: Math.random() * (window.innerHeight - 200)
+        }
+      });
+    },
+
+    win98DismissError(errorId) {
+      const index = this.win98.errorPopups.findIndex(e => e.id === errorId);
+      if (index > -1) {
+        this.win98.errorPopups.splice(index, 1);
+      }
+    },
+
+    win98UpdateSettings(settings) {
+      Object.assign(this.win98, settings);
+      this.saveToLocalStorageDebounced();
+    },
+
+    win98Reset() {
+      this.win98 = { ...WIN98_DEFAULT_STATE };
+      this.saveToLocalStorageDebounced();
     },
   },
 });

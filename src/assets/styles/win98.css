@@ -1,0 +1,234 @@
+:root {
+  --win98-gray: #c0c0c0;
+  --win98-dark-gray: #808080;
+  --win98-white: #ffffff;
+  --win98-black: #000000;
+  --win98-blue: #000080;
+  --win98-blue-light: #1084d0;
+  --win98-bsod-blue: #0000aa;
+  --win98-border-light: #dfdfdf;
+  --win98-border-dark: #000000;
+  --win98-shadow: 2px 2px 8px rgba(0, 0, 0, 0.5);
+  --win98-font: 'MS Sans Serif', 'Segoe UI', Tahoma, sans-serif;
+  --win98-font-mono: 'Courier New', monospace;
+}
+
+.win98-frame {
+  background: var(--win98-gray);
+  border: 2px solid;
+  border-color: var(--win98-border-light) var(--win98-border-dark) var(--win98-border-dark) var(--win98-border-light);
+  box-shadow: var(--win98-shadow);
+}
+
+.win98-frame-sunken {
+  border-color: var(--win98-border-dark) var(--win98-border-light) var(--win98-border-light) var(--win98-border-dark);
+}
+
+.win98-titlebar {
+  background: linear-gradient(to right, var(--win98-blue), var(--win98-blue-light));
+  color: var(--win98-white);
+  padding: 3px 4px;
+  font-size: 11px;
+  font-weight: bold;
+  font-family: var(--win98-font);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: move;
+  user-select: none;
+}
+
+.win98-titlebar-inactive {
+  background: linear-gradient(to right, var(--win98-dark-gray), #a0a0a0);
+}
+
+.win98-titlebar-icon {
+  width: 16px;
+  height: 16px;
+  margin-right: 4px;
+}
+
+.win98-titlebar-title {
+  flex: 1;
+  display: flex;
+  align-items: center;
+}
+
+.win98-button {
+  padding: 4px 20px;
+  background: var(--win98-gray);
+  border: 2px solid;
+  border-color: var(--win98-border-light) var(--win98-border-dark) var(--win98-border-dark) var(--win98-border-light);
+  font-size: 11px;
+  font-family: var(--win98-font);
+  cursor: pointer;
+  outline: none;
+}
+
+.win98-button:active {
+  border-color: var(--win98-border-dark) var(--win98-border-light) var(--win98-border-light) var(--win98-border-dark);
+  padding: 5px 19px 3px 21px;
+}
+
+.win98-button:focus {
+  outline: 1px dotted var(--win98-black);
+  outline-offset: -4px;
+}
+
+.win98-close {
+  width: 16px;
+  height: 14px;
+  background: var(--win98-gray);
+  border: 1px solid;
+  border-color: var(--win98-white) var(--win98-border-dark) var(--win98-border-dark) var(--win98-white);
+  font-size: 10px;
+  line-height: 12px;
+  text-align: center;
+  cursor: pointer;
+  color: var(--win98-black);
+  font-weight: bold;
+  font-family: var(--win98-font);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.win98-close:active {
+  border-color: var(--win98-border-dark) var(--win98-white) var(--win98-white) var(--win98-border-dark);
+}
+
+.win98-input {
+  background: var(--win98-white);
+  border: 2px solid;
+  border-color: var(--win98-dark-gray) var(--win98-white) var(--win98-white) var(--win98-dark-gray);
+  padding: 2px 4px;
+  font-family: var(--win98-font);
+  font-size: 11px;
+}
+
+.win98-select {
+  background: var(--win98-white);
+  border: 2px solid;
+  border-color: var(--win98-dark-gray) var(--win98-white) var(--win98-white) var(--win98-dark-gray);
+  padding: 2px;
+  font-family: var(--win98-font);
+  font-size: 11px;
+}
+
+.win98-checkbox {
+  width: 13px;
+  height: 13px;
+  margin-right: 4px;
+}
+
+.win98-label {
+  font-family: var(--win98-font);
+  font-size: 11px;
+  color: var(--win98-black);
+  display: flex;
+  align-items: center;
+}
+
+.win98-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 21px;
+  background: transparent;
+}
+
+.win98-slider::-webkit-slider-runnable-track {
+  height: 4px;
+  background: var(--win98-dark-gray);
+  border: 1px solid;
+  border-color: var(--win98-border-dark) var(--win98-white) var(--win98-white) var(--win98-border-dark);
+}
+
+.win98-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 11px;
+  height: 21px;
+  background: var(--win98-gray);
+  border: 2px solid;
+  border-color: var(--win98-border-light) var(--win98-border-dark) var(--win98-border-dark) var(--win98-border-light);
+  margin-top: -9px;
+  cursor: pointer;
+}
+
+@keyframes win98-window-open {
+  from {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes win98-boot-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+@keyframes win98-fade-out {
+  to {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+}
+
+@keyframes win98-trail-fade {
+  to {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+}
+
+@keyframes win98-progress {
+  0% { width: 0%; }
+  100% { width: 100%; }
+}
+
+@keyframes win98-blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
+.win98-mode-toggle {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 9999;
+  padding: 8px 16px;
+  background: var(--win98-gray);
+  border: 2px solid;
+  border-color: var(--win98-border-light) var(--win98-border-dark) var(--win98-border-dark) var(--win98-border-light);
+  font-family: var(--win98-font);
+  font-size: 12px;
+  cursor: pointer;
+  color: var(--win98-black);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.win98-mode-toggle .mode-current {
+  font-weight: bold;
+  color: var(--win98-blue);
+}
+
+.win98-mode-toggle .mode-arrow {
+  color: var(--win98-dark-gray);
+}
+
+.win98-mode-toggle .mode-switch {
+  color: var(--win98-black);
+}
+
+.win98-mode-toggle:active {
+  border-color: var(--win98-border-dark) var(--win98-border-light) var(--win98-border-light) var(--win98-border-dark);
+}
+
+.win98-mode-toggle:hover {
+  background: #d4d4d4;
+}
