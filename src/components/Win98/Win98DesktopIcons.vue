@@ -1,5 +1,5 @@
 <template>
-  <div class="win98-desktop-icons" @click="deselectAll">
+  <div class="win98-desktop-icons" @click="deselectAll" @contextmenu.prevent="onContextMenu">
     <div
       v-for="(icon, iconId) in visibleIcons"
       :key="iconId"
@@ -38,7 +38,7 @@ export default {
   components: {
     Win98RecycleBin,
   },
-  emits: ['play-sound'],
+  emits: ['play-sound', 'context-menu'],
   setup() {
     const settingsStore = useSettingsStore();
     return { settingsStore };
@@ -151,6 +151,10 @@ export default {
       }
       this.trashHighlighted = false;
       this.draggingIcon = null;
+    },
+    onContextMenu(e) {
+      this.$emit('play-sound', 'click');
+      this.$emit('context-menu', { x: e.clientX, y: e.clientY });
     },
   },
 };

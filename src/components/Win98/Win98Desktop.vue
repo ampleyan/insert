@@ -12,7 +12,7 @@
       @dismiss="onErrorDismiss"
     />
     <div class="hotkey-hint" v-if="win98.desktopActive">
-      E: Error | B: BSOD | S: Screensaver
+      R: Reboot | E: Error | B: BSOD | S: Screensaver
     </div>
   </div>
 </template>
@@ -145,7 +145,10 @@ export default {
 
       const key = e.key.toLowerCase();
 
-      if (key === 'e') {
+      if (key === 'r') {
+        e.preventDefault();
+        this.settingsStore.win98TriggerBoot();
+      } else if (key === 'e') {
         e.preventDefault();
         this.triggerRandomError();
       } else if (key === 'b') {

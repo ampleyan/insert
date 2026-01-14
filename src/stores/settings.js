@@ -520,6 +520,13 @@ export const useSettingsStore = defineStore('settings', {
       this.win98.desktopActive = true;
     },
 
+    win98TriggerBoot() {
+      this.win98.bootComplete = false;
+      this.win98.desktopActive = false;
+      this.win98.bsodActive = false;
+      this.win98.screensaverActive = false;
+    },
+
     win98ActivateScreensaver() {
       if (this.win98.desktopActive) {
         this.win98.screensaverActive = true;
@@ -557,6 +564,98 @@ export const useSettingsStore = defineStore('settings', {
 
     win98Reset() {
       this.win98 = { ...WIN98_DEFAULT_STATE };
+      this.saveToLocalStorageDebounced();
+    },
+
+    win98ArrangeIconsByName() {
+      const icons = Object.keys(this.win98.iconPositions)
+        .filter(id => !this.win98.deletedIcons.includes(id))
+        .sort((a, b) => a.localeCompare(b));
+      this.win98ArrangeIconsInGrid(icons);
+    },
+
+    win98ArrangeIconsByType() {
+      const { WIN98_ICONS } = require('../constants/win98');
+      const icons = Object.keys(this.win98.iconPositions)
+        .filter(id => !this.win98.deletedIcons.includes(id))
+        .sort((a, b) => {
+          const typeA = WIN98_ICONS[a]?.type || '';
+          const typeB = WIN98_ICONS[b]?.type || '';
+          if (typeA !== typeB) return typeA.localeCompare(typeB);
+          return a.localeCompare(b);
+        });
+      this.win98ArrangeIconsInGrid(icons);
+    },
+
+    win98ArrangeIconsInGrid(iconIds) {
+      const spacing = 100 * this.win98.iconScale;
+      const startX = 20;
+      const startY = 20;
+      const cols = 4;
+
+      iconIds.forEach((id, i) => {
+        const col = i % cols;
+        const row = Math.floor(i / cols);
+        this.win98.iconPositions[id] = {
+          x: startX + col * spacing,
+          y: startY + row * spacing,
+        };
+      });
+      this.saveToLocalStorageDebounced();
+    },
+
+    win98AlignIconsToGrid() {
+      const gridSize = 50 * this.win98.iconScale;
+      Object.keys(this.win98.iconPositions).forEach(id => {
+        if (!this.win98.deletedIcons.includes(id)) {
+          const pos = this.win98.iconPositions[id];
+          this.win98.iconPositions[id] = {
+            x: Math.round(pos.x / gridSize) * gridSize,
+            y: Math.round(pos.y / gridSize) * gridSize,
+          };
+        }
+      });
+      this.saveToLocalStorageDebounced();
+    },
+
+    win98LineUpIcons() {
+      const icons = Object.keys(this.win98.iconPositions)
+        .filter(id => !this.win98.deletedIcons.includes(id));
+      const spacing = 100 * this.win98.iconScale;
+      const startX = 20;
+      const startY = 20;
+
+      icons.sort((a, b) => {
+        const posA = this.win98.iconPositions[a];
+        const posB = this.win98.iconPositions[b];
+        if (Math.abs(posA.y - posB.y) < spacing / 2) {
+          return posA.x - posB.x;
+        }
+        return posA.y - posB.y;
+      });
+
+      const cols = 4;
+      icons.forEach((id, i) => {
+        const col = i % cols;
+        const row = Math.floor(i / cols);
+        this.win98.iconPositions[id] = {
+          x: startX + col * spacing,
+          y: startY + row * spacing,
+        };
+      });
+      this.saveToLocalStorageDebounced();
+    },
+
+    win98RestoreAllIcons() {
+      this.win98.deletedIcons = [];
+      this.saveToLocalStorageDebounced();
+    },
+
+    win98ToggleAutoArrange() {
+      this.win98.autoArrange = !this.win98.autoArrange;
+      if (this.win98.autoArrange) {
+        this.win98ArrangeIconsByName();
+      }
       this.saveToLocalStorageDebounced();
     },
   },

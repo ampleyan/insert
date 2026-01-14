@@ -3,7 +3,7 @@
     <div class="boot-content">
       <img src="/win98/assets/boot_screen_no_bg.png" alt="Logo" class="background-logo" />
 
-      <div class="boot-logo">Windows 69</div>
+<!--      <div class="boot-logo">Windows 69</div>-->
       <div class="boot-progress-container">
         <div class="boot-progress-bar" :style="{ width: progress + '%' }"></div>
       </div>

@@ -60,6 +60,7 @@ export const WIN98_DEFAULT_STATE = {
   },
   iconScale: 3,
   zoomScale: 1.8,
+  autoArrange: false,
   soundEnabled: true,
   volume: 0.5,
   cursorTrailEnabled: true,

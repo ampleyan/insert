@@ -1,7 +1,7 @@
 <template>
   <div class="win98-format-container" :class="win98.format" :style="containerStyle">
     <Win98Background />
-    <Win98DesktopIcons @play-sound="playSound" />
+    <Win98DesktopIcons @play-sound="playSound" @context-menu="showContextMenu" />
     <Win98Taskbar />
     <Win98Window
       v-for="windowId in win98.openWindows"
@@ -11,6 +11,15 @@
     <div v-if="win98.showFormatInfo" class="format-info">
       {{ formatInfo }}
     </div>
+    <Win98ContextMenu
+      :visible="contextMenu.visible"
+      :x="contextMenu.x"
+      :y="contextMenu.y"
+      :auto-arrange="win98.autoArrange"
+      :has-deleted-icons="win98.deletedIcons.length > 0"
+      @action="handleContextAction"
+      @close="closeContextMenu"
+    />
   </div>
 </template>
 
@@ -21,6 +30,7 @@ import Win98Background from './Win98Background.vue';
 import Win98DesktopIcons from './Win98DesktopIcons.vue';
 import Win98Taskbar from './Win98Taskbar.vue';
 import Win98Window from './Win98Window.vue';
+import Win98ContextMenu from './Win98ContextMenu.vue';
 
 export default {
   name: 'Win98FormatContainer',
@@ -29,6 +39,7 @@ export default {
     Win98DesktopIcons,
     Win98Taskbar,
     Win98Window,
+    Win98ContextMenu,
   },
   setup() {
     const settingsStore = useSettingsStore();
@@ -37,6 +48,11 @@ export default {
   data() {
     return {
       sounds: {},
+      contextMenu: {
+        visible: false,
+        x: 0,
+        y: 0,
+      },
     };
   },
   computed: {
@@ -73,6 +89,43 @@ export default {
         sound.volume = this.win98.volume;
         sound.currentTime = 0;
         sound.play().catch(() => {});
+      }
+    },
+    showContextMenu({ x, y }) {
+      this.contextMenu = { visible: true, x, y };
+    },
+    closeContextMenu() {
+      this.contextMenu.visible = false;
+    },
+    handleContextAction(action) {
+      this.closeContextMenu();
+      this.playSound('click');
+
+      switch (action) {
+        case 'arrange-name':
+          this.settingsStore.win98ArrangeIconsByName();
+          break;
+        case 'arrange-type':
+          this.settingsStore.win98ArrangeIconsByType();
+          break;
+        case 'auto-arrange':
+          this.settingsStore.win98ToggleAutoArrange();
+          break;
+        case 'align-grid':
+          this.settingsStore.win98AlignIconsToGrid();
+          break;
+        case 'line-up':
+          this.settingsStore.win98LineUpIcons();
+          break;
+        case 'refresh':
+          window.location.reload();
+          break;
+        case 'restore-all':
+          this.settingsStore.win98RestoreAllIcons();
+          break;
+        case 'properties':
+          this.settingsStore.win98OpenWindow('settings');
+          break;
       }
     },
   },
