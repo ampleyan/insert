@@ -36,10 +36,11 @@ export const WIN98_DEFAULT_STATE = {
   selectedIcon: null,
   deletedIcons: [],
   iconPositions: {
-    notebook: { x: 20, y: 20 },
+    computer: { x: 20, y: 20 },
+    notebook: { x: 20, y: 220 },
     constant: { x: 220, y: 20 },
-    graftak: { x: 20, y: 220 },
-    sweat: { x: 220, y: 220 }
+    graftak: { x: 220, y: 220 },
+    sweat: { x: 420, y: 20 }
   },
   openWindows: [],
   windowPositions: {

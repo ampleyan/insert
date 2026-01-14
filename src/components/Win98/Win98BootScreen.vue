@@ -59,6 +59,13 @@ export default {
   text-align: center;
 }
 
+.background-logo {
+  max-width: 400px;
+  max-height: 300px;
+  margin-bottom: 40px;
+  animation: win98-boot-pulse 1.5s ease-in-out infinite;
+}
+
 .boot-logo {
   font-family: 'Times New Roman', serif;
   font-size: 72px;
