@@ -120,6 +120,7 @@ export default {
       this.settingsStore.win98BringToFront(this.windowId);
       if (this.isVideoWindow) {
         this.settingsStore.win98SetAudioFocus(this.videoId);
+        this.settingsStore.win98.videoStates[this.videoId].playing = true;
       }
     },
     closeWindow() {

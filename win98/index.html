@@ -272,6 +272,39 @@
             box-shadow: 0 8px 0 #0000ff, 0 16px 0 #0000ff, 0 24px 0 #0000ff;
         }
 
+        .help-book-icon {
+            width: calc(48px * var(--base-icon-scale, 1));
+            height: calc(48px * var(--base-icon-scale, 1));
+            background: linear-gradient(135deg, #ffff00 0%, #ffd700 50%, #daa520 100%);
+            border: 2px solid #808080;
+            border-radius: 2px 6px 6px 2px;
+            position: relative;
+            box-shadow: 2px 2px 4px rgba(0,0,0,0.5), inset -4px 0 8px rgba(0,0,0,0.2);
+        }
+
+        .help-book-icon::before {
+            content: '?';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: calc(28px * var(--base-icon-scale, 1));
+            font-weight: bold;
+            color: #000080;
+            text-shadow: 1px 1px 0 #fff;
+        }
+
+        .help-book-icon::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 4px;
+            bottom: 4px;
+            width: calc(6px * var(--base-icon-scale, 1));
+            background: linear-gradient(to right, #b8860b, #daa520);
+            border-radius: 2px 0 0 2px;
+        }
+
         #trash {
             bottom: 80px;
             right: 20px;
@@ -681,6 +714,20 @@
             <div class="icon-label">SWEAT.mp4</div>
         </div>
 
+        <div class="icon" id="insert_vibe" style="top: 420px; left: 20px;">
+            <div class="icon-image">
+                <div class="help-book-icon"></div>
+            </div>
+            <div class="icon-label">INSERT_VIBE.mp4</div>
+        </div>
+
+        <div class="icon" id="het_bos_vibe" style="top: 420px; left: 220px;">
+            <div class="icon-image">
+                <div class="help-book-icon"></div>
+            </div>
+            <div class="icon-label">HET_BOS_VIBE.mp4</div>
+        </div>
+
         <div class="icon" id="trash">
             <div class="icon-image">
                 <img id="trash-image" src="assets/insert_trash.png" alt="Trash">
@@ -835,6 +882,52 @@
                     <div class="seek-progress"></div>
                 </div>
                 <div class="time-display" data-video="video-sweat">0:00 / 0:00</div>
+            </div>
+        </div>
+
+        <div class="video-player" id="video-player-insert_vibe" style="top: 160px; left: 160px;">
+            <div class="title-bar video-title-bar" data-player="insert_vibe">
+                <div class="title-text">
+                    <span>📹</span>
+                    <span>INSERT_VIBE.mp4 - Media Player</span>
+                </div>
+                <div class="close-button video-close-btn">×</div>
+            </div>
+            <div class="video-content">
+                <video id="video-insert_vibe" preload="metadata">
+                    <source src="videos/insert_vibe.mp4" type="video/mp4">
+                </video>
+            </div>
+            <div class="video-controls">
+                <div class="control-button play-btn" data-video="video-insert_vibe">▶</div>
+                <div class="control-button stop-btn" data-video="video-insert_vibe">■</div>
+                <div class="seek-bar" data-video="video-insert_vibe">
+                    <div class="seek-progress"></div>
+                </div>
+                <div class="time-display" data-video="video-insert_vibe">0:00 / 0:00</div>
+            </div>
+        </div>
+
+        <div class="video-player" id="video-player-het_bos_vibe" style="top: 180px; left: 180px;">
+            <div class="title-bar video-title-bar" data-player="het_bos_vibe">
+                <div class="title-text">
+                    <span>📹</span>
+                    <span>HET_BOS_VIBE.mp4 - Media Player</span>
+                </div>
+                <div class="close-button video-close-btn">×</div>
+            </div>
+            <div class="video-content">
+                <video id="video-het_bos_vibe" preload="metadata">
+                    <source src="videos/het_bos_vibe.mp4" type="video/mp4">
+                </video>
+            </div>
+            <div class="video-controls">
+                <div class="control-button play-btn" data-video="video-het_bos_vibe">▶</div>
+                <div class="control-button stop-btn" data-video="video-het_bos_vibe">■</div>
+                <div class="seek-bar" data-video="video-het_bos_vibe">
+                    <div class="seek-progress"></div>
+                </div>
+                <div class="time-display" data-video="video-het_bos_vibe">0:00 / 0:00</div>
             </div>
         </div>
 
@@ -1026,7 +1119,7 @@
 
                     if (icon.id === 'notebook') {
                         notebookWindow.classList.add('active');
-                    } else if (icon.id === 'constant' || icon.id === 'graftak' || icon.id === 'sweat') {
+                    } else if (['constant', 'graftak', 'sweat', 'insert_vibe', 'het_bos_vibe'].includes(icon.id)) {
                         const videoPlayer = document.getElementById('video-player-' + icon.id);
                         videoPlayer.classList.add('active');
                         const video = document.getElementById('video-' + icon.id);

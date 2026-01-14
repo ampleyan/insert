@@ -19,7 +19,9 @@ export const WIN98_ICONS = {
   notebook: { id: 'notebook', label: 'Notebook', type: 'notebook', icon: 'win98/assets/notepad.png' },
   constant: { id: 'constant', label: 'IN_CONSTANT.mp4', type: 'video', src: 'win98/videos/in_constant.mp4', icon: 'win98/assets/constant.png' },
   graftak: { id: 'graftak', label: 'GRAFTAK.mp4', type: 'video', src: 'win98/videos/graftak.mp4', icon: 'win98/assets/graftak.png' },
-  sweat: { id: 'sweat', label: 'SWEAT.mp4', type: 'video', src: 'win98/videos/sweat.mp4', icon: 'win98/assets/sweat.png' }
+  sweat: { id: 'sweat', label: 'SWEAT.mp4', type: 'video', src: 'win98/videos/sweat.mp4', icon: 'win98/assets/sweat.png' },
+  insert_vibe: { id: 'insert_vibe', label: 'INSERT_VIBE.mp4', type: 'video', src: 'win98/videos/insert_vibe.mp4', iconType: 'help-book' },
+  het_bos_vibe: { id: 'het_bos_vibe', label: 'HET_BOS_VIBE.mp4', type: 'video', src: 'win98/videos/het_bos_vibe.mp4', iconType: 'help-book' }
 };
 
 export const WIN98_SOUNDS = {
@@ -47,7 +49,9 @@ export const WIN98_DEFAULT_STATE = {
     notebook: { x: 20, y: 220 },
     constant: { x: 220, y: 20 },
     graftak: { x: 220, y: 220 },
-    sweat: { x: 420, y: 20 }
+    sweat: { x: 420, y: 20 },
+    insert_vibe: { x: 420, y: 220 },
+    het_bos_vibe: { x: 20, y: 420 }
   },
   openWindows: [],
   windowPositions: {
@@ -55,6 +59,8 @@ export const WIN98_DEFAULT_STATE = {
     'video-constant': { x: 100, y: 100 },
     'video-graftak': { x: 150, y: 150 },
     'video-sweat': { x: 200, y: 200 },
+    'video-insert_vibe': { x: 250, y: 250 },
+    'video-het_bos_vibe': { x: 300, y: 300 },
     settings: { x: null, y: 50 }
   },
   windowZIndex: {},
@@ -63,7 +69,9 @@ export const WIN98_DEFAULT_STATE = {
   videoStates: {
     constant: { playing: false, currentTime: 0, muted: true },
     graftak: { playing: false, currentTime: 0, muted: true },
-    sweat: { playing: false, currentTime: 0, muted: true }
+    sweat: { playing: false, currentTime: 0, muted: true },
+    insert_vibe: { playing: false, currentTime: 0, muted: true },
+    het_bos_vibe: { playing: false, currentTime: 0, muted: true }
   },
   iconScale: 3,
   zoomScale: 1.8,

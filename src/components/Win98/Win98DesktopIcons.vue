@@ -14,7 +14,8 @@
       @dragend="onDragEnd"
     >
       <div class="icon-image-container" :style="iconContainerStyle">
-        <img :src="getAssetPath(icon.icon)" :alt="icon.label" class="icon-image" :style="iconImageStyle" />
+        <div v-if="icon.iconType === 'help-book'" class="help-book-icon" :style="iconImageStyle"></div>
+        <img v-else :src="getAssetPath(icon.icon)" :alt="icon.label" class="icon-image" :style="iconImageStyle" />
       </div>
       <span class="icon-label">{{ icon.label }}</span>
     </div>
@@ -217,5 +218,36 @@ export default {
   text-shadow: 1px 1px 1px #000;
   word-break: break-word;
   max-width: 100%;
+}
+
+.help-book-icon {
+  background: linear-gradient(135deg, #ffff00 0%, #ffd700 50%, #daa520 100%);
+  border: 2px solid #808080;
+  border-radius: 2px 6px 6px 2px;
+  position: relative;
+  box-shadow: 2px 2px 4px rgba(0,0,0,0.5), inset -4px 0 8px rgba(0,0,0,0.2);
+}
+
+.help-book-icon::before {
+  content: '?';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 60%;
+  font-weight: bold;
+  color: #000080;
+  text-shadow: 1px 1px 0 #fff;
+}
+
+.help-book-icon::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 8%;
+  bottom: 8%;
+  width: 12%;
+  background: linear-gradient(to right, #b8860b, #daa520);
+  border-radius: 2px 0 0 2px;
 }
 </style>

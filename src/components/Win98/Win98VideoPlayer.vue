@@ -67,6 +67,10 @@ export default {
       const videoState = this.win98.videoStates[this.videoId];
       return videoState ? videoState.muted : true;
     },
+    shouldPlay() {
+      const videoState = this.win98.videoStates[this.videoId];
+      return videoState ? videoState.playing : false;
+    },
   },
   watch: {
     isMuted(val) {
@@ -79,12 +83,26 @@ export default {
         this.$refs.video.volume = val;
       }
     },
+    shouldPlay: {
+      handler(val) {
+        if (!this.$refs.video) return;
+        if (val && !this.isPlaying) {
+          this.$refs.video.play();
+        } else if (!val && this.isPlaying) {
+          this.$refs.video.pause();
+        }
+      },
+      immediate: true,
+    },
   },
   mounted() {
     if (this.$refs.video) {
       this.$refs.video.volume = this.win98.volume;
       this.$refs.video.addEventListener('loadedmetadata', () => {
         this.duration = this.$refs.video.duration;
+        if (this.shouldPlay) {
+          this.$refs.video.play();
+        }
       });
     }
   },

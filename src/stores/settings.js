@@ -462,7 +462,9 @@ export const useSettingsStore = defineStore('settings', {
       }
       this.win98BringToFront(windowId);
       if (windowId.startsWith('video-')) {
-        this.win98SetAudioFocus(windowId.replace('video-', ''));
+        const videoId = windowId.replace('video-', '');
+        this.win98SetAudioFocus(videoId);
+        this.win98.videoStates[videoId].playing = true;
       }
       this.saveToLocalStorageDebounced();
     },
@@ -487,6 +489,9 @@ export const useSettingsStore = defineStore('settings', {
     win98SetAudioFocus(videoId) {
       Object.keys(this.win98.videoStates).forEach(id => {
         this.win98.videoStates[id].muted = id !== videoId;
+        if (id !== videoId) {
+          this.win98.videoStates[id].playing = false;
+        }
       });
       this.win98.activeAudioVideo = videoId;
       this.saveToLocalStorageDebounced();
