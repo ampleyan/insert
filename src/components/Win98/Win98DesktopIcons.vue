@@ -14,7 +14,7 @@
       @dragend="onDragEnd"
     >
       <div class="icon-image-container" :style="iconContainerStyle">
-        <img :src="'/' + icon.icon" :alt="icon.label" class="icon-image" :style="iconImageStyle" />
+        <img :src="getAssetPath(icon.icon)" :alt="icon.label" class="icon-image" :style="iconImageStyle" />
       </div>
       <span class="icon-label">{{ icon.label }}</span>
     </div>
@@ -30,7 +30,7 @@
 
 <script>
 import { useSettingsStore } from '../../stores/settings';
-import { WIN98_ICONS } from '../../constants/win98';
+import { WIN98_ICONS, getWin98AssetPath } from '../../constants/win98';
 import Win98RecycleBin from './Win98RecycleBin.vue';
 
 export default {
@@ -155,6 +155,9 @@ export default {
     onContextMenu(e) {
       this.$emit('play-sound', 'click');
       this.$emit('context-menu', { x: e.clientX, y: e.clientY });
+    },
+    getAssetPath(path) {
+      return getWin98AssetPath(path);
     },
   },
 };

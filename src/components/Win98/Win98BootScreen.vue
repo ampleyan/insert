@@ -1,7 +1,7 @@
 <template>
   <div class="win98-boot-screen">
     <div class="boot-content">
-      <img src="/win98/assets/boot_screen_no_bg.png" alt="Logo" class="background-logo" />
+      <img :src="bootLogoPath" alt="Logo" class="background-logo" />
 
 <!--      <div class="boot-logo">Windows 69</div>-->
       <div class="boot-progress-container">
@@ -13,6 +13,8 @@
 </template>
 
 <script>
+import { getWin98AssetPath } from '../../constants/win98';
+
 export default {
   name: 'Win98BootScreen',
   emits: ['boot-complete'],
@@ -20,6 +22,11 @@ export default {
     return {
       progress: 0,
     };
+  },
+  computed: {
+    bootLogoPath() {
+      return getWin98AssetPath('win98/assets/boot_screen_no_bg.png');
+    },
   },
   mounted() {
     this.startBoot();

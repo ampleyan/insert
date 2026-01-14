@@ -6,13 +6,15 @@
       class="flying-logo"
       :style="logo.style"
     >
-      <img src="/win98/assets/insert_logo.png" alt="Logo" />
+      <img :src="logoPath" alt="Logo" />
     </div>
     <div class="screensaver-text">Click anywhere to continue...</div>
   </div>
 </template>
 
 <script>
+import { getWin98AssetPath } from '../../constants/win98';
+
 export default {
   name: 'Win98Screensaver',
   emits: ['dismiss'],
@@ -21,6 +23,11 @@ export default {
       logos: [],
       animationFrame: null,
     };
+  },
+  computed: {
+    logoPath() {
+      return getWin98AssetPath('win98/assets/insert_logo.png');
+    },
   },
   mounted() {
     this.createLogos();

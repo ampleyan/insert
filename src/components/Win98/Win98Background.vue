@@ -1,12 +1,19 @@
 <template>
   <div class="win98-background">
-    <img src="/win98/assets/insert_logo.png" alt="Logo" class="background-logo" />
+    <img :src="logoPath" alt="Logo" class="background-logo" />
   </div>
 </template>
 
 <script>
+import { getWin98AssetPath } from '../../constants/win98';
+
 export default {
   name: 'Win98Background',
+  computed: {
+    logoPath() {
+      return getWin98AssetPath('win98/assets/insert_logo.png');
+    },
+  },
 };
 </script>
 

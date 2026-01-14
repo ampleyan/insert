@@ -3,7 +3,7 @@
     <div class="video-container">
       <video
         ref="video"
-        :src="'/' + videoSrc"
+        :src="videoPath"
         :muted="isMuted"
         @timeupdate="onTimeUpdate"
         @ended="onEnded"
@@ -30,7 +30,7 @@
 
 <script>
 import { useSettingsStore } from '../../stores/settings';
-import { WIN98_ICONS } from '../../constants/win98';
+import { WIN98_ICONS, getWin98AssetPath } from '../../constants/win98';
 
 export default {
   name: 'Win98VideoPlayer',
@@ -59,6 +59,9 @@ export default {
     videoSrc() {
       const icon = WIN98_ICONS[this.videoId];
       return icon ? icon.src : '';
+    },
+    videoPath() {
+      return this.videoSrc ? getWin98AssetPath(this.videoSrc) : '';
     },
     isMuted() {
       const videoState = this.win98.videoStates[this.videoId];

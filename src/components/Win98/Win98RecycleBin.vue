@@ -14,6 +14,8 @@
 </template>
 
 <script>
+import { getWin98AssetPath } from '../../constants/win98';
+
 export default {
   name: 'Win98RecycleBin',
   props: {
@@ -31,8 +33,8 @@ export default {
   computed: {
     trashIcon() {
       return this.hasItems
-        ? '/win98/assets/insert_trash.png'
-        : '/win98/assets/insert_trash_empty.png';
+        ? getWin98AssetPath('win98/assets/insert_trash.png')
+        : getWin98AssetPath('win98/assets/insert_trash_empty.png');
     },
   },
   methods: {

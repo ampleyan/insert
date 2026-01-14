@@ -1,3 +1,5 @@
+export const WIN98_BASE_PATH = process.env.BASE_URL || '/';
+
 export const WIN98_FORMATS = {
   square: { width: 1080, height: 1080, name: 'Instagram Square Post', ratio: '1:1' },
   portrait: { width: 1080, height: 1350, name: 'Instagram Portrait Post', ratio: '4:5' },
@@ -25,6 +27,11 @@ export const WIN98_SOUNDS = {
   trash: 'win98/sounds/crumple.mp3',
   clink: 'win98/sounds/clink.wav'
 };
+
+export function getWin98AssetPath(relativePath) {
+  const base = WIN98_BASE_PATH.endsWith('/') ? WIN98_BASE_PATH : WIN98_BASE_PATH + '/';
+  return base + relativePath;
+}
 
 export const WIN98_IDLE_TIMEOUT = 30000;
 export const WIN98_ERROR_INTERVAL = 15000;
