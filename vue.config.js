@@ -39,6 +39,20 @@ module.exports = {
               globOptions: {
                 ignore: ['**/.DS_Store']
               }
+            },
+            {
+              from: 'src/assets/win98/gnome',
+              to: 'win98/gnome',
+              globOptions: {
+                ignore: ['**/.DS_Store']
+              }
+            },
+            {
+              from: 'src/assets/win98/sounds/gnome',
+              to: 'win98/sounds/gnome',
+              globOptions: {
+                ignore: ['**/.DS_Store']
+              }
             }
           ]
         }

@@ -17,7 +17,16 @@
       "Bash(tree:*)",
       "WebFetch(domain:ampleyan.github.io)",
       "Bash(npm run serve:*)",
-      "Bash(npm run lint:*)"
+      "Bash(npm run lint:*)",
+      "Bash(__NEW_LINE_0cf6c822706d512e__ cp /Users/alexander.ampleev/Documents/workspace/PERSONAL/insert/OldGNOME2/48x48/places/user-home.png /Users/alexander.ampleev/Documents/workspace/PERSONAL/insert/src/assets/win98/gnome/home.png)",
+      "Bash(__NEW_LINE_0cf6c822706d512e__ cp /Users/alexander.ampleev/Documents/workspace/PERSONAL/insert/OldGNOME2/48x48/places/gnome-fs-trash-empty.png /Users/alexander.ampleev/Documents/workspace/PERSONAL/insert/src/assets/win98/gnome/trash.png)",
+      "Bash(__NEW_LINE_0cf6c822706d512e__ cp /Users/alexander.ampleev/Documents/workspace/PERSONAL/insert/OldGNOME2/48x48/places/folder.png /Users/alexander.ampleev/Documents/workspace/PERSONAL/insert/src/assets/win98/gnome/folder.png)",
+      "Bash(__NEW_LINE_0cf6c822706d512e__ cp /Users/alexander.ampleev/Documents/workspace/PERSONAL/insert/OldGNOME2/48x48/devices/gnome-dev-computer.png /Users/alexander.ampleev/Documents/workspace/PERSONAL/insert/src/assets/win98/gnome/computer.png)",
+      "Bash(__NEW_LINE_0cf6c822706d512e__ cp /Users/alexander.ampleev/Documents/workspace/PERSONAL/insert/OldGNOME2/48x48/apps/accessories-text-editor.png /Users/alexander.ampleev/Documents/workspace/PERSONAL/insert/src/assets/win98/gnome/text-editor.png)",
+      "Bash(__NEW_LINE_0cf6c822706d512e__ cp /Users/alexander.ampleev/Documents/workspace/PERSONAL/insert/OldGNOME2/48x48/apps/gnome-settings.png /Users/alexander.ampleev/Documents/workspace/PERSONAL/insert/src/assets/win98/gnome/settings.png)",
+      "Bash(__NEW_LINE_0cf6c822706d512e__ cp /Users/alexander.ampleev/Documents/workspace/PERSONAL/insert/OldGNOME2/48x48/mimetypes/gnome-mime-video.png /Users/alexander.ampleev/Documents/workspace/PERSONAL/insert/src/assets/win98/gnome/video.png)",
+      "Bash(__NEW_LINE_0cf6c822706d512e__ cp /Users/alexander.ampleev/Documents/workspace/PERSONAL/insert/OldGNOME2/48x48/devices/3floppy_unmount.png /Users/alexander.ampleev/Documents/workspace/PERSONAL/insert/src/assets/win98/gnome/floppy.png)",
+      "Bash(__NEW_LINE_0cf6c822706d512e__ cp /Users/alexander.ampleev/Documents/workspace/PERSONAL/insert/OldGNOME2/96x96/apps/gnome-starthere.png /Users/alexander.ampleev/Documents/workspace/PERSONAL/insert/src/assets/win98/gnome/gnome-logo.png)"
     ],
     "deny": [],
     "ask": []

@@ -12,7 +12,7 @@
       @dismiss="onErrorDismiss"
     />
     <div class="hotkey-hint" v-if="win98.desktopActive && showHotkeyHint">
-      R: Reboot | E: Error | B: BSOD | S: Screensaver | P: Settings | F: Format | I: INSERT | H: Hide
+      R: Reboot | E: Error | B: BSOD | S: Screensaver | P: Settings | F: Format | I: INSERT | H: Hide | Ctrl+Shift+X: Reset All
     </div>
   </div>
 </template>
@@ -174,6 +174,12 @@ export default {
 
       const key = e.key.toLowerCase();
 
+      if (e.ctrlKey && e.shiftKey && key === 'x') {
+        e.preventDefault();
+        this.resetAllState();
+        return;
+      }
+
       if (key === 'r') {
         e.preventDefault();
         this.settingsStore.win98TriggerBoot();
@@ -213,6 +219,17 @@ export default {
       const currentIndex = formats.indexOf(this.win98.format);
       const nextIndex = (currentIndex + 1) % formats.length;
       this.settingsStore.win98UpdateSettings({ format: formats[nextIndex] });
+    },
+    async resetAllState() {
+      if (!confirm('Reset all settings and clear all cached data?\n\nThis will remove all custom icons, videos, and settings.')) {
+        return;
+      }
+      await win98AssetsService.clearAllData();
+      this.settingsStore.win98Reset();
+      localStorage.removeItem('appSettings');
+      localStorage.removeItem('appState');
+      applySkinStyles('win98');
+      window.location.reload();
     },
   },
 };

@@ -35,6 +35,26 @@ export function getWin98AssetPath(relativePath) {
   return base + relativePath;
 }
 
+const ICON_TYPE_MAP = {
+  computer: 'computer',
+  notebook: 'textEditor',
+  video: 'video',
+  folder: 'folder',
+  trash: 'trash',
+  floppy: 'floppy',
+  settings: 'settings',
+  home: 'home',
+};
+
+export function getSkinIcon(iconId, iconType, skin) {
+  if (!skin?.assets?.icons) return null;
+  const skinIcons = skin.assets.icons;
+  if (skinIcons[iconId]) return skinIcons[iconId];
+  const mappedType = ICON_TYPE_MAP[iconType] || ICON_TYPE_MAP[iconId];
+  if (mappedType && skinIcons[mappedType]) return skinIcons[mappedType];
+  return null;
+}
+
 export const WIN98_IDLE_TIMEOUT = 30000;
 export const WIN98_ERROR_INTERVAL = 15000;
 export const WIN98_ERROR_PROBABILITY = 0.7;

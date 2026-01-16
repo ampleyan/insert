@@ -26,6 +26,7 @@
 <script>
 import { useSettingsStore } from '../../stores/settings';
 import { WIN98_FORMATS, WIN98_SOUNDS, getWin98AssetPath } from '../../constants/win98';
+import { getSkin } from '../../constants/skins';
 import Win98Background from './Win98Background.vue';
 import Win98DesktopIcons from './Win98DesktopIcons.vue';
 import Win98Taskbar from './Win98Taskbar.vue';
@@ -71,13 +72,25 @@ export default {
       return `${format.name} - ${format.width}x${format.height} (${format.ratio})`;
     },
   },
+  watch: {
+    'win98.activeSkin'() {
+      this.preloadSounds();
+    },
+  },
   mounted() {
     this.preloadSounds();
   },
   methods: {
     preloadSounds() {
-      Object.keys(WIN98_SOUNDS).forEach(key => {
-        const audio = new Audio(getWin98AssetPath(WIN98_SOUNDS[key]));
+      const skin = getSkin(this.win98.activeSkin);
+      const skinSounds = skin?.sounds || {};
+      const soundMap = {
+        click: skinSounds.click || WIN98_SOUNDS.click,
+        trash: skinSounds.trash || WIN98_SOUNDS.trash,
+        clink: skinSounds.error || WIN98_SOUNDS.clink,
+      };
+      Object.keys(soundMap).forEach(key => {
+        const audio = new Audio(getWin98AssetPath(soundMap[key]));
         audio.preload = 'auto';
         this.sounds[key] = audio;
       });

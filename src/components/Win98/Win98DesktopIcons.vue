@@ -2,7 +2,7 @@
   <div class="win98-desktop-icons" @click="deselectAll" @contextmenu.prevent="onContextMenu">
     <div
       v-for="(icon, iconId) in visibleIcons"
-      :key="iconId"
+      :key="iconId + '-' + win98.activeSkin"
       class="win98-icon"
       :class="{ selected: selectedIcon === iconId, dragging: draggingIcon === iconId }"
       :style="getIconStyle(iconId)"
@@ -15,7 +15,7 @@
     >
       <div class="icon-image-container" :style="iconContainerStyle">
         <div v-if="icon.iconType === 'help-book'" class="help-book-icon" :style="iconImageStyle"></div>
-        <img v-else :src="getAssetPath(icon.icon)" :alt="icon.label" class="icon-image" :style="iconImageStyle" />
+        <img v-else :src="getIconPath(iconId, icon)" :alt="icon.label" class="icon-image" :style="iconImageStyle" />
       </div>
       <span class="icon-label">{{ icon.label }}</span>
     </div>
@@ -24,6 +24,7 @@
       :has-items="win98.deletedIcons.length > 0"
       :icon-scale="win98.iconScale"
       :zoom-scale="win98.zoomScale"
+      :active-skin="win98.activeSkin"
       @dragover.prevent="onTrashDragOver"
       @dragleave="onTrashDragLeave"
       @drop="onTrashDrop"
@@ -33,7 +34,8 @@
 
 <script>
 import { useSettingsStore } from '../../stores/settings';
-import { WIN98_ICONS, getWin98AssetPath } from '../../constants/win98';
+import { WIN98_ICONS, getWin98AssetPath, getSkinIcon } from '../../constants/win98';
+import { getSkin } from '../../constants/skins';
 import Win98RecycleBin from './Win98RecycleBin.vue';
 
 export default {
@@ -174,6 +176,17 @@ export default {
     onContextMenu(e) {
       this.$emit('play-sound', 'click');
       this.$emit('context-menu', { x: e.clientX, y: e.clientY });
+    },
+    getIconPath(iconId, icon) {
+      if (icon.icon && icon.icon.startsWith('data:')) {
+        return icon.icon;
+      }
+      const skin = getSkin(this.win98.activeSkin);
+      const skinIcon = getSkinIcon(iconId, icon.type, skin);
+      if (skinIcon) {
+        return getWin98AssetPath(skinIcon);
+      }
+      return getWin98AssetPath(icon.icon);
     },
     getAssetPath(path) {
       if (path && path.startsWith('data:')) {

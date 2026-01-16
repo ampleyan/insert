@@ -31,3 +31,5 @@ dist-ssr
 # Local env files
 .env.local
 .env.*.local
+/OldGNOME2
+/OldGNOME2

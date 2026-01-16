@@ -16,6 +16,7 @@
 
 <script>
 import { getWin98AssetPath } from '../../constants/win98';
+import { getSkin } from '../../constants/skins';
 
 export default {
   name: 'Win98RecycleBin',
@@ -32,6 +33,10 @@ export default {
       type: Number,
       default: 1.8,
     },
+    activeSkin: {
+      type: String,
+      default: 'win98',
+    },
   },
   emits: ['dragover', 'dragleave', 'drop'],
   data() {
@@ -41,6 +46,10 @@ export default {
   },
   computed: {
     trashIcon() {
+      const skin = getSkin(this.activeSkin);
+      if (skin?.assets?.icons?.trash) {
+        return getWin98AssetPath(skin.assets.icons.trash);
+      }
       return this.hasItems
         ? getWin98AssetPath('win98/assets/insert_trash.png')
         : getWin98AssetPath('win98/assets/insert_trash_empty.png');

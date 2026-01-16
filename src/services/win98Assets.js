@@ -365,6 +365,30 @@ class Win98AssetsService {
   async removeBootLogo() {
     await this.deleteThemeAsset('customBootLogo');
   }
+
+  async clearAllData() {
+    await this.dbReady;
+    if (!this.db) return;
+
+    this.customVideos.forEach(v => {
+      if (v.src && v.src.startsWith('blob:')) {
+        URL.revokeObjectURL(v.src);
+      }
+    });
+
+    this.customIcons = [];
+    this.customVideos = [];
+
+    const stores = [ICONS_STORE, VIDEOS_STORE, THEME_STORE];
+    for (const storeName of stores) {
+      await new Promise((resolve) => {
+        const tx = this.db.transaction(storeName, 'readwrite');
+        const store = tx.objectStore(storeName);
+        store.clear();
+        tx.oncomplete = () => resolve();
+      });
+    }
+  }
 }
 
 export default new Win98AssetsService();
