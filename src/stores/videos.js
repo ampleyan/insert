@@ -2,7 +2,7 @@ import { defineStore } from 'pinia';
 
 const DEFAULT_VIDEO_SRC =
   process.env.NODE_ENV === 'production'
-    ? '/insert/video/insertgirls.mp4'
+    ? '/insert/assets/video/insertgirls.mp4'
     : require('@/assets/video/insertgirls.mp4');
 
 const createDefaultLayer = (id = 1) => ({

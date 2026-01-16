@@ -18,6 +18,27 @@ module.exports = {
               globOptions: {
                 ignore: ['**/.DS_Store']
               }
+            },
+            {
+              from: 'src/assets/win98/images',
+              to: 'win98/assets',
+              globOptions: {
+                ignore: ['**/.DS_Store']
+              }
+            },
+            {
+              from: 'src/assets/win98/videos',
+              to: 'win98/videos',
+              globOptions: {
+                ignore: ['**/.DS_Store']
+              }
+            },
+            {
+              from: 'src/assets/win98/sounds',
+              to: 'win98/sounds',
+              globOptions: {
+                ignore: ['**/.DS_Store']
+              }
             }
           ]
         }

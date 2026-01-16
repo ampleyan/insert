@@ -13,7 +13,9 @@
       "Bash(del DEPLOYMENT-NEW-REPO.md setup-new-repo.cmd)",
       "Bash(find:*)",
       "Bash(test:*)",
-      "Skill(brainstorming)"
+      "Skill(brainstorming)",
+      "Bash(tree:*)",
+      "WebFetch(domain:ampleyan.github.io)"
     ],
     "deny": [],
     "ask": []

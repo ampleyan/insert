@@ -23,7 +23,7 @@
 
 <script>
 import { useSettingsStore } from '../../stores/settings';
-import { WIN98_ICONS } from '../../constants/win98';
+import { WIN98_ICONS, getWin98AssetPath } from '../../constants/win98';
 import Win98VideoPlayer from './Win98VideoPlayer.vue';
 import Win98Notebook from './Win98Notebook.vue';
 import Win98Settings from './Win98Settings.vue';
@@ -76,10 +76,10 @@ export default {
     windowIcon() {
       if (this.isVideoWindow) {
         const icon = WIN98_ICONS[this.videoId];
-        return icon ? '/' + icon.icon : null;
+        return icon ? getWin98AssetPath(icon.icon) : null;
       }
       if (this.windowId === 'notebook') {
-        return '/win98/assets/constant.png';
+        return getWin98AssetPath('win98/assets/notepad.png');
       }
       return null;
     },
