@@ -445,6 +445,26 @@
             Trigger Error (E)
           </button>
         </div>
+
+        <div class="setting-section">
+          <label class="win98-label section-title">Configuration</label>
+          <div class="setting-row button-row">
+            <button class="win98-button" @click="exportConfig">
+              Export Settings
+            </button>
+          </div>
+          <div class="setting-row button-row">
+            <label class="win98-button upload-btn" style="width: 100%; text-align: center;">
+              Import Settings
+              <input type="file" accept=".json" @change="importConfig" hidden />
+            </label>
+          </div>
+          <div class="setting-row button-row">
+            <button class="win98-button bsod-button" @click="resetAllSettings">
+              Reset All (Ctrl+Shift+X)
+            </button>
+          </div>
+        </div>
       </template>
     </div>
   </div>
@@ -668,6 +688,76 @@ export default {
     async removeBootLogo() {
       await win98AssetsService.removeBootLogo();
       this.settingsStore.win98UpdateSettings({ customBootLogo: null });
+    },
+    exportConfig() {
+      const config = {
+        version: 1,
+        exportedAt: new Date().toISOString(),
+        win98: { ...this.win98 },
+      };
+      delete config.win98.errorPopups;
+      delete config.win98.bootComplete;
+      delete config.win98.desktopActive;
+      delete config.win98.selectedIcon;
+      delete config.win98.openWindows;
+      delete config.win98.windowZIndex;
+      delete config.win98.topZIndex;
+      delete config.win98.activeAudioVideo;
+      delete config.win98.screensaverActive;
+      delete config.win98.bsodActive;
+
+      const json = JSON.stringify(config, null, 2);
+      const blob = new Blob([json], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `win98-config-${Date.now()}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+    },
+    async importConfig(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      try {
+        const text = await file.text();
+        const config = JSON.parse(text);
+        if (!config.win98) {
+          throw new Error('Invalid config file');
+        }
+        const safeKeys = [
+          'activeSkin', 'backgroundLayers', 'backgroundColor', 'customBootLogo',
+          'iconScale', 'zoomScale', 'textScale', 'format', 'showFormatInfo',
+          'soundEnabled', 'volume', 'cursorTrailEnabled', 'screensaverTimeout',
+          'errorsEnabled', 'errorInterval', 'errorProbability', 'maxErrors',
+          'errorMessages', 'notebookContent', 'bsodContent', 'iconPositions',
+          'deletedIcons', 'customIcons', 'customVideos', 'videoStates',
+        ];
+        const importData = {};
+        safeKeys.forEach(key => {
+          if (config.win98[key] !== undefined) {
+            importData[key] = config.win98[key];
+          }
+        });
+        this.settingsStore.win98UpdateSettings(importData);
+        if (importData.activeSkin) {
+          applySkinStyles(importData.activeSkin);
+        }
+        alert('Settings imported successfully!');
+      } catch (error) {
+        alert('Failed to import: ' + error.message);
+      }
+      event.target.value = '';
+    },
+    async resetAllSettings() {
+      if (!confirm('Reset all settings and clear all cached data?\n\nThis will remove all custom icons, videos, and settings.')) {
+        return;
+      }
+      await win98AssetsService.clearAllData();
+      this.settingsStore.win98Reset();
+      localStorage.removeItem('appSettings');
+      localStorage.removeItem('appState');
+      applySkinStyles('win98');
+      window.location.reload();
     },
   },
 };
