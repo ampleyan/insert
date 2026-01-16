@@ -2,9 +2,18 @@
   <div class="controls">
     <div class="control-header">
       <h2>Controls</h2>
-      <button class="reset-button" @click="handleReset" title="Reset all settings to defaults">
-        Reset All
-      </button>
+      <div class="header-buttons">
+        <button class="config-button" @click="handleExport" title="Export configuration">
+          Export
+        </button>
+        <label class="config-button import-btn" title="Import configuration">
+          Import
+          <input type="file" accept=".json" @change="handleImport" hidden />
+        </label>
+        <button class="reset-button" @click="handleReset" title="Reset all settings to defaults">
+          Reset All
+        </button>
+      </div>
     </div>
 
     <TabContainer :tabs="tabs" default-tab="text">
@@ -345,6 +354,7 @@
   import TextPathControls from './TextPathControls.vue';
   import AudioControls from './AudioControls.vue';
   import { useSettingsStore } from '@/stores/settings';
+  import { exportConfig, importConfig } from '@/services/configExport';
 
   export default {
     name: 'ControlPanel',
@@ -435,6 +445,28 @@
         if (confirm('Are you sure you want to reset all settings to defaults?')) {
           this.$emit('reset');
         }
+      },
+
+      async handleExport() {
+        try {
+          await exportConfig(this.settings);
+        } catch (error) {
+          alert('Failed to export configuration: ' + error.message);
+        }
+      },
+
+      async handleImport(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+        try {
+          const result = await importConfig(file, (settings) => {
+            this.onUpdate(settings);
+          });
+          alert(`Configuration imported successfully!\nCustom fonts: ${result.fontsImported}`);
+        } catch (error) {
+          alert(error.message);
+        }
+        event.target.value = '';
       },
 
       emitAudioUrl() {
@@ -629,16 +661,41 @@ textarea:focus {
     font-weight: normal;
   }
 
+  .header-buttons {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .config-button {
+    background: rgba(0, 149, 255, 0.5);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 8px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    transition: all 0.2s ease;
+  }
+
+  .config-button:hover {
+    background: rgba(0, 149, 255, 0.7);
+    border-color: rgba(255, 255, 255, 0.4);
+  }
+
+  .import-btn {
+    display: inline-block;
+  }
+
   .reset-button {
     background: rgba(255, 59, 48, 0.7);
     color: white;
     border: 1px solid rgba(255, 255, 255, 0.2);
-    padding: 8px 15px;
+    padding: 8px 12px;
     border-radius: 4px;
     cursor: pointer;
-    font-size: 14px;
+    font-size: 12px;
     transition: all 0.2s ease;
-    margin-left: 15px;
   }
 
   .reset-button:hover {

@@ -15,7 +15,8 @@
       "Bash(test:*)",
       "Skill(brainstorming)",
       "Bash(tree:*)",
-      "WebFetch(domain:ampleyan.github.io)"
+      "WebFetch(domain:ampleyan.github.io)",
+      "Bash(npm run serve:*)"
     ],
     "deny": [],
     "ask": []

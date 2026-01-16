@@ -2,6 +2,18 @@
   <div class="font-controls">
     <h4>Typography</h4>
 
+    <div class="font-upload">
+      <label class="upload-btn">
+        <input
+          type="file"
+          accept=".ttf,.otf,.woff,.woff2"
+          @change="uploadFont"
+          hidden
+        />
+        + Upload Font
+      </label>
+    </div>
+
     <div class="font-search">
       <input
         v-model="searchQuery"
@@ -9,6 +21,23 @@
         placeholder="Search Google Fonts..."
         @input="onSearchInput"
       />
+      <span v-if="isSearching" class="search-spinner"></span>
+    </div>
+
+    <div v-if="customFonts.length > 0" class="font-section">
+      <label class="section-label">Custom Fonts</label>
+      <div class="font-grid">
+        <div v-for="font in customFonts" :key="font" class="custom-font-item">
+          <button
+            :class="['font-option', { active: isActiveFontFamily(font) }]"
+            :style="{ fontFamily: font }"
+            @click="selectFont(font)"
+          >
+            {{ font }}
+          </button>
+          <button class="delete-font" @click="removeFont(font)">×</button>
+        </div>
+      </div>
     </div>
 
     <div v-if="recentFonts.length > 0" class="font-section">
@@ -38,6 +67,9 @@
         >
           {{ font }}
         </button>
+      </div>
+      <div v-if="searchQuery && displayedFonts.length === 0 && !isSearching" class="no-results">
+        No fonts found
       </div>
     </div>
 
@@ -115,6 +147,10 @@ export default {
       previewText: 'The quick brown fox jumps over the lazy dog',
       popularFonts: [],
       recentFonts: [],
+      customFonts: [],
+      searchResults: [],
+      isSearching: false,
+      searchTimeout: null,
       currentFontFamily: this.fontFamily || 'Arial',
       currentFontWeight: String(this.fontWeight) || '400',
       currentFontStyle: this.fontStyle || 'normal'
@@ -122,6 +158,9 @@ export default {
   },
   computed: {
     displayedFonts() {
+      if (this.searchQuery && this.searchQuery.length >= 2) {
+        return this.searchResults;
+      }
       if (this.searchQuery) {
         return googleFontsService.searchFonts(this.searchQuery);
       }
@@ -131,7 +170,9 @@ export default {
   mounted() {
     this.popularFonts = googleFontsService.getPopularFonts();
     this.recentFonts = googleFontsService.getRecentFonts();
+    this.customFonts = googleFontsService.getCustomFonts();
     this.loadInitialFonts();
+    googleFontsService.restoreCustomFonts();
   },
   watch: {
     fontFamily(newVal) {
@@ -203,6 +244,48 @@ export default {
     },
 
     onSearchInput() {
+      clearTimeout(this.searchTimeout);
+      if (this.searchQuery.length < 2) {
+        this.searchResults = [];
+        this.isSearching = false;
+        return;
+      }
+      this.isSearching = true;
+      this.searchTimeout = setTimeout(async () => {
+        const results = await googleFontsService.searchGoogleFontsAPI(this.searchQuery);
+        this.searchResults = results;
+        this.isSearching = false;
+        this.preloadSearchResults(results.slice(0, 5));
+      }, 300);
+    },
+
+    async preloadSearchResults(fonts) {
+      try {
+        await googleFontsService.loadFonts(fonts);
+      } catch (error) {
+        console.error('Failed to preload fonts:', error);
+      }
+    },
+
+    async uploadFont(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      try {
+        const fontName = await googleFontsService.loadCustomFont(file);
+        this.customFonts = googleFontsService.getCustomFonts();
+        this.selectFont(fontName);
+      } catch (error) {
+        alert(error.message);
+      }
+      event.target.value = '';
+    },
+
+    removeFont(fontName) {
+      googleFontsService.removeCustomFont(fontName);
+      this.customFonts = googleFontsService.getCustomFonts();
+      if (this.currentFontFamily === fontName) {
+        this.selectFont('Arial');
+      }
     },
 
     isActiveFontFamily(font) {
@@ -228,8 +311,30 @@ export default {
   font-weight: 500;
 }
 
+.font-upload {
+  margin-bottom: 12px;
+}
+
+.upload-btn {
+  display: inline-block;
+  background: rgba(0, 149, 255, 0.3);
+  border: 1px dashed rgba(0, 149, 255, 0.5);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: all 0.2s;
+}
+
+.upload-btn:hover {
+  background: rgba(0, 149, 255, 0.5);
+  border-color: rgba(0, 149, 255, 0.7);
+}
+
 .font-search {
   margin-bottom: 12px;
+  position: relative;
 }
 
 .font-search input {
@@ -251,6 +356,23 @@ export default {
   border-color: rgba(0, 149, 255, 0.5);
 }
 
+.search-spinner {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: translateY(-50%) rotate(360deg); }
+}
+
 .font-section {
   margin-bottom: 12px;
 }
@@ -270,6 +392,31 @@ export default {
   gap: 6px;
   max-height: 200px;
   overflow-y: auto;
+}
+
+.custom-font-item {
+  display: flex;
+  gap: 4px;
+}
+
+.custom-font-item .font-option {
+  flex: 1;
+  min-width: 0;
+}
+
+.delete-font {
+  background: rgba(255, 0, 0, 0.3);
+  border: 1px solid rgba(255, 0, 0, 0.5);
+  color: white;
+  width: 28px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s;
+}
+
+.delete-font:hover {
+  background: rgba(255, 0, 0, 0.5);
 }
 
 .font-option {
@@ -295,6 +442,13 @@ export default {
 .font-option.active {
   background: rgba(0, 149, 255, 0.5);
   border-color: rgba(0, 149, 255, 0.7);
+}
+
+.no-results {
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 12px;
+  text-align: center;
+  padding: 12px;
 }
 
 .font-weights {
