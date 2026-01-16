@@ -17,6 +17,7 @@
       :y="contextMenu.y"
       :auto-arrange="win98.autoArrange"
       :has-deleted-icons="win98.deletedIcons.length > 0"
+      :selected-icon="win98.selectedIcon"
       @action="handleContextAction"
       @close="closeContextMenu"
     />
@@ -129,6 +130,66 @@ export default {
           break;
         case 'line-up':
           this.settingsStore.win98LineUpIcons();
+          break;
+        case 'align-left':
+          this.settingsStore.win98AlignIconsLeft();
+          break;
+        case 'align-right':
+          this.settingsStore.win98AlignIconsRight();
+          break;
+        case 'align-top':
+          this.settingsStore.win98AlignIconsTop();
+          break;
+        case 'align-bottom':
+          this.settingsStore.win98AlignIconsBottom();
+          break;
+        case 'align-center':
+          this.settingsStore.win98AlignIconsCenter();
+          break;
+        case 'distribute-horizontal':
+          this.settingsStore.win98DistributeIconsHorizontal();
+          break;
+        case 'distribute-vertical':
+          this.settingsStore.win98DistributeIconsVertical();
+          break;
+        case 'distribute-grid':
+          this.settingsStore.win98DistributeIconsGrid();
+          break;
+        case 'distribute-circle':
+          this.settingsStore.win98DistributeIconsCircle();
+          break;
+        case 'size-selected-1':
+          this.settingsStore.win98SetIconSize(this.win98.selectedIcon, 1);
+          break;
+        case 'size-selected-2':
+          this.settingsStore.win98SetIconSize(this.win98.selectedIcon, 2);
+          break;
+        case 'size-selected-3':
+          this.settingsStore.win98SetIconSize(this.win98.selectedIcon, 3);
+          break;
+        case 'size-selected-4':
+          this.settingsStore.win98SetIconSize(this.win98.selectedIcon, 4);
+          break;
+        case 'size-selected-5':
+          this.settingsStore.win98SetIconSize(this.win98.selectedIcon, 5);
+          break;
+        case 'size-all-1':
+          this.settingsStore.win98SetAllIconSizes(1);
+          break;
+        case 'size-all-2':
+          this.settingsStore.win98SetAllIconSizes(2);
+          break;
+        case 'size-all-3':
+          this.settingsStore.win98SetAllIconSizes(3);
+          break;
+        case 'size-all-4':
+          this.settingsStore.win98SetAllIconSizes(4);
+          break;
+        case 'size-all-5':
+          this.settingsStore.win98SetAllIconSizes(5);
+          break;
+        case 'size-reset':
+          this.settingsStore.win98ResetIconSizes();
           break;
         case 'refresh':
           window.location.reload();

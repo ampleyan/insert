@@ -65,6 +65,120 @@
     </div>
     <div class="menu-separator"></div>
     <div
+      class="menu-item has-submenu"
+      @mouseenter="openSubmenu = 'align'"
+      @mouseleave="openSubmenu = null"
+    >
+      <span>Align Icons</span>
+      <span class="arrow">&#9654;</span>
+      <div v-if="openSubmenu === 'align'" class="submenu">
+        <div class="menu-item" @click="$emit('action', 'align-left')">
+          Align Left
+        </div>
+        <div class="menu-item" @click="$emit('action', 'align-right')">
+          Align Right
+        </div>
+        <div class="menu-item" @click="$emit('action', 'align-top')">
+          Align Top
+        </div>
+        <div class="menu-item" @click="$emit('action', 'align-bottom')">
+          Align Bottom
+        </div>
+        <div class="menu-item" @click="$emit('action', 'align-center')">
+          Center All
+        </div>
+      </div>
+    </div>
+    <div
+      class="menu-item has-submenu"
+      @mouseenter="openSubmenu = 'distribute'"
+      @mouseleave="openSubmenu = null"
+    >
+      <span>Distribute Icons</span>
+      <span class="arrow">&#9654;</span>
+      <div v-if="openSubmenu === 'distribute'" class="submenu">
+        <div class="menu-item" @click="$emit('action', 'distribute-horizontal')">
+          Horizontally
+        </div>
+        <div class="menu-item" @click="$emit('action', 'distribute-vertical')">
+          Vertically
+        </div>
+        <div class="menu-item" @click="$emit('action', 'distribute-grid')">
+          Even Grid
+        </div>
+        <div class="menu-item" @click="$emit('action', 'distribute-circle')">
+          Circle Pattern
+        </div>
+      </div>
+    </div>
+    <div class="menu-separator"></div>
+    <div
+      class="menu-item has-submenu"
+      @mouseenter="openSubmenu = 'size'"
+      @mouseleave="openSubmenu = null"
+    >
+      <span>Icon Size</span>
+      <span class="arrow">&#9654;</span>
+      <div v-if="openSubmenu === 'size'" class="submenu">
+        <div
+          v-if="selectedIcon"
+          class="menu-item has-submenu"
+          @mouseenter="openSubmenu = 'size-selected'"
+          @mouseleave="openSubmenu = 'size'"
+        >
+          <span>Selected Icon</span>
+          <span class="arrow">&#9654;</span>
+          <div v-if="openSubmenu === 'size-selected'" class="submenu">
+            <div class="menu-item" @click="$emit('action', 'size-selected-1')">
+              Small (1x)
+            </div>
+            <div class="menu-item" @click="$emit('action', 'size-selected-2')">
+              Medium (2x)
+            </div>
+            <div class="menu-item" @click="$emit('action', 'size-selected-3')">
+              Large (3x)
+            </div>
+            <div class="menu-item" @click="$emit('action', 'size-selected-4')">
+              Extra Large (4x)
+            </div>
+            <div class="menu-item" @click="$emit('action', 'size-selected-5')">
+              Huge (5x)
+            </div>
+          </div>
+        </div>
+        <div
+          class="menu-item has-submenu"
+          @mouseenter="openSubmenu = 'size-all'"
+          @mouseleave="openSubmenu = 'size'"
+        >
+          <span>All Icons</span>
+          <span class="arrow">&#9654;</span>
+          <div v-if="openSubmenu === 'size-all'" class="submenu">
+            <div class="menu-item" @click="$emit('action', 'size-all-1')">
+              Small (1x)
+            </div>
+            <div class="menu-item" @click="$emit('action', 'size-all-2')">
+              Medium (2x)
+            </div>
+            <div class="menu-item" @click="$emit('action', 'size-all-3')">
+              Large (3x)
+            </div>
+            <div class="menu-item" @click="$emit('action', 'size-all-4')">
+              Extra Large (4x)
+            </div>
+            <div class="menu-item" @click="$emit('action', 'size-all-5')">
+              Huge (5x)
+            </div>
+          </div>
+        </div>
+        <div class="menu-separator"></div>
+        <div class="menu-item" @click="$emit('action', 'size-reset')">
+          Reset All Sizes
+        </div>
+      </div>
+    </div>
+    <div class="menu-separator"></div>
+    <div
       class="menu-item"
       :class="{ disabled: !hasDeletedIcons }"
       @click="hasDeletedIcons && $emit('action', 'restore-all')"
@@ -87,6 +201,7 @@ export default {
     y: Number,
     autoArrange: Boolean,
     hasDeletedIcons: Boolean,
+    selectedIcon: String,
   },
   emits: ['action', 'close'],
   data() {
