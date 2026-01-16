@@ -1,6 +1,11 @@
 <template>
   <div class="win98-background" :style="backgroundColorStyle">
-    <div v-if="win98.customBackground" class="background-image" :style="backgroundImageStyle"></div>
+    <div
+      v-for="(layer, index) in backgroundLayers"
+      :key="layer.id"
+      class="background-layer"
+      :style="getLayerStyle(layer, index)"
+    ></div>
     <img v-if="showLogo" :src="logoPath" alt="Logo" class="background-logo" />
   </div>
 </template>
@@ -22,19 +27,23 @@ export default {
     logoPath() {
       return getWin98AssetPath('win98/assets/insert_logo.png');
     },
+    backgroundLayers() {
+      return this.win98.backgroundLayers || [];
+    },
     showLogo() {
-      return !this.win98.customBackground;
+      return this.backgroundLayers.length === 0;
     },
     backgroundColorStyle() {
       return {
         backgroundColor: this.win98.backgroundColor || '#008080',
       };
     },
-    backgroundImageStyle() {
-      const bg = this.win98.customBackground;
-      if (!bg) return {};
+  },
+  methods: {
+    getLayerStyle(layer) {
+      if (!layer.image) return { display: 'none' };
 
-      const fit = this.win98.customBackgroundFit || 'cover';
+      const fit = layer.fit || 'cover';
       let size = fit;
       let repeat = 'no-repeat';
       let position = 'center';
@@ -48,12 +57,12 @@ export default {
         size = 'auto';
       }
 
-      const opacity = this.win98.backgroundOpacity ?? 1;
-      const blendMode = this.win98.backgroundBlendMode || 'normal';
-      const brightness = this.win98.backgroundBrightness ?? 100;
-      const contrast = this.win98.backgroundContrast ?? 100;
-      const saturate = this.win98.backgroundSaturate ?? 100;
-      const blur = this.win98.backgroundBlur ?? 0;
+      const opacity = layer.opacity ?? 1;
+      const blendMode = layer.blendMode || 'normal';
+      const brightness = layer.brightness ?? 100;
+      const contrast = layer.contrast ?? 100;
+      const saturate = layer.saturate ?? 100;
+      const blur = layer.blur ?? 0;
 
       const filters = [];
       if (brightness !== 100) filters.push(`brightness(${brightness}%)`);
@@ -62,7 +71,7 @@ export default {
       if (blur > 0) filters.push(`blur(${blur}px)`);
 
       return {
-        backgroundImage: `url(${bg})`,
+        backgroundImage: `url(${layer.image})`,
         backgroundSize: size,
         backgroundRepeat: repeat,
         backgroundPosition: position,
@@ -88,7 +97,7 @@ export default {
   z-index: 0;
 }
 
-.background-image {
+.background-layer {
   position: absolute;
   top: 0;
   left: 0;

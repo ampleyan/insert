@@ -134,14 +134,7 @@ export const WIN98_DEFAULT_STATE = {
     time: '[YOUR TIME HERE]'
   },
   activeSkin: 'win98',
-  customBackground: null,
-  customBackgroundFit: 'cover',
+  backgroundLayers: [],
   backgroundColor: '#008080',
-  backgroundOpacity: 1,
-  backgroundBlendMode: 'normal',
-  backgroundBrightness: 100,
-  backgroundContrast: 100,
-  backgroundSaturate: 100,
-  backgroundBlur: 0,
   customBootLogo: null
 };

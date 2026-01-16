@@ -47,7 +47,7 @@
         <div class="setting-section">
           <label class="win98-label section-title">Background</label>
           <div class="setting-row">
-            <label class="win98-label">Color:</label>
+            <label class="win98-label">Base Color:</label>
             <input
               type="color"
               class="win98-color-picker"
@@ -56,117 +56,83 @@
             />
           </div>
           <div class="setting-row">
-            <label class="win98-label">Image:</label>
-            <div class="upload-row-inline">
-              <label class="win98-button upload-btn">
-                {{ win98.customBackground ? 'Change' : 'Upload' }}
-                <input type="file" accept=".png,.jpg,.jpeg,.gif,.webp" @change="uploadBackgroundImage" hidden />
-              </label>
-              <button v-if="win98.customBackground" class="win98-button" @click="removeBackgroundImage">Remove</button>
+            <label class="win98-button upload-btn">
+              + Add Layer
+              <input type="file" accept=".png,.jpg,.jpeg,.gif,.webp" @change="addBackgroundLayer" hidden />
+            </label>
+          </div>
+          <div v-if="backgroundLayers.length > 0" class="layers-list">
+            <div
+              v-for="(layer, index) in backgroundLayers"
+              :key="layer.id"
+              class="layer-item"
+              :class="{ expanded: expandedLayer === layer.id }"
+            >
+              <div class="layer-header" @click="toggleLayerExpand(layer.id)">
+                <img :src="layer.image" class="layer-thumb" />
+                <span class="layer-name">Layer {{ index + 1 }}</span>
+                <div class="layer-actions">
+                  <button v-if="index > 0" class="win98-button layer-btn" @click.stop="moveLayerUp(index)" title="Move Up">↑</button>
+                  <button v-if="index < backgroundLayers.length - 1" class="win98-button layer-btn" @click.stop="moveLayerDown(index)" title="Move Down">↓</button>
+                  <button class="win98-button layer-btn delete" @click.stop="removeBackgroundLayer(index)">X</button>
+                </div>
+              </div>
+              <div v-if="expandedLayer === layer.id" class="layer-settings">
+                <div class="setting-row">
+                  <label class="win98-label">Fit:</label>
+                  <select class="win98-select" :value="layer.fit" @change="updateLayer(index, 'fit', $event.target.value)">
+                    <option value="cover">Cover</option>
+                    <option value="contain">Contain</option>
+                    <option value="stretch">Stretch</option>
+                    <option value="tile">Tile</option>
+                    <option value="center">Center</option>
+                  </select>
+                </div>
+                <div class="setting-row">
+                  <label class="win98-label">Blend:</label>
+                  <select class="win98-select" :value="layer.blendMode" @change="updateLayer(index, 'blendMode', $event.target.value)">
+                    <option value="normal">Normal</option>
+                    <option value="multiply">Multiply</option>
+                    <option value="screen">Screen</option>
+                    <option value="overlay">Overlay</option>
+                    <option value="darken">Darken</option>
+                    <option value="lighten">Lighten</option>
+                    <option value="color-dodge">Color Dodge</option>
+                    <option value="color-burn">Color Burn</option>
+                    <option value="hard-light">Hard Light</option>
+                    <option value="soft-light">Soft Light</option>
+                    <option value="difference">Difference</option>
+                    <option value="exclusion">Exclusion</option>
+                    <option value="hue">Hue</option>
+                    <option value="saturation">Saturation</option>
+                    <option value="color">Color</option>
+                    <option value="luminosity">Luminosity</option>
+                  </select>
+                </div>
+                <div class="setting-row">
+                  <label class="win98-label">Opacity: {{ Math.round((layer.opacity ?? 1) * 100) }}%</label>
+                  <input type="range" class="win98-slider" min="0" max="1" step="0.05" :value="layer.opacity ?? 1" @input="updateLayer(index, 'opacity', parseFloat($event.target.value))" />
+                </div>
+                <div class="setting-row">
+                  <label class="win98-label">Brightness: {{ layer.brightness ?? 100 }}%</label>
+                  <input type="range" class="win98-slider" min="0" max="200" step="5" :value="layer.brightness ?? 100" @input="updateLayer(index, 'brightness', parseInt($event.target.value))" />
+                </div>
+                <div class="setting-row">
+                  <label class="win98-label">Contrast: {{ layer.contrast ?? 100 }}%</label>
+                  <input type="range" class="win98-slider" min="0" max="200" step="5" :value="layer.contrast ?? 100" @input="updateLayer(index, 'contrast', parseInt($event.target.value))" />
+                </div>
+                <div class="setting-row">
+                  <label class="win98-label">Saturation: {{ layer.saturate ?? 100 }}%</label>
+                  <input type="range" class="win98-slider" min="0" max="200" step="5" :value="layer.saturate ?? 100" @input="updateLayer(index, 'saturate', parseInt($event.target.value))" />
+                </div>
+                <div class="setting-row">
+                  <label class="win98-label">Blur: {{ layer.blur ?? 0 }}px</label>
+                  <input type="range" class="win98-slider" min="0" max="20" step="1" :value="layer.blur ?? 0" @input="updateLayer(index, 'blur', parseInt($event.target.value))" />
+                </div>
+              </div>
             </div>
           </div>
-          <div v-if="win98.customBackground" class="setting-row">
-            <label class="win98-label">Fit:</label>
-            <select
-              class="win98-select"
-              :value="win98.customBackgroundFit"
-              @change="updateSetting('customBackgroundFit', $event.target.value)"
-            >
-              <option value="cover">Cover</option>
-              <option value="contain">Contain</option>
-              <option value="stretch">Stretch</option>
-              <option value="tile">Tile</option>
-              <option value="center">Center</option>
-            </select>
-          </div>
-          <div v-if="win98.customBackground" class="setting-row">
-            <label class="win98-label">Blend Mode:</label>
-            <select
-              class="win98-select"
-              :value="win98.backgroundBlendMode"
-              @change="updateSetting('backgroundBlendMode', $event.target.value)"
-            >
-              <option value="normal">Normal</option>
-              <option value="multiply">Multiply</option>
-              <option value="screen">Screen</option>
-              <option value="overlay">Overlay</option>
-              <option value="darken">Darken</option>
-              <option value="lighten">Lighten</option>
-              <option value="color-dodge">Color Dodge</option>
-              <option value="color-burn">Color Burn</option>
-              <option value="hard-light">Hard Light</option>
-              <option value="soft-light">Soft Light</option>
-              <option value="difference">Difference</option>
-              <option value="exclusion">Exclusion</option>
-              <option value="hue">Hue</option>
-              <option value="saturation">Saturation</option>
-              <option value="color">Color</option>
-              <option value="luminosity">Luminosity</option>
-            </select>
-          </div>
-          <div v-if="win98.customBackground" class="setting-row">
-            <label class="win98-label">Opacity: {{ Math.round((win98.backgroundOpacity ?? 1) * 100) }}%</label>
-            <input
-              type="range"
-              class="win98-slider"
-              min="0"
-              max="1"
-              step="0.05"
-              :value="win98.backgroundOpacity ?? 1"
-              @input="updateSetting('backgroundOpacity', parseFloat($event.target.value))"
-            />
-          </div>
-          <div v-if="win98.customBackground" class="setting-row">
-            <label class="win98-label">Brightness: {{ win98.backgroundBrightness ?? 100 }}%</label>
-            <input
-              type="range"
-              class="win98-slider"
-              min="0"
-              max="200"
-              step="5"
-              :value="win98.backgroundBrightness ?? 100"
-              @input="updateSetting('backgroundBrightness', parseInt($event.target.value))"
-            />
-          </div>
-          <div v-if="win98.customBackground" class="setting-row">
-            <label class="win98-label">Contrast: {{ win98.backgroundContrast ?? 100 }}%</label>
-            <input
-              type="range"
-              class="win98-slider"
-              min="0"
-              max="200"
-              step="5"
-              :value="win98.backgroundContrast ?? 100"
-              @input="updateSetting('backgroundContrast', parseInt($event.target.value))"
-            />
-          </div>
-          <div v-if="win98.customBackground" class="setting-row">
-            <label class="win98-label">Saturation: {{ win98.backgroundSaturate ?? 100 }}%</label>
-            <input
-              type="range"
-              class="win98-slider"
-              min="0"
-              max="200"
-              step="5"
-              :value="win98.backgroundSaturate ?? 100"
-              @input="updateSetting('backgroundSaturate', parseInt($event.target.value))"
-            />
-          </div>
-          <div v-if="win98.customBackground" class="setting-row">
-            <label class="win98-label">Blur: {{ win98.backgroundBlur ?? 0 }}px</label>
-            <input
-              type="range"
-              class="win98-slider"
-              min="0"
-              max="20"
-              step="1"
-              :value="win98.backgroundBlur ?? 0"
-              @input="updateSetting('backgroundBlur', parseInt($event.target.value))"
-            />
-          </div>
-          <div v-if="win98.customBackground" class="preview-box">
-            <img :src="win98.customBackground" alt="Background preview" class="preview-image" />
-          </div>
+          <div v-else class="no-items">No background layers</div>
         </div>
 
         <div class="setting-section">
@@ -503,6 +469,7 @@ export default {
       customVideos: [],
       pendingVideo: null,
       pendingThumbnail: null,
+      expandedLayer: null,
     };
   },
   computed: {
@@ -511,6 +478,9 @@ export default {
     },
     availableSkins() {
       return getAvailableSkins();
+    },
+    backgroundLayers() {
+      return this.win98.backgroundLayers || [];
     },
   },
   async mounted() {
@@ -627,20 +597,62 @@ export default {
       this.settingsStore.win98UpdateSettings({ activeSkin: skinId });
       applySkinStyles(skinId);
     },
-    async uploadBackgroundImage(event) {
+    async addBackgroundLayer(event) {
       const file = event.target.files[0];
       if (!file) return;
       try {
-        const base64 = await win98AssetsService.saveBackgroundImage(file);
-        this.settingsStore.win98UpdateSettings({ customBackground: base64 });
+        const base64 = await this.fileToBase64(file);
+        const newLayer = {
+          id: 'layer_' + Date.now(),
+          image: base64,
+          fit: 'cover',
+          blendMode: 'normal',
+          opacity: 1,
+          brightness: 100,
+          contrast: 100,
+          saturate: 100,
+          blur: 0,
+        };
+        const layers = [...this.backgroundLayers, newLayer];
+        this.settingsStore.win98UpdateSettings({ backgroundLayers: layers });
+        this.expandedLayer = newLayer.id;
       } catch (error) {
         alert(error.message);
       }
       event.target.value = '';
     },
-    async removeBackgroundImage() {
-      await win98AssetsService.removeBackgroundImage();
-      this.settingsStore.win98UpdateSettings({ customBackground: null });
+    removeBackgroundLayer(index) {
+      const layers = this.backgroundLayers.filter((_, i) => i !== index);
+      this.settingsStore.win98UpdateSettings({ backgroundLayers: layers });
+      this.expandedLayer = null;
+    },
+    updateLayer(index, key, value) {
+      const layers = [...this.backgroundLayers];
+      layers[index] = { ...layers[index], [key]: value };
+      this.settingsStore.win98UpdateSettings({ backgroundLayers: layers });
+    },
+    moveLayerUp(index) {
+      if (index === 0) return;
+      const layers = [...this.backgroundLayers];
+      [layers[index - 1], layers[index]] = [layers[index], layers[index - 1]];
+      this.settingsStore.win98UpdateSettings({ backgroundLayers: layers });
+    },
+    moveLayerDown(index) {
+      if (index >= this.backgroundLayers.length - 1) return;
+      const layers = [...this.backgroundLayers];
+      [layers[index], layers[index + 1]] = [layers[index + 1], layers[index]];
+      this.settingsStore.win98UpdateSettings({ backgroundLayers: layers });
+    },
+    toggleLayerExpand(layerId) {
+      this.expandedLayer = this.expandedLayer === layerId ? null : layerId;
+    },
+    fileToBase64(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
     },
     async uploadBootLogo(event) {
       const file = event.target.files[0];
@@ -901,5 +913,75 @@ export default {
 .pending-actions {
   display: flex;
   gap: 8px;
+}
+
+.layers-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 8px;
+}
+
+.layer-item {
+  border: 1px solid var(--win98-dark-gray);
+  background: var(--win98-light-gray, #dfdfdf);
+}
+
+.layer-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px;
+  cursor: pointer;
+}
+
+.layer-header:hover {
+  background: var(--win98-gray);
+}
+
+.layer-thumb {
+  width: 32px;
+  height: 32px;
+  object-fit: cover;
+  border: 1px solid var(--win98-dark-gray);
+}
+
+.layer-name {
+  flex: 1;
+  font-size: 11px;
+  font-family: var(--win98-font);
+}
+
+.layer-actions {
+  display: flex;
+  gap: 2px;
+}
+
+.layer-btn {
+  padding: 2px 6px;
+  min-width: auto;
+  font-size: 10px;
+}
+
+.layer-btn.delete {
+  color: #aa0000;
+}
+
+.layer-settings {
+  padding: 8px;
+  border-top: 1px solid var(--win98-dark-gray);
+  background: var(--win98-gray);
+}
+
+.layer-settings .setting-row {
+  margin-bottom: 8px;
+}
+
+.layer-settings .setting-row:last-child {
+  margin-bottom: 0;
+}
+
+.layer-item.expanded {
+  border-color: var(--win98-blue);
 }
 </style>
