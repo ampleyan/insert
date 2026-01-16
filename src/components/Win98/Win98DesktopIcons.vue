@@ -67,6 +67,20 @@ export default {
           visible[id] = WIN98_ICONS[id];
         }
       });
+      if (this.win98.customIcons) {
+        this.win98.customIcons.forEach(icon => {
+          if (!this.win98.deletedIcons.includes(icon.id)) {
+            visible[icon.id] = icon;
+          }
+        });
+      }
+      if (this.win98.customVideos) {
+        this.win98.customVideos.forEach(video => {
+          if (!this.win98.deletedIcons.includes(video.id)) {
+            visible[video.id] = video;
+          }
+        });
+      }
       return visible;
     },
     iconContainerStyle() {
@@ -104,13 +118,15 @@ export default {
     },
     openIcon(iconId) {
       this.$emit('play-sound', 'clink');
-      const icon = WIN98_ICONS[iconId];
+      const icon = this.visibleIcons[iconId];
       if (!icon) return;
 
       if (icon.type === 'video') {
         this.settingsStore.win98OpenWindow('video-' + iconId);
       } else if (icon.type === 'notebook') {
         this.settingsStore.win98OpenWindow('notebook');
+      } else if (icon.type === 'custom') {
+        // Custom icons can be configured for different actions
       }
     },
     onDragStart(e, iconId) {
@@ -148,7 +164,7 @@ export default {
     },
     onTrashDrop(e) {
       const iconId = e.dataTransfer.getData('text/plain');
-      if (iconId && WIN98_ICONS[iconId]) {
+      if (iconId && this.visibleIcons[iconId]) {
         this.$emit('play-sound', 'trash');
         this.settingsStore.win98DeleteIcon(iconId);
       }
@@ -160,6 +176,9 @@ export default {
       this.$emit('context-menu', { x: e.clientX, y: e.clientY });
     },
     getAssetPath(path) {
+      if (path && path.startsWith('data:')) {
+        return path;
+      }
       return getWin98AssetPath(path);
     },
   },

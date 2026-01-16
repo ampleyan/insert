@@ -58,10 +58,17 @@ export default {
     },
     videoSrc() {
       const icon = WIN98_ICONS[this.videoId];
-      return icon ? icon.src : '';
+      if (icon) return icon.src;
+      const customVideo = this.win98.customVideos?.find(v => v.id === this.videoId);
+      if (customVideo) return customVideo.src;
+      return '';
     },
     videoPath() {
-      return this.videoSrc ? getWin98AssetPath(this.videoSrc) : '';
+      if (!this.videoSrc) return '';
+      if (this.videoSrc.startsWith('blob:') || this.videoSrc.startsWith('data:')) {
+        return this.videoSrc;
+      }
+      return getWin98AssetPath(this.videoSrc);
     },
     isMuted() {
       const videoState = this.win98.videoStates[this.videoId];

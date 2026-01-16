@@ -1,8 +1,5 @@
 <template>
   <div class="vibration-demo" @mousemove="handleMouseMove" @touchmove="handleTouchMove">
-    <div v-if="keyboardModeLabel" class="keyboard-mode-indicator">
-      {{ keyboardModeLabel }}
-    </div>
     <div
       class="vibration"
       v-for="(text, index) in textLinesVar"
@@ -418,35 +415,6 @@ export default {
 </script>
 
 <style scoped>
-.keyboard-mode-indicator {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background: rgba(0, 0, 0, 0.9);
-  color: #00ffff;
-  padding: 20px 40px;
-  border-radius: 8px;
-  font-size: 18px;
-  font-weight: bold;
-  z-index: 9999;
-  pointer-events: none;
-  border: 2px solid #00ffff;
-  box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
-  animation: pulse 1s ease-in-out infinite;
-}
-
-@keyframes pulse {
-  0%, 100% {
-    opacity: 0.8;
-    transform: translate(-50%, -50%) scale(1);
-  }
-  50% {
-    opacity: 1;
-    transform: translate(-50%, -50%) scale(1.05);
-  }
-}
-
 .vibration.is-paragraph {
   text-align: left;
   max-width: none;

@@ -8,6 +8,11 @@
       >Display</button>
       <button
         class="tab-btn"
+        :class="{ active: activeTab === 'content' }"
+        @click="activeTab = 'content'"
+      >Content</button>
+      <button
+        class="tab-btn"
         :class="{ active: activeTab === 'errors' }"
         @click="activeTab = 'errors'"
       >Errors</button>
@@ -108,6 +113,65 @@
             />
             Show Format Boundary
           </label>
+        </div>
+      </template>
+
+      <template v-if="activeTab === 'content'">
+        <div class="setting-section">
+          <label class="win98-label section-title">Custom Icons</label>
+          <div class="upload-row">
+            <label class="win98-button upload-btn">
+              + Add Icon
+              <input type="file" accept=".png,.jpg,.jpeg,.gif,.ico,.webp" @change="uploadIcon" hidden />
+            </label>
+          </div>
+          <div class="custom-items-list" v-if="customIcons.length > 0">
+            <div v-for="icon in customIcons" :key="icon.id" class="custom-item">
+              <img :src="icon.icon" class="item-preview" />
+              <input
+                type="text"
+                class="win98-input item-label"
+                :value="icon.label"
+                @input="updateIconLabel(icon.id, $event.target.value)"
+              />
+              <button class="win98-button delete-btn" @click="removeIcon(icon.id)">X</button>
+            </div>
+          </div>
+          <div v-else class="no-items">No custom icons</div>
+        </div>
+
+        <div class="setting-section">
+          <label class="win98-label section-title">Custom Videos</label>
+          <div class="upload-row">
+            <label class="win98-button upload-btn">
+              + Add Video
+              <input type="file" accept=".mp4,.webm,.mov" @change="uploadVideo" hidden />
+            </label>
+          </div>
+          <div class="custom-items-list" v-if="customVideos.length > 0">
+            <div v-for="video in customVideos" :key="video.id" class="custom-item">
+              <img v-if="video.icon" :src="video.icon" class="item-preview" />
+              <div v-else class="item-preview placeholder">📹</div>
+              <input
+                type="text"
+                class="win98-input item-label"
+                :value="video.label"
+                @input="updateVideoLabel(video.id, $event.target.value)"
+              />
+              <label class="win98-button thumb-btn" title="Change thumbnail">
+                🖼
+                <input type="file" accept=".png,.jpg,.jpeg,.gif,.webp" @change="(e) => updateThumbnail(video.id, e)" hidden />
+              </label>
+              <button class="win98-button delete-btn" @click="removeVideo(video.id)">X</button>
+            </div>
+          </div>
+          <div v-else class="no-items">No custom videos</div>
+        </div>
+
+        <div class="setting-row button-row">
+          <button class="win98-button" @click="restoreDefaultIcons">
+            Restore Default Icons
+          </button>
         </div>
       </template>
 
@@ -242,6 +306,7 @@
 
 <script>
 import { useSettingsStore } from '../../stores/settings';
+import win98AssetsService from '../../services/win98Assets';
 
 export default {
   name: 'Win98Settings',
@@ -252,6 +317,8 @@ export default {
   data() {
     return {
       activeTab: 'display',
+      customIcons: [],
+      customVideos: [],
     };
   },
   computed: {
@@ -259,7 +326,68 @@ export default {
       return this.settingsStore.win98;
     },
   },
+  async mounted() {
+    await this.loadCustomAssets();
+  },
   methods: {
+    async loadCustomAssets() {
+      await win98AssetsService.dbReady;
+      await win98AssetsService.restoreVideoBlobUrls();
+      this.customIcons = win98AssetsService.getCustomIcons();
+      this.customVideos = win98AssetsService.getCustomVideos();
+    },
+    async uploadIcon(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      try {
+        const icon = await win98AssetsService.addCustomIcon(file);
+        this.customIcons = win98AssetsService.getCustomIcons();
+        this.settingsStore.win98AddCustomIcon(icon);
+      } catch (error) {
+        alert(error.message);
+      }
+      event.target.value = '';
+    },
+    async uploadVideo(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      try {
+        const video = await win98AssetsService.addCustomVideo(file);
+        this.customVideos = win98AssetsService.getCustomVideos();
+        this.settingsStore.win98AddCustomVideo(video);
+      } catch (error) {
+        alert(error.message);
+      }
+      event.target.value = '';
+    },
+    async updateIconLabel(id, label) {
+      await win98AssetsService.updateIconLabel(id, label);
+      this.customIcons = win98AssetsService.getCustomIcons();
+    },
+    async updateVideoLabel(id, label) {
+      await win98AssetsService.updateVideoLabel(id, label);
+      this.customVideos = win98AssetsService.getCustomVideos();
+    },
+    async updateThumbnail(id, event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      await win98AssetsService.updateVideoThumbnail(id, file);
+      this.customVideos = win98AssetsService.getCustomVideos();
+      event.target.value = '';
+    },
+    async removeIcon(id) {
+      await win98AssetsService.removeCustomIcon(id);
+      this.customIcons = win98AssetsService.getCustomIcons();
+      this.settingsStore.win98RemoveCustomIcon(id);
+    },
+    async removeVideo(id) {
+      await win98AssetsService.removeCustomVideo(id);
+      this.customVideos = win98AssetsService.getCustomVideos();
+      this.settingsStore.win98RemoveCustomVideo(id);
+    },
+    restoreDefaultIcons() {
+      this.settingsStore.win98RestoreAllIcons();
+    },
     updateSetting(key, value) {
       this.settingsStore.win98UpdateSettings({ [key]: value });
     },
@@ -392,5 +520,73 @@ export default {
 
 .add-btn {
   margin-top: 4px;
+}
+
+.setting-section {
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--win98-dark-gray);
+}
+
+.section-title {
+  font-weight: bold;
+  margin-bottom: 8px;
+  display: block;
+}
+
+.upload-row {
+  margin-bottom: 8px;
+}
+
+.upload-btn {
+  cursor: pointer;
+}
+
+.custom-items-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.custom-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px;
+  background: var(--win98-light-gray, #dfdfdf);
+  border: 1px solid var(--win98-dark-gray);
+}
+
+.item-preview {
+  width: 32px;
+  height: 32px;
+  object-fit: cover;
+  border: 1px solid var(--win98-dark-gray);
+  background: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.item-preview.placeholder {
+  font-size: 16px;
+}
+
+.item-label {
+  flex: 1;
+  min-width: 0;
+}
+
+.thumb-btn {
+  padding: 2px 6px;
+  min-width: auto;
+  cursor: pointer;
+}
+
+.no-items {
+  color: var(--win98-dark-gray);
+  font-style: italic;
+  font-size: 11px;
+  padding: 8px;
 }
 </style>

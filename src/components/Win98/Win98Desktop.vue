@@ -20,6 +20,7 @@
 <script>
 import { useSettingsStore } from '../../stores/settings';
 import { WIN98_FORMATS } from '../../constants/win98';
+import win98AssetsService from '../../services/win98Assets';
 import Win98BootScreen from './Win98BootScreen.vue';
 import Win98FormatContainer from './Win98FormatContainer.vue';
 import Win98Screensaver from './Win98Screensaver.vue';
@@ -68,6 +69,7 @@ export default {
   mounted() {
     this.startIdleTimer();
     this.startErrorTimer();
+    this.restoreCustomVideos();
     document.addEventListener('mousemove', this.resetIdleTimer);
     document.addEventListener('click', this.resetIdleTimer);
     document.addEventListener('keydown', this.handleKeydown);
@@ -82,6 +84,18 @@ export default {
   methods: {
     onBootComplete() {
       this.settingsStore.win98CompleteBoot();
+    },
+    async restoreCustomVideos() {
+      await win98AssetsService.dbReady;
+      await win98AssetsService.restoreVideoBlobUrls();
+      const videos = win98AssetsService.getCustomVideos();
+      if (videos.length > 0 && this.win98.customVideos) {
+        this.win98.customVideos.forEach((v, i) => {
+          if (videos[i]) {
+            v.src = videos[i].src;
+          }
+        });
+      }
     },
     onBsodDismiss() {
       this.settingsStore.win98DismissBSOD();

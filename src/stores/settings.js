@@ -656,6 +656,66 @@ export const useSettingsStore = defineStore('settings', {
       this.saveToLocalStorageDebounced();
     },
 
+    win98AddCustomIcon(icon) {
+      if (!this.win98.customIcons) {
+        this.win98.customIcons = [];
+      }
+      this.win98.customIcons.push(icon);
+      const iconCount = Object.keys(this.win98.iconPositions).length;
+      const col = iconCount % 4;
+      const row = Math.floor(iconCount / 4);
+      this.win98.iconPositions[icon.id] = {
+        x: 20 + col * 100 * this.win98.iconScale,
+        y: 20 + row * 100 * this.win98.iconScale,
+      };
+      this.saveToLocalStorageDebounced();
+    },
+
+    win98RemoveCustomIcon(id) {
+      if (this.win98.customIcons) {
+        this.win98.customIcons = this.win98.customIcons.filter(i => i.id !== id);
+      }
+      delete this.win98.iconPositions[id];
+      if (!this.win98.deletedIcons.includes(id)) {
+        this.win98.deletedIcons.push(id);
+      }
+      this.saveToLocalStorageDebounced();
+    },
+
+    win98AddCustomVideo(video) {
+      if (!this.win98.customVideos) {
+        this.win98.customVideos = [];
+      }
+      this.win98.customVideos.push(video);
+      const iconCount = Object.keys(this.win98.iconPositions).length;
+      const col = iconCount % 4;
+      const row = Math.floor(iconCount / 4);
+      this.win98.iconPositions[video.id] = {
+        x: 20 + col * 100 * this.win98.iconScale,
+        y: 20 + row * 100 * this.win98.iconScale,
+      };
+      this.win98.videoStates[video.id] = { playing: false, currentTime: 0, muted: true };
+      this.win98.windowPositions['video-' + video.id] = { x: 100 + Math.random() * 200, y: 100 + Math.random() * 200 };
+      this.saveToLocalStorageDebounced();
+    },
+
+    win98RemoveCustomVideo(id) {
+      if (this.win98.customVideos) {
+        this.win98.customVideos = this.win98.customVideos.filter(v => v.id !== id);
+      }
+      delete this.win98.iconPositions[id];
+      delete this.win98.videoStates[id];
+      delete this.win98.windowPositions['video-' + id];
+      const windowIndex = this.win98.openWindows.indexOf('video-' + id);
+      if (windowIndex > -1) {
+        this.win98.openWindows.splice(windowIndex, 1);
+      }
+      if (!this.win98.deletedIcons.includes(id)) {
+        this.win98.deletedIcons.push(id);
+      }
+      this.saveToLocalStorageDebounced();
+    },
+
     win98ToggleAutoArrange() {
       this.win98.autoArrange = !this.win98.autoArrange;
       if (this.win98.autoArrange) {
