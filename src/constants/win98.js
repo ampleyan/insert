@@ -105,7 +105,7 @@ export const WIN98_DEFAULT_STATE = {
   screensaverActive: false,
   screensaverTimeout: 30000,
   bsodActive: false,
-  errorsEnabled: true,
+  errorsEnabled: false,
   errorInterval: 15000,
   errorProbability: 0.7,
   maxErrors: 5,

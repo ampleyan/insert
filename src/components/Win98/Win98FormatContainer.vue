@@ -133,6 +133,12 @@ export default {
         case 'refresh':
           window.location.reload();
           break;
+        case 'add-icon':
+          this.triggerIconUpload();
+          break;
+        case 'add-video':
+          this.triggerVideoUpload();
+          break;
         case 'restore-all':
           this.settingsStore.win98RestoreAllIcons();
           break;
@@ -140,6 +146,51 @@ export default {
           this.settingsStore.win98OpenWindow('settings');
           break;
       }
+    },
+    triggerIconUpload() {
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = 'image/*';
+      input.onchange = async (e) => {
+        const file = e.target.files[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = async (event) => {
+            const label = prompt('Enter icon label:', file.name.replace(/\.[^/.]+$/, ''));
+            if (label) {
+              const icon = {
+                id: 'custom_icon_' + Date.now(),
+                label: label,
+                icon: event.target.result,
+                type: 'custom',
+              };
+              const win98AssetsService = (await import('../../services/win98Assets')).default;
+              await win98AssetsService.addCustomIcon(icon);
+              this.settingsStore.win98AddCustomIcon(icon);
+            }
+          };
+          reader.readAsDataURL(file);
+        }
+      };
+      input.click();
+    },
+    triggerVideoUpload() {
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = 'video/*';
+      input.onchange = async (e) => {
+        const file = e.target.files[0];
+        if (file) {
+          const label = prompt('Enter video label:', file.name.replace(/\.[^/.]+$/, ''));
+          if (label) {
+            const win98AssetsService = (await import('../../services/win98Assets')).default;
+            const video = await win98AssetsService.addCustomVideo(file, null);
+            video.label = label;
+            this.settingsStore.win98AddCustomVideo(video);
+          }
+        }
+      };
+      input.click();
     },
   },
 };

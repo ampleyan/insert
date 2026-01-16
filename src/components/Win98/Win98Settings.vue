@@ -21,6 +21,11 @@
         :class="{ active: activeTab === 'effects' }"
         @click="activeTab = 'effects'"
       >Effects</button>
+      <button
+        class="tab-btn"
+        :class="{ active: activeTab === 'config' }"
+        @click="activeTab = 'config'"
+      >Config</button>
     </div>
 
     <div class="settings-content">
@@ -128,6 +133,18 @@
                 <div class="setting-row">
                   <label class="win98-label">Blur: {{ layer.blur ?? 0 }}px</label>
                   <input type="range" class="win98-slider" min="0" max="20" step="1" :value="layer.blur ?? 0" @input="updateLayer(index, 'blur', parseInt($event.target.value))" />
+                </div>
+                <div class="setting-row">
+                  <label class="win98-label">Scale: {{ layer.scale ?? 100 }}%</label>
+                  <input type="range" class="win98-slider" min="10" max="300" step="5" :value="layer.scale ?? 100" @input="updateLayer(index, 'scale', parseInt($event.target.value))" />
+                </div>
+                <div class="setting-row">
+                  <label class="win98-label">Position X: {{ layer.posX ?? 50 }}%</label>
+                  <input type="range" class="win98-slider" min="0" max="100" step="1" :value="layer.posX ?? 50" @input="updateLayer(index, 'posX', parseInt($event.target.value))" />
+                </div>
+                <div class="setting-row">
+                  <label class="win98-label">Position Y: {{ layer.posY ?? 50 }}%</label>
+                  <input type="range" class="win98-slider" min="0" max="100" step="1" :value="layer.posY ?? 50" @input="updateLayer(index, 'posY', parseInt($event.target.value))" />
                 </div>
               </div>
             </div>
@@ -315,6 +332,12 @@
         </div>
 
         <div class="setting-row button-row">
+          <button class="win98-button" @click="refreshDesktop">
+            Refresh Desktop
+          </button>
+        </div>
+
+        <div class="setting-row button-row">
           <button class="win98-button" @click="restoreDefaultIcons">
             Restore Default Icons
           </button>
@@ -445,9 +468,11 @@
             Trigger Error (E)
           </button>
         </div>
+      </template>
 
+      <template v-if="activeTab === 'config'">
         <div class="setting-section">
-          <label class="win98-label section-title">Configuration</label>
+          <label class="win98-label section-title">Export / Import</label>
           <div class="setting-row button-row">
             <button class="win98-button" @click="exportConfig">
               Export Settings
@@ -459,11 +484,17 @@
               <input type="file" accept=".json" @change="importConfig" hidden />
             </label>
           </div>
+          <p class="config-note">Export includes all settings and background images as a portable JSON file.</p>
+        </div>
+
+        <div class="setting-section">
+          <label class="win98-label section-title">Reset</label>
           <div class="setting-row button-row">
             <button class="win98-button bsod-button" @click="resetAllSettings">
-              Reset All (Ctrl+Shift+X)
+              Reset All Settings (Ctrl+Shift+X)
             </button>
           </div>
+          <p class="config-note">Clears all settings, custom icons, videos, and cached data. Cannot be undone.</p>
         </div>
       </template>
     </div>
@@ -505,6 +536,7 @@ export default {
   },
   async mounted() {
     await this.loadCustomAssets();
+    await this.loadBackgroundLayers();
   },
   methods: {
     async loadCustomAssets() {
@@ -513,6 +545,15 @@ export default {
       this.customIcons = win98AssetsService.getCustomIcons();
       this.customVideos = win98AssetsService.getCustomVideos();
     },
+    async loadBackgroundLayers() {
+      const layers = await win98AssetsService.loadBackgroundLayers();
+      if (layers && layers.length > 0) {
+        this.settingsStore.win98UpdateSettings({ backgroundLayers: layers });
+      }
+    },
+    async saveBackgroundLayersToDb(layers) {
+      await win98AssetsService.saveBackgroundLayers(layers);
+    },
     async uploadIcon(event) {
       const file = event.target.files[0];
       if (!file) return;
@@ -520,6 +561,8 @@ export default {
         const icon = await win98AssetsService.addCustomIcon(file);
         this.customIcons = win98AssetsService.getCustomIcons();
         this.settingsStore.win98AddCustomIcon(icon);
+        await this.$nextTick();
+        this.$forceUpdate();
       } catch (error) {
         alert(error.message);
       }
@@ -549,6 +592,8 @@ export default {
         this.settingsStore.win98AddCustomVideo(video);
         this.pendingVideo = null;
         this.pendingThumbnail = null;
+        await this.$nextTick();
+        this.$forceUpdate();
       } catch (error) {
         alert(error.message);
       }
@@ -581,6 +626,22 @@ export default {
       await win98AssetsService.removeCustomVideo(id);
       this.customVideos = win98AssetsService.getCustomVideos();
       this.settingsStore.win98RemoveCustomVideo(id);
+    },
+    async refreshDesktop() {
+      await this.loadCustomAssets();
+      this.$forceUpdate();
+      const customIcons = win98AssetsService.getCustomIcons();
+      const customVideos = win98AssetsService.getCustomVideos();
+      customIcons.forEach(icon => {
+        if (!this.win98.customIcons?.find(i => i.id === icon.id)) {
+          this.settingsStore.win98AddCustomIcon(icon);
+        }
+      });
+      customVideos.forEach(video => {
+        if (!this.win98.customVideos?.find(v => v.id === video.id)) {
+          this.settingsStore.win98AddCustomVideo(video);
+        }
+      });
     },
     restoreDefaultIcons() {
       this.settingsStore.win98RestoreAllIcons();
@@ -632,8 +693,12 @@ export default {
           contrast: 100,
           saturate: 100,
           blur: 0,
+          scale: 100,
+          posX: 50,
+          posY: 50,
         };
         const layers = [...this.backgroundLayers, newLayer];
+        await this.saveBackgroundLayersToDb(layers);
         this.settingsStore.win98UpdateSettings({ backgroundLayers: layers });
         this.expandedLayer = newLayer.id;
       } catch (error) {
@@ -641,26 +706,30 @@ export default {
       }
       event.target.value = '';
     },
-    removeBackgroundLayer(index) {
+    async removeBackgroundLayer(index) {
       const layers = this.backgroundLayers.filter((_, i) => i !== index);
+      await this.saveBackgroundLayersToDb(layers);
       this.settingsStore.win98UpdateSettings({ backgroundLayers: layers });
       this.expandedLayer = null;
     },
-    updateLayer(index, key, value) {
+    async updateLayer(index, key, value) {
       const layers = [...this.backgroundLayers];
       layers[index] = { ...layers[index], [key]: value };
+      await this.saveBackgroundLayersToDb(layers);
       this.settingsStore.win98UpdateSettings({ backgroundLayers: layers });
     },
-    moveLayerUp(index) {
+    async moveLayerUp(index) {
       if (index === 0) return;
       const layers = [...this.backgroundLayers];
       [layers[index - 1], layers[index]] = [layers[index], layers[index - 1]];
+      await this.saveBackgroundLayersToDb(layers);
       this.settingsStore.win98UpdateSettings({ backgroundLayers: layers });
     },
-    moveLayerDown(index) {
+    async moveLayerDown(index) {
       if (index >= this.backgroundLayers.length - 1) return;
       const layers = [...this.backgroundLayers];
       [layers[index], layers[index + 1]] = [layers[index + 1], layers[index]];
+      await this.saveBackgroundLayersToDb(layers);
       this.settingsStore.win98UpdateSettings({ backgroundLayers: layers });
     },
     toggleLayerExpand(layerId) {
@@ -1073,5 +1142,15 @@ export default {
 
 .layer-item.expanded {
   border-color: var(--win98-blue);
+}
+
+.config-note {
+  font-size: 10px;
+  color: var(--win98-dark-gray);
+  margin: 8px 0 0 0;
+  padding: 8px;
+  background: var(--win98-light-gray, #dfdfdf);
+  border: 1px solid var(--win98-dark-gray);
+  line-height: 1.4;
 }
 </style>

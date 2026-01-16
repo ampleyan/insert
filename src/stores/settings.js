@@ -292,7 +292,12 @@ export const useSettingsStore = defineStore('settings', {
     },
 
     saveToLocalStorageDebounced: debounce(function () {
-      localStorage.setItem('appSettings', JSON.stringify(this.$state));
+      const stateToSave = { ...this.$state };
+      if (stateToSave.win98) {
+        stateToSave.win98 = { ...stateToSave.win98 };
+        delete stateToSave.win98.backgroundLayers;
+      }
+      localStorage.setItem('appSettings', JSON.stringify(stateToSave));
     }, 300),
 
     resetToDefaults() {

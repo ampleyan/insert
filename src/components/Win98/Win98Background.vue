@@ -44,9 +44,13 @@ export default {
       if (!layer.image) return { display: 'none' };
 
       const fit = layer.fit || 'cover';
+      const scale = layer.scale ?? 100;
+      const posX = layer.posX ?? 50;
+      const posY = layer.posY ?? 50;
+
       let size = fit;
       let repeat = 'no-repeat';
-      let position = 'center';
+      let position = `${posX}% ${posY}%`;
 
       if (fit === 'stretch') {
         size = '100% 100%';
@@ -55,6 +59,11 @@ export default {
         repeat = 'repeat';
       } else if (fit === 'center') {
         size = 'auto';
+      } else if (fit === 'cover' || fit === 'contain') {
+        if (scale !== 100) {
+          const scaledValue = (scale / 100) * 100;
+          size = `${scaledValue}%`;
+        }
       }
 
       const opacity = layer.opacity ?? 1;

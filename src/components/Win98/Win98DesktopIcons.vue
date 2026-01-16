@@ -140,19 +140,28 @@ export default {
       };
       e.dataTransfer.setData('text/plain', iconId);
       e.dataTransfer.effectAllowed = 'move';
+      const img = new Image();
+      img.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+      e.dataTransfer.setDragImage(img, 0, 0);
     },
-    onDrag() {
-    },
-    onDragEnd(e) {
-      if (!this.draggingIcon || this.trashHighlighted) {
-        this.draggingIcon = null;
-        return;
-      }
-
+    onDrag(e) {
+      if (!this.draggingIcon || e.clientX === 0 || e.clientY === 0) return;
       const parent = this.$el.getBoundingClientRect();
       const x = e.clientX - parent.left - this.dragOffset.x;
       const y = e.clientY - parent.top - this.dragOffset.y;
-
+      if (x > 0 && y > 0) {
+        this.settingsStore.win98UpdateIconPosition(this.draggingIcon, x, y);
+      }
+    },
+    onDragEnd(e) {
+      if (!this.draggingIcon) return;
+      if (this.trashHighlighted) {
+        this.draggingIcon = null;
+        return;
+      }
+      const parent = this.$el.getBoundingClientRect();
+      const x = e.clientX - parent.left - this.dragOffset.x;
+      const y = e.clientY - parent.top - this.dragOffset.y;
       if (x > 0 && y > 0) {
         this.settingsStore.win98UpdateIconPosition(this.draggingIcon, x, y);
       }
@@ -174,6 +183,8 @@ export default {
       this.draggingIcon = null;
     },
     onContextMenu(e) {
+      e.preventDefault();
+      e.stopPropagation();
       this.$emit('play-sound', 'click');
       this.$emit('context-menu', { x: e.clientX, y: e.clientY });
     },

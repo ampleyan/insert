@@ -366,6 +366,15 @@ class Win98AssetsService {
     await this.deleteThemeAsset('customBootLogo');
   }
 
+  async saveBackgroundLayers(layers) {
+    const serializedLayers = JSON.parse(JSON.stringify(layers));
+    await this.saveThemeAsset('backgroundLayers', serializedLayers);
+  }
+
+  async loadBackgroundLayers() {
+    return await this.loadThemeAsset('backgroundLayers');
+  }
+
   async clearAllData() {
     await this.dbReady;
     if (!this.db) return;

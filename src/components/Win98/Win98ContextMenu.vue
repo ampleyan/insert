@@ -48,15 +48,18 @@
       <span>New</span>
       <span class="arrow">&#9654;</span>
       <div v-if="openSubmenu === 'new'" class="submenu">
+        <div class="menu-item" @click="$emit('action', 'add-icon')">
+          Icon
+        </div>
+        <div class="menu-item" @click="$emit('action', 'add-video')">
+          Video
+        </div>
+        <div class="menu-separator"></div>
         <div class="menu-item disabled">
           Folder
         </div>
         <div class="menu-item disabled">
           Shortcut
-        </div>
-        <div class="menu-separator"></div>
-        <div class="menu-item disabled">
-          Text Document
         </div>
       </div>
     </div>
@@ -102,8 +105,10 @@ export default {
   watch: {
     visible(val) {
       if (val) {
-        document.addEventListener('click', this.handleOutsideClick);
-        document.addEventListener('contextmenu', this.handleOutsideClick);
+        setTimeout(() => {
+          document.addEventListener('click', this.handleOutsideClick);
+          document.addEventListener('contextmenu', this.handleOutsideClick);
+        }, 0);
       } else {
         document.removeEventListener('click', this.handleOutsideClick);
         document.removeEventListener('contextmenu', this.handleOutsideClick);
