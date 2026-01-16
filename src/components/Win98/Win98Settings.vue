@@ -25,94 +25,173 @@
 
     <div class="settings-content">
       <template v-if="activeTab === 'display'">
-        <div class="setting-row">
-          <label class="win98-label">Icon Scale: {{ win98.iconScale.toFixed(1) }}</label>
-          <input
-            type="range"
-            class="win98-slider"
-            min="0.5"
-            max="5"
-            step="0.1"
-            :value="win98.iconScale"
-            @input="updateSetting('iconScale', parseFloat($event.target.value))"
-          />
+        <div class="setting-section">
+          <label class="win98-label section-title">Theme</label>
+          <div class="setting-row">
+            <label class="win98-label">Theme:</label>
+            <select
+              class="win98-select"
+              :value="win98.activeSkin"
+              @change="updateSkin($event.target.value)"
+            >
+              <option
+                v-for="skin in availableSkins"
+                :key="skin.id"
+                :value="skin.id"
+                :disabled="skin.disabled"
+              >{{ skin.name }}</option>
+            </select>
+          </div>
         </div>
 
-        <div class="setting-row">
-          <label class="win98-label">Zoom Scale: {{ win98.zoomScale.toFixed(1) }}</label>
-          <input
-            type="range"
-            class="win98-slider"
-            min="1.2"
-            max="3"
-            step="0.1"
-            :value="win98.zoomScale"
-            @input="updateSetting('zoomScale', parseFloat($event.target.value))"
-          />
-        </div>
-
-        <div class="setting-row">
-          <label class="win98-label">Text Scale: {{ win98.textScale.toFixed(1) }}</label>
-          <input
-            type="range"
-            class="win98-slider"
-            min="0.5"
-            max="5"
-            step="0.1"
-            :value="win98.textScale"
-            @input="updateSetting('textScale', parseFloat($event.target.value))"
-          />
-        </div>
-
-        <div class="setting-row">
-          <label class="win98-label">
+        <div class="setting-section">
+          <label class="win98-label section-title">Background</label>
+          <div class="setting-row">
+            <label class="win98-label">Color:</label>
             <input
-              type="checkbox"
-              class="win98-checkbox"
-              :checked="win98.soundEnabled"
-              @change="updateSetting('soundEnabled', $event.target.checked)"
+              type="color"
+              class="win98-color-picker"
+              :value="win98.backgroundColor"
+              @input="updateSetting('backgroundColor', $event.target.value)"
             />
-            Enable Sounds
-          </label>
+          </div>
+          <div class="setting-row">
+            <label class="win98-label">Image:</label>
+            <div class="upload-row-inline">
+              <label class="win98-button upload-btn">
+                {{ win98.customBackground ? 'Change' : 'Upload' }}
+                <input type="file" accept=".png,.jpg,.jpeg,.gif,.webp" @change="uploadBackgroundImage" hidden />
+              </label>
+              <button v-if="win98.customBackground" class="win98-button" @click="removeBackgroundImage">Remove</button>
+            </div>
+          </div>
+          <div v-if="win98.customBackground" class="setting-row">
+            <label class="win98-label">Fit:</label>
+            <select
+              class="win98-select"
+              :value="win98.customBackgroundFit"
+              @change="updateSetting('customBackgroundFit', $event.target.value)"
+            >
+              <option value="cover">Cover</option>
+              <option value="contain">Contain</option>
+              <option value="stretch">Stretch</option>
+              <option value="tile">Tile</option>
+              <option value="center">Center</option>
+            </select>
+          </div>
+          <div v-if="win98.customBackground" class="preview-box">
+            <img :src="win98.customBackground" alt="Background preview" class="preview-image" />
+          </div>
         </div>
 
-        <div class="setting-row">
-          <label class="win98-label">Volume: {{ Math.round(win98.volume * 100) }}%</label>
-          <input
-            type="range"
-            class="win98-slider"
-            min="0"
-            max="1"
-            step="0.01"
-            :value="win98.volume"
-            @input="updateSetting('volume', parseFloat($event.target.value))"
-          />
+        <div class="setting-section">
+          <label class="win98-label section-title">Boot Logo</label>
+          <div class="upload-row-inline">
+            <label class="win98-button upload-btn">
+              {{ win98.customBootLogo ? 'Change' : 'Upload' }}
+              <input type="file" accept=".png,.jpg,.jpeg,.gif,.webp" @change="uploadBootLogo" hidden />
+            </label>
+            <button v-if="win98.customBootLogo" class="win98-button" @click="removeBootLogo">Remove</button>
+          </div>
+          <div v-if="win98.customBootLogo" class="preview-box">
+            <img :src="win98.customBootLogo" alt="Boot logo preview" class="preview-image boot-preview" />
+          </div>
         </div>
 
-        <div class="setting-row">
-          <label class="win98-label">Format:</label>
-          <select
-            class="win98-select"
-            :value="win98.format"
-            @change="updateSetting('format', $event.target.value)"
-          >
-            <option value="reels">Stories/Reels (9:16)</option>
-            <option value="square">Square (1:1)</option>
-            <option value="portrait">Portrait (4:5)</option>
-            <option value="landscape">Landscape (1.91:1)</option>
-          </select>
-        </div>
-
-        <div class="setting-row">
-          <label class="win98-label">
+        <div class="setting-section">
+          <label class="win98-label section-title">Scale & Format</label>
+          <div class="setting-row">
+            <label class="win98-label">Icon Scale: {{ win98.iconScale.toFixed(1) }}</label>
             <input
-              type="checkbox"
-              class="win98-checkbox"
-              :checked="win98.showFormatInfo"
-              @change="updateSetting('showFormatInfo', $event.target.checked)"
+              type="range"
+              class="win98-slider"
+              min="0.5"
+              max="5"
+              step="0.1"
+              :value="win98.iconScale"
+              @input="updateSetting('iconScale', parseFloat($event.target.value))"
             />
-            Show Format Boundary
-          </label>
+          </div>
+
+          <div class="setting-row">
+            <label class="win98-label">Zoom Scale: {{ win98.zoomScale.toFixed(1) }}</label>
+            <input
+              type="range"
+              class="win98-slider"
+              min="1.2"
+              max="3"
+              step="0.1"
+              :value="win98.zoomScale"
+              @input="updateSetting('zoomScale', parseFloat($event.target.value))"
+            />
+          </div>
+
+          <div class="setting-row">
+            <label class="win98-label">Text Scale: {{ win98.textScale.toFixed(1) }}</label>
+            <input
+              type="range"
+              class="win98-slider"
+              min="0.5"
+              max="5"
+              step="0.1"
+              :value="win98.textScale"
+              @input="updateSetting('textScale', parseFloat($event.target.value))"
+            />
+          </div>
+
+          <div class="setting-row">
+            <label class="win98-label">Format:</label>
+            <select
+              class="win98-select"
+              :value="win98.format"
+              @change="updateSetting('format', $event.target.value)"
+            >
+              <option value="reels">Stories/Reels (9:16)</option>
+              <option value="square">Square (1:1)</option>
+              <option value="portrait">Portrait (4:5)</option>
+              <option value="landscape">Landscape (1.91:1)</option>
+            </select>
+          </div>
+
+          <div class="setting-row">
+            <label class="win98-label">
+              <input
+                type="checkbox"
+                class="win98-checkbox"
+                :checked="win98.showFormatInfo"
+                @change="updateSetting('showFormatInfo', $event.target.checked)"
+              />
+              Show Format Boundary
+            </label>
+          </div>
+        </div>
+
+        <div class="setting-section">
+          <label class="win98-label section-title">Sound</label>
+          <div class="setting-row">
+            <label class="win98-label">
+              <input
+                type="checkbox"
+                class="win98-checkbox"
+                :checked="win98.soundEnabled"
+                @change="updateSetting('soundEnabled', $event.target.checked)"
+              />
+              Enable Sounds
+            </label>
+          </div>
+
+          <div class="setting-row">
+            <label class="win98-label">Volume: {{ Math.round(win98.volume * 100) }}%</label>
+            <input
+              type="range"
+              class="win98-slider"
+              min="0"
+              max="1"
+              step="0.01"
+              :value="win98.volume"
+              @input="updateSetting('volume', parseFloat($event.target.value))"
+            />
+          </div>
         </div>
       </template>
 
@@ -142,11 +221,27 @@
 
         <div class="setting-section">
           <label class="win98-label section-title">Custom Videos</label>
-          <div class="upload-row">
+          <div v-if="!pendingVideo" class="upload-row">
             <label class="win98-button upload-btn">
               + Add Video
-              <input type="file" accept=".mp4,.webm,.mov" @change="uploadVideo" hidden />
+              <input type="file" accept=".mp4,.webm,.mov" @change="handleVideoSelect" hidden />
             </label>
+          </div>
+          <div v-else class="pending-video-section">
+            <div class="pending-video-info">
+              <span class="pending-label">Selected: {{ pendingVideo.name }}</span>
+            </div>
+            <div class="pending-thumbnail-row">
+              <label class="win98-button upload-btn">
+                {{ pendingThumbnail ? 'Change Thumbnail' : '+ Add Thumbnail (optional)' }}
+                <input type="file" accept=".png,.jpg,.jpeg,.gif,.webp" @change="handleThumbnailSelect" hidden />
+              </label>
+              <span v-if="pendingThumbnail" class="thumb-name">{{ pendingThumbnail.name }}</span>
+            </div>
+            <div class="pending-actions">
+              <button class="win98-button" @click="confirmVideoUpload">Add Video</button>
+              <button class="win98-button" @click="cancelVideoUpload">Cancel</button>
+            </div>
           </div>
           <div class="custom-items-list" v-if="customVideos.length > 0">
             <div v-for="video in customVideos" :key="video.id" class="custom-item">
@@ -307,6 +402,8 @@
 <script>
 import { useSettingsStore } from '../../stores/settings';
 import win98AssetsService from '../../services/win98Assets';
+import { getAvailableSkins } from '../../constants/skins';
+import { applySkinStyles } from '../../utils/skinStyles';
 
 export default {
   name: 'Win98Settings',
@@ -319,11 +416,16 @@ export default {
       activeTab: 'display',
       customIcons: [],
       customVideos: [],
+      pendingVideo: null,
+      pendingThumbnail: null,
     };
   },
   computed: {
     win98() {
       return this.settingsStore.win98;
+    },
+    availableSkins() {
+      return getAvailableSkins();
     },
   },
   async mounted() {
@@ -348,17 +450,37 @@ export default {
       }
       event.target.value = '';
     },
-    async uploadVideo(event) {
+    handleVideoSelect(event) {
       const file = event.target.files[0];
       if (!file) return;
+      this.pendingVideo = file;
+      this.pendingThumbnail = null;
+      event.target.value = '';
+    },
+    handleThumbnailSelect(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      this.pendingThumbnail = file;
+      event.target.value = '';
+    },
+    async confirmVideoUpload() {
+      if (!this.pendingVideo) return;
       try {
-        const video = await win98AssetsService.addCustomVideo(file);
+        const video = await win98AssetsService.addCustomVideo(
+          this.pendingVideo,
+          this.pendingThumbnail
+        );
         this.customVideos = win98AssetsService.getCustomVideos();
         this.settingsStore.win98AddCustomVideo(video);
+        this.pendingVideo = null;
+        this.pendingThumbnail = null;
       } catch (error) {
         alert(error.message);
       }
-      event.target.value = '';
+    },
+    cancelVideoUpload() {
+      this.pendingVideo = null;
+      this.pendingThumbnail = null;
     },
     async updateIconLabel(id, label) {
       await win98AssetsService.updateIconLabel(id, label);
@@ -415,6 +537,40 @@ export default {
       if (messages.length === 0) return;
       const randomError = messages[Math.floor(Math.random() * messages.length)];
       this.settingsStore.win98ShowError(randomError);
+    },
+    updateSkin(skinId) {
+      this.settingsStore.win98UpdateSettings({ activeSkin: skinId });
+      applySkinStyles(skinId);
+    },
+    async uploadBackgroundImage(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      try {
+        const base64 = await win98AssetsService.saveBackgroundImage(file);
+        this.settingsStore.win98UpdateSettings({ customBackground: base64 });
+      } catch (error) {
+        alert(error.message);
+      }
+      event.target.value = '';
+    },
+    async removeBackgroundImage() {
+      await win98AssetsService.removeBackgroundImage();
+      this.settingsStore.win98UpdateSettings({ customBackground: null });
+    },
+    async uploadBootLogo(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      try {
+        const base64 = await win98AssetsService.saveBootLogo(file);
+        this.settingsStore.win98UpdateSettings({ customBootLogo: base64 });
+      } catch (error) {
+        alert(error.message);
+      }
+      event.target.value = '';
+    },
+    async removeBootLogo() {
+      await win98AssetsService.removeBootLogo();
+      this.settingsStore.win98UpdateSettings({ customBootLogo: null });
     },
   },
 };
@@ -588,5 +744,77 @@ export default {
   font-style: italic;
   font-size: 11px;
   padding: 8px;
+}
+
+.win98-color-picker {
+  width: 60px;
+  height: 24px;
+  padding: 0;
+  border: 2px solid;
+  border-color: var(--win98-dark-gray) var(--win98-white) var(--win98-white) var(--win98-dark-gray);
+  cursor: pointer;
+}
+
+.upload-row-inline {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.preview-box {
+  margin-top: 8px;
+  padding: 8px;
+  background: var(--win98-dark-gray);
+  border: 2px solid;
+  border-color: var(--win98-border-dark) var(--win98-border-light) var(--win98-border-light) var(--win98-border-dark);
+}
+
+.preview-image {
+  max-width: 100%;
+  max-height: 100px;
+  display: block;
+  margin: 0 auto;
+}
+
+.preview-image.boot-preview {
+  background: #000;
+  padding: 8px;
+}
+
+.pending-video-section {
+  background: var(--win98-light-gray, #dfdfdf);
+  border: 1px solid var(--win98-dark-gray);
+  padding: 8px;
+  margin-bottom: 8px;
+}
+
+.pending-video-info {
+  margin-bottom: 8px;
+}
+
+.pending-label {
+  font-weight: bold;
+  font-size: 11px;
+}
+
+.pending-thumbnail-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.thumb-name {
+  font-size: 10px;
+  color: var(--win98-dark-gray);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 150px;
+}
+
+.pending-actions {
+  display: flex;
+  gap: 8px;
 }
 </style>

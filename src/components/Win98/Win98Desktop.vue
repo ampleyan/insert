@@ -21,6 +21,7 @@
 import { useSettingsStore } from '../../stores/settings';
 import { WIN98_FORMATS } from '../../constants/win98';
 import win98AssetsService from '../../services/win98Assets';
+import { applySkinStyles, applyCustomBackgroundColor } from '../../utils/skinStyles';
 import Win98BootScreen from './Win98BootScreen.vue';
 import Win98FormatContainer from './Win98FormatContainer.vue';
 import Win98Screensaver from './Win98Screensaver.vue';
@@ -65,8 +66,20 @@ export default {
     'win98.screensaverTimeout'() {
       this.idleTime = 0;
     },
+    'win98.activeSkin'(newSkin) {
+      applySkinStyles(newSkin);
+    },
+    'win98.backgroundColor'(color) {
+      if (!this.win98.customBackground) {
+        applyCustomBackgroundColor(color);
+      }
+    },
   },
   mounted() {
+    applySkinStyles(this.win98.activeSkin);
+    if (this.win98.backgroundColor && !this.win98.customBackground) {
+      applyCustomBackgroundColor(this.win98.backgroundColor);
+    }
     this.startIdleTimer();
     this.startErrorTimer();
     this.restoreCustomVideos();

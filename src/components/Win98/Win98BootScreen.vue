@@ -14,18 +14,26 @@
 
 <script>
 import { getWin98AssetPath } from '../../constants/win98';
+import { useSettingsStore } from '../../stores/settings';
 
 export default {
   name: 'Win98BootScreen',
   emits: ['boot-complete'],
+  setup() {
+    const settingsStore = useSettingsStore();
+    return { settingsStore };
+  },
   data() {
     return {
       progress: 0,
     };
   },
   computed: {
+    win98() {
+      return this.settingsStore.win98;
+    },
     bootLogoPath() {
-      return getWin98AssetPath('win98/assets/boot_screen_no_bg.png');
+      return this.win98.customBootLogo || getWin98AssetPath('win98/assets/boot_screen_no_bg.png');
     },
   },
   mounted() {

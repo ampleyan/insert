@@ -112,5 +112,10 @@ export const WIN98_DEFAULT_STATE = {
     location: '[YOUR LOCATION HERE]',
     date: '[YOUR DATE HERE]',
     time: '[YOUR TIME HERE]'
-  }
+  },
+  activeSkin: 'win98',
+  customBackground: null,
+  customBackgroundFit: 'cover',
+  backgroundColor: '#008080',
+  customBootLogo: null
 };

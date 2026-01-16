@@ -1,9 +1,11 @@
 const DB_NAME = 'win98Assets';
-const DB_VERSION = 1;
+const DB_VERSION = 2;
 const ICONS_STORE = 'customIcons';
 const VIDEOS_STORE = 'customVideos';
+const THEME_STORE = 'themeAssets';
 const MAX_ICON_SIZE = 2 * 1024 * 1024;
 const MAX_VIDEO_SIZE = 100 * 1024 * 1024;
+const MAX_THEME_ASSET_SIZE = 5 * 1024 * 1024;
 
 class Win98AssetsService {
   constructor() {
@@ -31,6 +33,9 @@ class Win98AssetsService {
         }
         if (!db.objectStoreNames.contains(VIDEOS_STORE)) {
           db.createObjectStore(VIDEOS_STORE, { keyPath: 'id' });
+        }
+        if (!db.objectStoreNames.contains(THEME_STORE)) {
+          db.createObjectStore(THEME_STORE, { keyPath: 'id' });
         }
       };
     });
@@ -280,6 +285,85 @@ class Win98AssetsService {
       video.icon = await this.fileToBase64(thumbnailFile);
       await this.saveCustomVideo(video);
     }
+  }
+
+  async saveThemeAsset(key, data) {
+    await this.dbReady;
+    if (!this.db) return;
+    return new Promise((resolve, reject) => {
+      const tx = this.db.transaction(THEME_STORE, 'readwrite');
+      const store = tx.objectStore(THEME_STORE);
+      const request = store.put({ id: key, data, updatedAt: Date.now() });
+      request.onsuccess = () => resolve();
+      request.onerror = () => reject(request.error);
+    });
+  }
+
+  async loadThemeAsset(key) {
+    await this.dbReady;
+    if (!this.db) return null;
+    return new Promise((resolve) => {
+      const tx = this.db.transaction(THEME_STORE, 'readonly');
+      const store = tx.objectStore(THEME_STORE);
+      const request = store.get(key);
+      request.onsuccess = () => resolve(request.result?.data || null);
+      request.onerror = () => resolve(null);
+    });
+  }
+
+  async deleteThemeAsset(key) {
+    await this.dbReady;
+    if (!this.db) return;
+    return new Promise((resolve) => {
+      const tx = this.db.transaction(THEME_STORE, 'readwrite');
+      const store = tx.objectStore(THEME_STORE);
+      store.delete(key);
+      tx.oncomplete = () => resolve();
+    });
+  }
+
+  async loadAllThemeAssets() {
+    await this.dbReady;
+    if (!this.db) return {};
+    return new Promise((resolve) => {
+      const tx = this.db.transaction(THEME_STORE, 'readonly');
+      const store = tx.objectStore(THEME_STORE);
+      const request = store.getAll();
+      request.onsuccess = () => {
+        const assets = {};
+        (request.result || []).forEach(item => {
+          assets[item.id] = item.data;
+        });
+        resolve(assets);
+      };
+      request.onerror = () => resolve({});
+    });
+  }
+
+  async saveBackgroundImage(file) {
+    if (file.size > MAX_THEME_ASSET_SIZE) {
+      throw new Error(`Background image too large (max ${MAX_THEME_ASSET_SIZE / (1024 * 1024)}MB)`);
+    }
+    const base64 = await this.fileToBase64(file);
+    await this.saveThemeAsset('customBackground', base64);
+    return base64;
+  }
+
+  async saveBootLogo(file) {
+    if (file.size > MAX_THEME_ASSET_SIZE) {
+      throw new Error(`Boot logo too large (max ${MAX_THEME_ASSET_SIZE / (1024 * 1024)}MB)`);
+    }
+    const base64 = await this.fileToBase64(file);
+    await this.saveThemeAsset('customBootLogo', base64);
+    return base64;
+  }
+
+  async removeBackgroundImage() {
+    await this.deleteThemeAsset('customBackground');
+  }
+
+  async removeBootLogo() {
+    await this.deleteThemeAsset('customBootLogo');
   }
 }
 
