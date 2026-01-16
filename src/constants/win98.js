@@ -137,5 +137,11 @@ export const WIN98_DEFAULT_STATE = {
   customBackground: null,
   customBackgroundFit: 'cover',
   backgroundColor: '#008080',
+  backgroundOpacity: 1,
+  backgroundBlendMode: 'normal',
+  backgroundBrightness: 100,
+  backgroundContrast: 100,
+  backgroundSaturate: 100,
+  backgroundBlur: 0,
   customBootLogo: null
 };

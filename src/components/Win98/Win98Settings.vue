@@ -79,6 +79,91 @@
               <option value="center">Center</option>
             </select>
           </div>
+          <div v-if="win98.customBackground" class="setting-row">
+            <label class="win98-label">Blend Mode:</label>
+            <select
+              class="win98-select"
+              :value="win98.backgroundBlendMode"
+              @change="updateSetting('backgroundBlendMode', $event.target.value)"
+            >
+              <option value="normal">Normal</option>
+              <option value="multiply">Multiply</option>
+              <option value="screen">Screen</option>
+              <option value="overlay">Overlay</option>
+              <option value="darken">Darken</option>
+              <option value="lighten">Lighten</option>
+              <option value="color-dodge">Color Dodge</option>
+              <option value="color-burn">Color Burn</option>
+              <option value="hard-light">Hard Light</option>
+              <option value="soft-light">Soft Light</option>
+              <option value="difference">Difference</option>
+              <option value="exclusion">Exclusion</option>
+              <option value="hue">Hue</option>
+              <option value="saturation">Saturation</option>
+              <option value="color">Color</option>
+              <option value="luminosity">Luminosity</option>
+            </select>
+          </div>
+          <div v-if="win98.customBackground" class="setting-row">
+            <label class="win98-label">Opacity: {{ Math.round((win98.backgroundOpacity ?? 1) * 100) }}%</label>
+            <input
+              type="range"
+              class="win98-slider"
+              min="0"
+              max="1"
+              step="0.05"
+              :value="win98.backgroundOpacity ?? 1"
+              @input="updateSetting('backgroundOpacity', parseFloat($event.target.value))"
+            />
+          </div>
+          <div v-if="win98.customBackground" class="setting-row">
+            <label class="win98-label">Brightness: {{ win98.backgroundBrightness ?? 100 }}%</label>
+            <input
+              type="range"
+              class="win98-slider"
+              min="0"
+              max="200"
+              step="5"
+              :value="win98.backgroundBrightness ?? 100"
+              @input="updateSetting('backgroundBrightness', parseInt($event.target.value))"
+            />
+          </div>
+          <div v-if="win98.customBackground" class="setting-row">
+            <label class="win98-label">Contrast: {{ win98.backgroundContrast ?? 100 }}%</label>
+            <input
+              type="range"
+              class="win98-slider"
+              min="0"
+              max="200"
+              step="5"
+              :value="win98.backgroundContrast ?? 100"
+              @input="updateSetting('backgroundContrast', parseInt($event.target.value))"
+            />
+          </div>
+          <div v-if="win98.customBackground" class="setting-row">
+            <label class="win98-label">Saturation: {{ win98.backgroundSaturate ?? 100 }}%</label>
+            <input
+              type="range"
+              class="win98-slider"
+              min="0"
+              max="200"
+              step="5"
+              :value="win98.backgroundSaturate ?? 100"
+              @input="updateSetting('backgroundSaturate', parseInt($event.target.value))"
+            />
+          </div>
+          <div v-if="win98.customBackground" class="setting-row">
+            <label class="win98-label">Blur: {{ win98.backgroundBlur ?? 0 }}px</label>
+            <input
+              type="range"
+              class="win98-slider"
+              min="0"
+              max="20"
+              step="1"
+              :value="win98.backgroundBlur ?? 0"
+              @input="updateSetting('backgroundBlur', parseInt($event.target.value))"
+            />
+          </div>
           <div v-if="win98.customBackground" class="preview-box">
             <img :src="win98.customBackground" alt="Background preview" class="preview-image" />
           </div>

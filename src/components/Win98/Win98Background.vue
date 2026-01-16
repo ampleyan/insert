@@ -1,5 +1,6 @@
 <template>
-  <div class="win98-background" :style="backgroundStyle">
+  <div class="win98-background" :style="backgroundColorStyle">
+    <div v-if="win98.customBackground" class="background-image" :style="backgroundImageStyle"></div>
     <img v-if="showLogo" :src="logoPath" alt="Logo" class="background-logo" />
   </div>
 </template>
@@ -24,35 +25,51 @@ export default {
     showLogo() {
       return !this.win98.customBackground;
     },
-    backgroundStyle() {
+    backgroundColorStyle() {
+      return {
+        backgroundColor: this.win98.backgroundColor || '#008080',
+      };
+    },
+    backgroundImageStyle() {
       const bg = this.win98.customBackground;
-      const color = this.win98.backgroundColor || '#008080';
+      if (!bg) return {};
 
-      if (bg) {
-        const fit = this.win98.customBackgroundFit || 'cover';
-        let size = fit;
-        let repeat = 'no-repeat';
-        let position = 'center';
+      const fit = this.win98.customBackgroundFit || 'cover';
+      let size = fit;
+      let repeat = 'no-repeat';
+      let position = 'center';
 
-        if (fit === 'stretch') {
-          size = '100% 100%';
-        } else if (fit === 'tile') {
-          size = 'auto';
-          repeat = 'repeat';
-        } else if (fit === 'center') {
-          size = 'auto';
-        }
-
-        return {
-          backgroundImage: `url(${bg})`,
-          backgroundSize: size,
-          backgroundRepeat: repeat,
-          backgroundPosition: position,
-          backgroundColor: color,
-        };
+      if (fit === 'stretch') {
+        size = '100% 100%';
+      } else if (fit === 'tile') {
+        size = 'auto';
+        repeat = 'repeat';
+      } else if (fit === 'center') {
+        size = 'auto';
       }
 
-      return { backgroundColor: color };
+      const opacity = this.win98.backgroundOpacity ?? 1;
+      const blendMode = this.win98.backgroundBlendMode || 'normal';
+      const brightness = this.win98.backgroundBrightness ?? 100;
+      const contrast = this.win98.backgroundContrast ?? 100;
+      const saturate = this.win98.backgroundSaturate ?? 100;
+      const blur = this.win98.backgroundBlur ?? 0;
+
+      const filters = [];
+      if (brightness !== 100) filters.push(`brightness(${brightness}%)`);
+      if (contrast !== 100) filters.push(`contrast(${contrast}%)`);
+      if (saturate !== 100) filters.push(`saturate(${saturate}%)`);
+      if (blur > 0) filters.push(`blur(${blur}px)`);
+
+      return {
+        backgroundImage: `url(${bg})`,
+        backgroundSize: size,
+        backgroundRepeat: repeat,
+        backgroundPosition: position,
+        opacity: opacity,
+        mixBlendMode: blendMode,
+        filter: filters.length > 0 ? filters.join(' ') : 'none',
+      };
     },
   },
 };
@@ -69,6 +86,15 @@ export default {
   display: flex;
   justify-content: center;
   z-index: 0;
+}
+
+.background-image {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
 }
 
 .background-logo {

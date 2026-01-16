@@ -41,8 +41,8 @@ module.exports = {
               }
             },
             {
-              from: 'src/assets/win98/gnome',
-              to: 'win98/gnome',
+              from: 'src/assets/gnome/images',
+              to: 'gnome/assets',
               globOptions: {
                 ignore: ['**/.DS_Store']
               }
