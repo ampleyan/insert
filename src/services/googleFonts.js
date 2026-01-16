@@ -27,7 +27,7 @@ const POPULAR_FONTS = [
 ];
 
 const CUSTOM_FONTS_KEY = 'customFonts';
-const MAX_FONT_SIZE = 500 * 1024;
+const MAX_FONT_SIZE = 5000 * 1024;
 
 class GoogleFontsService {
   constructor() {

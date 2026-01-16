@@ -86,6 +86,13 @@
 
       <template #text>
         <div class="tab-section">
+          <FontControls
+            :fontFamily="settings.fontFamily?.[0] || 'Arial'"
+            :fontWeight="settings.fontWeight?.[0] || '900'"
+            :fontStyle="settings.fontStyle?.[0] || 'normal'"
+            @update="updateGlobalFont"
+          />
+
           <div class="positioning-mode">
             <label class="drag-mode-toggle">
               <input type="checkbox" v-model="settings.dragMode" @change="onUpdate(settings)" />
@@ -154,7 +161,7 @@
 
                 <div class="text-line-collapsible">
                   <div class="text-options-header" @click="toggleTextOptions(index)">
-                    <span class="options-title">Typography</span>
+                    <span class="options-title">Sizing</span>
                     <span class="options-summary" v-if="!expanded.textOptions[index]">
                       {{ settings.fontSize[index] }}px, {{ settings.letterSpacing[index] }}px spacing
                     </span>
@@ -163,14 +170,6 @@
                   <transition name="expand">
                     <div v-show="expanded.textOptions[index]" class="text-options">
                       <div class="options-grid">
-                        <div class="option-item full-width">
-                          <FontControls
-                            :fontFamily="settings.fontFamily?.[index] || 'Arial'"
-                            :fontWeight="settings.fontWeight?.[index] || '900'"
-                            :fontStyle="settings.fontStyle?.[index] || 'normal'"
-                            @update="(fontData) => updateFont(index, fontData)"
-                          />
-                        </div>
                         <div class="option-item">
                           <label>Font Size</label>
                           <div class="slider-container">
@@ -545,6 +544,21 @@ addLine() {
         if (fontData.fontStyle) {
           newSettings.fontStyle = [...this.settings.fontStyle];
           newSettings.fontStyle[index] = fontData.fontStyle;
+        }
+        this.$emit('update', newSettings);
+      },
+
+      updateGlobalFont(fontData) {
+        const newSettings = { ...this.settings };
+        const count = this.settings.textLines.length;
+        if (fontData.fontFamily) {
+          newSettings.fontFamily = Array(count).fill(fontData.fontFamily);
+        }
+        if (fontData.fontWeight) {
+          newSettings.fontWeight = Array(count).fill(fontData.fontWeight);
+        }
+        if (fontData.fontStyle) {
+          newSettings.fontStyle = Array(count).fill(fontData.fontStyle);
         }
         this.$emit('update', newSettings);
       },
