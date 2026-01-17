@@ -728,5 +728,166 @@ export const useSettingsStore = defineStore('settings', {
       }
       this.saveToLocalStorageDebounced();
     },
+
+    win98SetIconSize(iconId, size) {
+      if (!this.win98.iconSizes) {
+        this.win98.iconSizes = {};
+      }
+      this.win98.iconSizes[iconId] = size;
+      this.saveToLocalStorageDebounced();
+    },
+
+    win98SetAllIconSizes(size) {
+      if (!this.win98.iconSizes) {
+        this.win98.iconSizes = {};
+      }
+      const icons = Object.keys(this.win98.iconPositions);
+      icons.forEach(id => {
+        this.win98.iconSizes[id] = size;
+      });
+      this.saveToLocalStorageDebounced();
+    },
+
+    win98ResetIconSizes() {
+      this.win98.iconSizes = {};
+      this.saveToLocalStorageDebounced();
+    },
+
+    win98AlignIconsLeft() {
+      const leftMargin = 20;
+      Object.keys(this.win98.iconPositions).forEach(id => {
+        if (!this.win98.deletedIcons.includes(id)) {
+          this.win98.iconPositions[id].x = leftMargin;
+        }
+      });
+      this.saveToLocalStorageDebounced();
+    },
+
+    win98AlignIconsRight() {
+      const rightMargin = window.innerWidth - 100;
+      Object.keys(this.win98.iconPositions).forEach(id => {
+        if (!this.win98.deletedIcons.includes(id)) {
+          this.win98.iconPositions[id].x = rightMargin;
+        }
+      });
+      this.saveToLocalStorageDebounced();
+    },
+
+    win98AlignIconsTop() {
+      const topMargin = 20;
+      Object.keys(this.win98.iconPositions).forEach(id => {
+        if (!this.win98.deletedIcons.includes(id)) {
+          this.win98.iconPositions[id].y = topMargin;
+        }
+      });
+      this.saveToLocalStorageDebounced();
+    },
+
+    win98AlignIconsBottom() {
+      const bottomMargin = window.innerHeight - 150;
+      Object.keys(this.win98.iconPositions).forEach(id => {
+        if (!this.win98.deletedIcons.includes(id)) {
+          this.win98.iconPositions[id].y = bottomMargin;
+        }
+      });
+      this.saveToLocalStorageDebounced();
+    },
+
+    win98AlignIconsCenter() {
+      const centerX = window.innerWidth / 2 - 30;
+      const centerY = window.innerHeight / 2 - 50;
+      const icons = Object.keys(this.win98.iconPositions).filter(
+        id => !this.win98.deletedIcons.includes(id)
+      );
+      const spacing = 100 * this.win98.iconScale;
+      const totalWidth = Math.ceil(Math.sqrt(icons.length)) * spacing;
+      const startX = centerX - totalWidth / 2;
+
+      icons.forEach((id, i) => {
+        const cols = Math.ceil(Math.sqrt(icons.length));
+        const col = i % cols;
+        const row = Math.floor(i / cols);
+        this.win98.iconPositions[id] = {
+          x: startX + col * spacing,
+          y: centerY - (Math.ceil(icons.length / cols) * spacing) / 2 + row * spacing,
+        };
+      });
+      this.saveToLocalStorageDebounced();
+    },
+
+    win98DistributeIconsHorizontal() {
+      const icons = Object.keys(this.win98.iconPositions)
+        .filter(id => !this.win98.deletedIcons.includes(id))
+        .sort((a, b) => this.win98.iconPositions[a].x - this.win98.iconPositions[b].x);
+
+      if (icons.length < 2) return;
+
+      const leftmost = this.win98.iconPositions[icons[0]].x;
+      const rightmost = this.win98.iconPositions[icons[icons.length - 1]].x;
+      const spacing = (rightmost - leftmost) / (icons.length - 1);
+
+      icons.forEach((id, i) => {
+        this.win98.iconPositions[id].x = leftmost + i * spacing;
+      });
+      this.saveToLocalStorageDebounced();
+    },
+
+    win98DistributeIconsVertical() {
+      const icons = Object.keys(this.win98.iconPositions)
+        .filter(id => !this.win98.deletedIcons.includes(id))
+        .sort((a, b) => this.win98.iconPositions[a].y - this.win98.iconPositions[b].y);
+
+      if (icons.length < 2) return;
+
+      const topmost = this.win98.iconPositions[icons[0]].y;
+      const bottommost = this.win98.iconPositions[icons[icons.length - 1]].y;
+      const spacing = (bottommost - topmost) / (icons.length - 1);
+
+      icons.forEach((id, i) => {
+        this.win98.iconPositions[id].y = topmost + i * spacing;
+      });
+      this.saveToLocalStorageDebounced();
+    },
+
+    win98DistributeIconsGrid() {
+      const icons = Object.keys(this.win98.iconPositions).filter(
+        id => !this.win98.deletedIcons.includes(id)
+      );
+      const cols = Math.ceil(Math.sqrt(icons.length));
+      const spacing = 150;
+      const centerX = window.innerWidth / 2;
+      const centerY = window.innerHeight / 2;
+      const totalWidth = cols * spacing;
+      const totalHeight = Math.ceil(icons.length / cols) * spacing;
+
+      icons.forEach((id, i) => {
+        const col = i % cols;
+        const row = Math.floor(i / cols);
+        this.win98.iconPositions[id] = {
+          x: centerX - totalWidth / 2 + col * spacing,
+          y: centerY - totalHeight / 2 + row * spacing,
+        };
+      });
+      this.saveToLocalStorageDebounced();
+    },
+
+    win98DistributeIconsCircle() {
+      const icons = Object.keys(this.win98.iconPositions).filter(
+        id => !this.win98.deletedIcons.includes(id)
+      );
+      const centerX = window.innerWidth / 2;
+      const centerY = window.innerHeight / 2;
+      const radius = Math.min(centerX, centerY) * 0.6;
+      const angleStep = (2 * Math.PI) / icons.length;
+
+      icons.forEach((id, i) => {
+        const angle = i * angleStep - Math.PI / 2;
+        this.win98.iconPositions[id] = {
+          x: centerX + radius * Math.cos(angle) - 30,
+          y: centerY + radius * Math.sin(angle) - 50,
+        };
+      });
+      this.saveToLocalStorageDebounced();
+    },
   },
 });

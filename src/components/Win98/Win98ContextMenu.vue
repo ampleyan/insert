@@ -7,8 +7,9 @@
   >
     <div
       class="menu-item has-submenu"
-      @mouseenter="openSubmenu = 'arrange'"
-      @mouseleave="openSubmenu = null"
+      @mouseenter="!isTouchDevice && (openSubmenu = 'arrange')"
+      @mouseleave="!isTouchDevice && (openSubmenu = null)"
+      @click.stop="toggleSubmenu('arrange')"
     >
       <span>Arrange Icons</span>
       <span class="arrow">&#9654;</span>
@@ -42,8 +43,9 @@
     <div class="menu-separator"></div>
     <div
       class="menu-item has-submenu"
-      @mouseenter="openSubmenu = 'new'"
-      @mouseleave="openSubmenu = null"
+      @mouseenter="!isTouchDevice && (openSubmenu = 'new')"
+      @mouseleave="!isTouchDevice && (openSubmenu = null)"
+      @click.stop="toggleSubmenu('new')"
     >
       <span>New</span>
       <span class="arrow">&#9654;</span>
@@ -60,6 +62,125 @@
         </div>
         <div class="menu-item disabled">
           Shortcut
+        </div>
+      </div>
+    </div>
+    <div class="menu-separator"></div>
+    <div
+      class="menu-item has-submenu"
+      @mouseenter="!isTouchDevice && (openSubmenu = 'align')"
+      @mouseleave="!isTouchDevice && (openSubmenu = null)"
+      @click.stop="toggleSubmenu('align')"
+    >
+      <span>Align Icons</span>
+      <span class="arrow">&#9654;</span>
+      <div v-if="openSubmenu === 'align'" class="submenu">
+        <div class="menu-item" @click="$emit('action', 'align-left')">
+          Align Left
+        </div>
+        <div class="menu-item" @click="$emit('action', 'align-right')">
+          Align Right
+        </div>
+        <div class="menu-item" @click="$emit('action', 'align-top')">
+          Align Top
+        </div>
+        <div class="menu-item" @click="$emit('action', 'align-bottom')">
+          Align Bottom
+        </div>
+        <div class="menu-item" @click="$emit('action', 'align-center')">
+          Center All
+        </div>
+      </div>
+    </div>
+    <div
+      class="menu-item has-submenu"
+      @mouseenter="!isTouchDevice && (openSubmenu = 'distribute')"
+      @mouseleave="!isTouchDevice && (openSubmenu = null)"
+      @click.stop="toggleSubmenu('distribute')"
+    >
+      <span>Distribute Icons</span>
+      <span class="arrow">&#9654;</span>
+      <div v-if="openSubmenu === 'distribute'" class="submenu">
+        <div class="menu-item" @click="$emit('action', 'distribute-horizontal')">
+          Horizontally
+        </div>
+        <div class="menu-item" @click="$emit('action', 'distribute-vertical')">
+          Vertically
+        </div>
+        <div class="menu-item" @click="$emit('action', 'distribute-grid')">
+          Even Grid
+        </div>
+        <div class="menu-item" @click="$emit('action', 'distribute-circle')">
+          Circle Pattern
+        </div>
+      </div>
+    </div>
+    <div class="menu-separator"></div>
+    <div
+      class="menu-item has-submenu"
+      @mouseenter="!isTouchDevice && (openSubmenu = 'size')"
+      @mouseleave="!isTouchDevice && (openSubmenu = null)"
+      @click.stop="toggleSubmenu('size')"
+    >
+      <span>Icon Size</span>
+      <span class="arrow">&#9654;</span>
+      <div v-if="openSubmenu === 'size'" class="submenu">
+        <div
+          v-if="selectedIcon"
+          class="menu-item has-submenu"
+          @mouseenter="!isTouchDevice && (openSubmenu = 'size-selected')"
+          @mouseleave="!isTouchDevice && (openSubmenu = 'size')"
+          @click.stop="toggleSubmenu('size-selected')"
+        >
+          <span>Selected Icon</span>
+          <span class="arrow">&#9654;</span>
+          <div v-if="openSubmenu === 'size-selected'" class="submenu">
+            <div class="menu-item" @click="$emit('action', 'size-selected-1')">
+              Small (1x)
+            </div>
+            <div class="menu-item" @click="$emit('action', 'size-selected-2')">
+              Medium (2x)
+            </div>
+            <div class="menu-item" @click="$emit('action', 'size-selected-3')">
+              Large (3x)
+            </div>
+            <div class="menu-item" @click="$emit('action', 'size-selected-4')">
+              Extra Large (4x)
+            </div>
+            <div class="menu-item" @click="$emit('action', 'size-selected-5')">
+              Huge (5x)
+            </div>
+          </div>
+        </div>
+        <div
+          class="menu-item has-submenu"
+          @mouseenter="!isTouchDevice && (openSubmenu = 'size-all')"
+          @mouseleave="!isTouchDevice && (openSubmenu = 'size')"
+          @click.stop="toggleSubmenu('size-all')"
+        >
+          <span>All Icons</span>
+          <span class="arrow">&#9654;</span>
+          <div v-if="openSubmenu === 'size-all'" class="submenu">
+            <div class="menu-item" @click="$emit('action', 'size-all-1')">
+              Small (1x)
+            </div>
+            <div class="menu-item" @click="$emit('action', 'size-all-2')">
+              Medium (2x)
+            </div>
+            <div class="menu-item" @click="$emit('action', 'size-all-3')">
+              Large (3x)
+            </div>
+            <div class="menu-item" @click="$emit('action', 'size-all-4')">
+              Extra Large (4x)
+            </div>
+            <div class="menu-item" @click="$emit('action', 'size-all-5')">
+              Huge (5x)
+            </div>
+          </div>
+        </div>
+        <div class="menu-separator"></div>
+        <div class="menu-item" @click="$emit('action', 'size-reset')">
+          Reset All Sizes
         </div>
       </div>
     </div>
@@ -87,6 +208,7 @@ export default {
     y: Number,
     autoArrange: Boolean,
     hasDeletedIcons: Boolean,
+    selectedIcon: String,
   },
   emits: ['action', 'close'],
   data() {
@@ -96,10 +218,25 @@ export default {
   },
   computed: {
     menuStyle() {
+      let x = this.x;
+      let y = this.y;
+      const menuWidth = 200;
+      const menuHeight = 400;
+      if (x + menuWidth > window.innerWidth) {
+        x = window.innerWidth - menuWidth - 10;
+      }
+      if (y + menuHeight > window.innerHeight) {
+        y = window.innerHeight - menuHeight - 10;
+      }
+      if (x < 0) x = 10;
+      if (y < 0) y = 10;
       return {
-        left: this.x + 'px',
-        top: this.y + 'px',
+        left: x + 'px',
+        top: y + 'px',
       };
+    },
+    isTouchDevice() {
+      return 'ontouchstart' in window || navigator.maxTouchPoints > 0;
     },
   },
   watch: {
@@ -122,6 +259,11 @@ export default {
   methods: {
     handleOutsideClick() {
       this.$emit('close');
+    },
+    toggleSubmenu(submenuName) {
+      if (this.isTouchDevice) {
+        this.openSubmenu = this.openSubmenu === submenuName ? null : submenuName;
+      }
     },
   },
 };
@@ -194,5 +336,50 @@ export default {
   box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.3);
   padding: 2px;
   min-width: 150px;
+}
+
+@media (max-width: 768px) {
+  .win98-context-menu {
+    font-size: 14px;
+    min-width: 200px;
+    max-width: calc(100vw - 20px);
+  }
+
+  .menu-item {
+    padding: 10px 30px 10px 30px;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+  }
+
+  .menu-item.has-submenu {
+    padding-right: 40px;
+  }
+
+  .menu-item .arrow {
+    right: 10px;
+    font-size: 12px;
+  }
+
+  .submenu {
+    position: fixed;
+    left: 50% !important;
+    top: 50% !important;
+    transform: translate(-50%, -50%);
+    max-height: 80vh;
+    overflow-y: auto;
+    z-index: 10001;
+  }
+}
+
+@media (max-width: 480px) {
+  .win98-context-menu {
+    font-size: 13px;
+    min-width: 180px;
+  }
+
+  .menu-item {
+    padding: 8px 25px 8px 25px;
+  }
 }
 </style>

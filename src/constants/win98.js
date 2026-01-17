@@ -94,6 +94,7 @@ export const WIN98_DEFAULT_STATE = {
     het_bos_vibe: { playing: false, currentTime: 0, muted: true }
   },
   iconScale: 3,
+  iconSizes: {},
   zoomScale: 1.8,
   textScale: 2,
   autoArrange: false,

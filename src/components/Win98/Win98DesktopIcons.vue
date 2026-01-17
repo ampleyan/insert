@@ -1,5 +1,11 @@
 <template>
-  <div class="win98-desktop-icons" @click="deselectAll" @contextmenu.prevent="onContextMenu">
+  <div
+    class="win98-desktop-icons"
+    @click="deselectAll"
+    @contextmenu.prevent="onContextMenu"
+    @touchstart="onDesktopTouchStart"
+    @touchend="onDesktopTouchEnd"
+  >
     <div
       v-for="(icon, iconId) in visibleIcons"
       :key="iconId + '-' + win98.activeSkin"
@@ -12,10 +18,12 @@
       @dragstart="onDragStart($event, iconId)"
       @drag="onDrag"
       @dragend="onDragEnd"
+      @touchstart="onIconTouchStart($event, iconId)"
+      @touchend="onIconTouchEnd($event, iconId)"
     >
-      <div class="icon-image-container" :style="iconContainerStyle">
-        <div v-if="icon.iconType === 'help-book'" class="help-book-icon" :style="iconImageStyle"></div>
-        <img v-else :src="getIconPath(iconId, icon)" :alt="icon.label" class="icon-image" :style="iconImageStyle" />
+      <div class="icon-image-container" :style="getIconContainerStyle(iconId)">
+        <div v-if="icon.iconType === 'help-book'" class="help-book-icon" :style="getIconImageStyle(iconId)"></div>
+        <img v-else :src="getIconPath(iconId, icon)" :alt="icon.label" class="icon-image" :style="getIconImageStyle(iconId)" />
       </div>
       <span class="icon-label">{{ icon.label }}</span>
     </div>
@@ -53,6 +61,10 @@ export default {
       draggingIcon: null,
       dragOffset: { x: 0, y: 0 },
       trashHighlighted: false,
+      longPressTimer: null,
+      longPressTarget: null,
+      touchStartPos: { x: 0, y: 0 },
+      lastTap: 0,
     };
   },
   computed: {
@@ -85,25 +97,29 @@ export default {
       }
       return visible;
     },
-    iconContainerStyle() {
-      const scale = this.win98.iconScale;
-      return {
-        width: (48 * scale) + 'px',
-        height: (48 * scale) + 'px',
-      };
-    },
-    iconImageStyle() {
-      const scale = this.win98.iconScale;
-      return {
-        width: (48 * scale) + 'px',
-        height: (48 * scale) + 'px',
-      };
-    },
   },
   methods: {
+    getIconSize(iconId) {
+      const iconSizes = this.win98.iconSizes || {};
+      return iconSizes[iconId] || this.win98.iconScale;
+    },
+    getIconContainerStyle(iconId) {
+      const scale = this.getIconSize(iconId);
+      return {
+        width: (48 * scale) + 'px',
+        height: (48 * scale) + 'px',
+      };
+    },
+    getIconImageStyle(iconId) {
+      const scale = this.getIconSize(iconId);
+      return {
+        width: (48 * scale) + 'px',
+        height: (48 * scale) + 'px',
+      };
+    },
     getIconStyle(iconId) {
       const pos = this.win98.iconPositions[iconId] || { x: 20, y: 20 };
-      const scale = this.win98.iconScale;
+      const scale = this.getIconSize(iconId);
       return {
         left: pos.x + 'px',
         top: pos.y + 'px',
@@ -204,6 +220,52 @@ export default {
         return path;
       }
       return getWin98AssetPath(path);
+    },
+    onDesktopTouchStart(e) {
+      if (e.target.classList.contains('win98-desktop-icons')) {
+        this.longPressTarget = null;
+        this.touchStartPos = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+        this.longPressTimer = setTimeout(() => {
+          this.$emit('play-sound', 'click');
+          this.$emit('context-menu', {
+            x: this.touchStartPos.x,
+            y: this.touchStartPos.y,
+          });
+        }, 500);
+      }
+    },
+    onDesktopTouchEnd() {
+      if (this.longPressTimer) {
+        clearTimeout(this.longPressTimer);
+        this.longPressTimer = null;
+      }
+    },
+    onIconTouchStart(e, iconId) {
+      e.stopPropagation();
+      this.longPressTarget = iconId;
+      this.touchStartPos = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+      this.longPressTimer = setTimeout(() => {
+        this.selectIcon(iconId);
+        this.$emit('play-sound', 'click');
+        this.$emit('context-menu', {
+          x: this.touchStartPos.x,
+          y: this.touchStartPos.y,
+        });
+      }, 500);
+    },
+    onIconTouchEnd(e, iconId) {
+      if (this.longPressTimer) {
+        clearTimeout(this.longPressTimer);
+        this.longPressTimer = null;
+        const currentTime = new Date().getTime();
+        const tapLength = currentTime - this.lastTap;
+        if (tapLength < 500 && tapLength > 0) {
+          this.openIcon(iconId);
+        } else {
+          this.selectIcon(iconId);
+        }
+        this.lastTap = currentTime;
+      }
     },
   },
 };
