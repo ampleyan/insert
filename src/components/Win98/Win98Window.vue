@@ -16,6 +16,7 @@
       <Win98VideoPlayer v-if="isVideoWindow" :video-id="videoId" />
       <Win98Notebook v-else-if="windowId === 'notebook'" />
       <Win98Settings v-else-if="windowId === 'settings'" />
+      <Win98Folder v-else-if="isFolderWindow" :folder-id="folderId" @play-sound="$emit('play-sound', $event)" />
     </div>
     <div v-if="isVideoWindow" class="resize-handle" @mousedown.stop="startResize"></div>
   </div>
@@ -27,6 +28,7 @@ import { WIN98_ICONS, getWin98AssetPath } from '../../constants/win98';
 import Win98VideoPlayer from './Win98VideoPlayer.vue';
 import Win98Notebook from './Win98Notebook.vue';
 import Win98Settings from './Win98Settings.vue';
+import Win98Folder from './Win98Folder.vue';
 
 export default {
   name: 'Win98Window',
@@ -34,6 +36,7 @@ export default {
     Win98VideoPlayer,
     Win98Notebook,
     Win98Settings,
+    Win98Folder,
   },
   props: {
     windowId: {
@@ -41,6 +44,7 @@ export default {
       required: true,
     },
   },
+  emits: ['play-sound'],
   setup() {
     const settingsStore = useSettingsStore();
     return { settingsStore };
@@ -64,12 +68,22 @@ export default {
     videoId() {
       return this.isVideoWindow ? this.windowId.replace('video-', '') : null;
     },
+    isFolderWindow() {
+      return this.windowId.startsWith('folder-');
+    },
+    folderId() {
+      return this.isFolderWindow ? this.windowId.replace('folder-', '') : null;
+    },
     windowTitle() {
       if (this.windowId === 'notebook') return 'Notebook';
       if (this.windowId === 'settings') return 'Settings';
       if (this.isVideoWindow) {
         const icon = WIN98_ICONS[this.videoId];
         return icon ? icon.label : this.videoId;
+      }
+      if (this.isFolderWindow) {
+        const folder = this.win98.folders?.[this.folderId];
+        return folder?.label || this.folderId;
       }
       return this.windowId;
     },
@@ -80,6 +94,9 @@ export default {
       }
       if (this.windowId === 'notebook') {
         return getWin98AssetPath('win98/assets/notepad.png');
+      }
+      if (this.isFolderWindow) {
+        return getWin98AssetPath('win98/assets/folder_open.png');
       }
       return null;
     },

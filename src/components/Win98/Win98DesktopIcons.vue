@@ -13,7 +13,7 @@
       v-for="(icon, iconId) in visibleIcons"
       :key="iconId + '-' + win98.activeSkin"
       class="win98-icon"
-      :class="{ selected: selectedIcon === iconId, dragging: draggingIcon === iconId, resizing: resizingIcon === iconId }"
+      :class="{ selected: selectedIcon === iconId, dragging: draggingIcon === iconId, resizing: resizingIcon === iconId, 'drop-target': icon.type === 'folder' && dropTarget === iconId }"
       :style="getIconStyle(iconId)"
       draggable="true"
       @click.stop="selectIcon(iconId)"
@@ -21,6 +21,9 @@
       @dragstart="onDragStart($event, iconId)"
       @drag="onDrag"
       @dragend="onDragEnd"
+      @dragover.prevent="onFolderDragOver($event, iconId, icon)"
+      @dragleave="onFolderDragLeave(iconId)"
+      @drop="onFolderDrop($event, iconId, icon)"
       @touchstart="onIconTouchStart($event, iconId)"
       @touchend="onIconTouchEnd($event, iconId)"
     >
@@ -60,7 +63,7 @@ export default {
   components: {
     Win98RecycleBin,
   },
-  emits: ['play-sound', 'context-menu'],
+  emits: ['play-sound', 'context-menu', 'drag-update'],
   setup() {
     const settingsStore = useSettingsStore();
     return { settingsStore };
@@ -77,6 +80,7 @@ export default {
       resizingIcon: null,
       resizeStartSize: 1,
       resizeStartPos: { x: 0, y: 0 },
+      dropTarget: null,
     };
   },
   computed: {
@@ -95,22 +99,46 @@ export default {
     },
     visibleIcons() {
       const visible = {};
+      const inFolders = new Set();
+      if (this.win98.folders) {
+        Object.values(this.win98.folders).forEach(folder => {
+          (folder.children || []).forEach(id => inFolders.add(id));
+        });
+      }
       Object.keys(WIN98_ICONS).forEach(id => {
-        if (!this.win98.deletedIcons.includes(id)) {
+        if (!this.win98.deletedIcons.includes(id) && !inFolders.has(id)) {
           visible[id] = WIN98_ICONS[id];
         }
       });
       if (this.win98.customIcons) {
         this.win98.customIcons.forEach(icon => {
-          if (!this.win98.deletedIcons.includes(icon.id)) {
+          if (!this.win98.deletedIcons.includes(icon.id) && !inFolders.has(icon.id)) {
             visible[icon.id] = icon;
           }
         });
       }
       if (this.win98.customVideos) {
         this.win98.customVideos.forEach(video => {
-          if (!this.win98.deletedIcons.includes(video.id)) {
+          if (!this.win98.deletedIcons.includes(video.id) && !inFolders.has(video.id)) {
             visible[video.id] = video;
+          }
+        });
+      }
+      if (this.win98.folders) {
+        Object.keys(this.win98.folders).forEach(folderId => {
+          if (!this.win98.deletedIcons.includes(folderId)) {
+            const folder = this.win98.folders[folderId];
+            let icon = folder.children?.length > 0 ? 'win98/assets/folder_full.png' : 'win98/assets/folder.png';
+            if (folder.customThumbnail) {
+              icon = folder.customThumbnail;
+            }
+            visible[folderId] = {
+              id: folderId,
+              label: folder.label,
+              type: 'folder',
+              icon: icon,
+              hasCustomThumbnail: !!folder.customThumbnail,
+            };
           }
         });
       }
@@ -173,6 +201,8 @@ export default {
         this.settingsStore.win98OpenWindow('video-' + iconId);
       } else if (icon.type === 'notebook') {
         this.settingsStore.win98OpenWindow('notebook');
+      } else if (icon.type === 'folder') {
+        this.settingsStore.win98OpenWindow('folder-' + iconId);
       } else if (icon.type === 'custom') {
         // Custom icons can be configured for different actions
       }
@@ -197,6 +227,7 @@ export default {
       const rawY = e.clientY - parent.top - this.dragOffset.y;
       const { x, y } = this.constrainPosition(rawX, rawY, this.draggingIcon);
       this.settingsStore.win98UpdateIconPosition(this.draggingIcon, x, y);
+      this.$emit('drag-update', { iconId: this.draggingIcon, position: { x, y } });
     },
     onDragEnd(e) {
       if (!this.draggingIcon) return;
@@ -207,9 +238,24 @@ export default {
       const parent = this.$el.getBoundingClientRect();
       const rawX = e.clientX - parent.left - this.dragOffset.x;
       const rawY = e.clientY - parent.top - this.dragOffset.y;
-      const { x, y } = this.constrainPosition(rawX, rawY, this.draggingIcon);
+      let { x, y } = this.constrainPosition(rawX, rawY, this.draggingIcon);
+      if (this.win98.grid?.enabled && this.win98.grid?.snapOnRelease) {
+        const snapped = this.snapToGrid(x, y);
+        x = snapped.x;
+        y = snapped.y;
+      }
       this.settingsStore.win98UpdateIconPosition(this.draggingIcon, x, y);
+      this.$emit('drag-update', null);
       this.draggingIcon = null;
+    },
+    snapToGrid(x, y) {
+      const grid = this.win98.grid || {};
+      const cellWidth = grid.cellWidth || 80;
+      const cellHeight = grid.cellHeight || 100;
+      return {
+        x: Math.round(x / cellWidth) * cellWidth,
+        y: Math.round(y / cellHeight) * cellHeight,
+      };
     },
     onTrashDragOver() {
       this.trashHighlighted = true;
@@ -344,6 +390,28 @@ export default {
       document.removeEventListener('touchend', this.onResizeTouchEnd);
       this.onResizeEnd();
     },
+    onFolderDragOver(e, iconId, icon) {
+      if (icon.type !== 'folder' || this.draggingIcon === iconId) return;
+      e.preventDefault();
+      this.dropTarget = iconId;
+    },
+    onFolderDragLeave(iconId) {
+      if (this.dropTarget === iconId) {
+        this.dropTarget = null;
+      }
+    },
+    onFolderDrop(e, folderId, icon) {
+      if (icon.type !== 'folder') return;
+      const iconId = e.dataTransfer.getData('text/plain');
+      if (!iconId || iconId === folderId) {
+        this.dropTarget = null;
+        return;
+      }
+      this.$emit('play-sound', 'click');
+      this.settingsStore.win98AddToFolder(folderId, iconId);
+      this.dropTarget = null;
+      this.draggingIcon = null;
+    },
   },
 };
 </script>
@@ -381,6 +449,11 @@ export default {
 
 .win98-icon.dragging {
   opacity: 0.7;
+}
+
+.win98-icon.drop-target {
+  background: rgba(0, 0, 128, 0.4);
+  outline: 2px dashed #fff;
 }
 
 .win98-icon.resizing {

@@ -1,12 +1,23 @@
 <template>
   <div class="win98-format-container" :class="win98.format" :style="containerStyle">
     <Win98Background />
-    <Win98DesktopIcons @play-sound="playSound" @context-menu="showContextMenu" />
+    <Win98GridOverlay />
+    <Win98ZonesOverlay />
+    <Win98AlignmentGuides
+      :dragging-icon="dragState?.iconId"
+      :drag-position="dragState?.position"
+      :icon-positions="win98.iconPositions"
+      :icon-sizes="win98.iconSizes"
+      :default-icon-scale="win98.iconScale"
+    />
+    <Win98DesktopIcons @play-sound="playSound" @context-menu="showContextMenu" @drag-update="onDragUpdate" />
+    <Win98Timeline @play-sound="playSound" />
     <Win98Taskbar />
     <Win98Window
       v-for="windowId in win98.openWindows"
       :key="windowId"
       :window-id="windowId"
+      @play-sound="playSound"
     />
     <div v-if="win98.showFormatInfo" class="format-info">
       {{ formatInfo }}
@@ -18,6 +29,10 @@
       :auto-arrange="win98.autoArrange"
       :has-deleted-icons="win98.deletedIcons.length > 0"
       :selected-icon="win98.selectedIcon"
+      :selected-icon-type="selectedIconType"
+      :zones-visible="win98.zonesVisible"
+      :grid-visible="win98.grid?.visible"
+      :timeline-visible="win98.timeline?.visible"
       @action="handleContextAction"
       @close="closeContextMenu"
     />
@@ -33,6 +48,10 @@ import Win98DesktopIcons from './Win98DesktopIcons.vue';
 import Win98Taskbar from './Win98Taskbar.vue';
 import Win98Window from './Win98Window.vue';
 import Win98ContextMenu from './Win98ContextMenu.vue';
+import Win98ZonesOverlay from './Win98ZonesOverlay.vue';
+import Win98GridOverlay from './Win98GridOverlay.vue';
+import Win98AlignmentGuides from './Win98AlignmentGuides.vue';
+import Win98Timeline from './Win98Timeline.vue';
 
 export default {
   name: 'Win98FormatContainer',
@@ -42,6 +61,10 @@ export default {
     Win98Taskbar,
     Win98Window,
     Win98ContextMenu,
+    Win98ZonesOverlay,
+    Win98GridOverlay,
+    Win98AlignmentGuides,
+    Win98Timeline,
   },
   setup() {
     const settingsStore = useSettingsStore();
@@ -55,6 +78,7 @@ export default {
         x: 0,
         y: 0,
       },
+      dragState: null,
     };
   },
   computed: {
@@ -71,6 +95,12 @@ export default {
     formatInfo() {
       const format = WIN98_FORMATS[this.win98.format];
       return `${format.name} - ${format.width}x${format.height} (${format.ratio})`;
+    },
+    selectedIconType() {
+      const iconId = this.win98.selectedIcon;
+      if (!iconId) return null;
+      if (this.win98.folders?.[iconId]) return 'folder';
+      return null;
     },
   },
   watch: {
@@ -110,6 +140,9 @@ export default {
     },
     closeContextMenu() {
       this.contextMenu.visible = false;
+    },
+    onDragUpdate(state) {
+      this.dragState = state;
     },
     handleContextAction(action) {
       this.closeContextMenu();
@@ -200,11 +233,26 @@ export default {
         case 'add-video':
           this.triggerVideoUpload();
           break;
+        case 'new-folder':
+          this.createNewFolder();
+          break;
         case 'restore-all':
           this.settingsStore.win98RestoreAllIcons();
           break;
         case 'properties':
           this.settingsStore.win98OpenWindow('settings');
+          break;
+        case 'toggle-zones':
+          this.settingsStore.win98ToggleZonesVisible();
+          break;
+        case 'toggle-grid':
+          this.settingsStore.win98ToggleGrid();
+          break;
+        case 'toggle-timeline':
+          this.settingsStore.win98ToggleTimeline();
+          break;
+        case 'set-folder-thumbnail':
+          this.triggerFolderThumbnailUpload();
           break;
       }
     },
@@ -249,6 +297,31 @@ export default {
             video.label = label;
             this.settingsStore.win98AddCustomVideo(video);
           }
+        }
+      };
+      input.click();
+    },
+    createNewFolder() {
+      const label = prompt('Enter folder name:', 'New Folder');
+      if (label) {
+        const folderId = 'folder_' + Date.now();
+        this.settingsStore.win98CreateFolder(folderId, label);
+      }
+    },
+    triggerFolderThumbnailUpload() {
+      const folderId = this.win98.selectedIcon;
+      if (!folderId || !this.win98.folders?.[folderId]) return;
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = 'image/*';
+      input.onchange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = (event) => {
+            this.settingsStore.win98SetFolderThumbnail(folderId, event.target.result);
+          };
+          reader.readAsDataURL(file);
         }
       };
       input.click();

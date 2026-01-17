@@ -910,5 +910,144 @@ export const useSettingsStore = defineStore('settings', {
       });
       this.saveToLocalStorageDebounced();
     },
+
+    win98CreateFolder(folderId, label, children = []) {
+      if (!this.win98.folders) this.win98.folders = {};
+      this.win98.folders[folderId] = {
+        id: folderId,
+        label,
+        children,
+        icon: 'folder'
+      };
+      if (!this.win98.iconPositions[folderId]) {
+        this.win98.iconPositions[folderId] = { x: 100, y: 100 };
+      }
+      this.saveToLocalStorageDebounced();
+    },
+
+    win98AddToFolder(folderId, iconId) {
+      if (!this.win98.folders[folderId]) return;
+      if (!this.win98.folders[folderId].children.includes(iconId)) {
+        this.win98.folders[folderId].children.push(iconId);
+      }
+      this.saveToLocalStorageDebounced();
+    },
+
+    win98RemoveFromFolder(folderId, iconId) {
+      if (!this.win98.folders[folderId]) return;
+      const idx = this.win98.folders[folderId].children.indexOf(iconId);
+      if (idx > -1) {
+        this.win98.folders[folderId].children.splice(idx, 1);
+      }
+      this.saveToLocalStorageDebounced();
+    },
+
+    win98DeleteFolder(folderId) {
+      if (this.win98.folders[folderId]) {
+        delete this.win98.folders[folderId];
+      }
+      if (this.win98.iconPositions[folderId]) {
+        delete this.win98.iconPositions[folderId];
+      }
+      this.saveToLocalStorageDebounced();
+    },
+
+    win98SetFolderThumbnail(folderId, thumbnailDataUrl) {
+      if (!this.win98.folders[folderId]) return;
+      this.win98.folders[folderId].customThumbnail = thumbnailDataUrl;
+      this.saveToLocalStorageDebounced();
+    },
+
+    win98SetIconImportance(iconId, importance) {
+      if (!this.win98.iconImportance) this.win98.iconImportance = {};
+      this.win98.iconImportance[iconId] = importance;
+      this.saveToLocalStorageDebounced();
+    },
+
+    win98UpdateZones(zones) {
+      this.win98.zones = { ...this.win98.zones, ...zones };
+      this.saveToLocalStorageDebounced();
+    },
+
+    win98ToggleZonesVisible() {
+      this.win98.zonesVisible = !this.win98.zonesVisible;
+      this.saveToLocalStorageDebounced();
+    },
+
+    win98UpdateGrid(gridSettings) {
+      this.win98.grid = { ...this.win98.grid, ...gridSettings };
+      this.saveToLocalStorageDebounced();
+    },
+
+    win98ToggleGrid() {
+      this.win98.grid.visible = !this.win98.grid.visible;
+      this.saveToLocalStorageDebounced();
+    },
+
+    win98SnapToGrid(iconId) {
+      const grid = this.win98.grid;
+      if (!grid.enabled || !grid.snapOnRelease) return;
+      const pos = this.win98.iconPositions[iconId];
+      if (!pos) return;
+      const snappedX = Math.round(pos.x / grid.cellWidth) * grid.cellWidth;
+      const snappedY = Math.round(pos.y / grid.cellHeight) * grid.cellHeight;
+      this.win98.iconPositions[iconId] = { x: snappedX, y: snappedY };
+      this.saveToLocalStorageDebounced();
+    },
+
+    win98UpdateAlignmentGuides(settings) {
+      this.win98.alignmentGuides = { ...this.win98.alignmentGuides, ...settings };
+      this.saveToLocalStorageDebounced();
+    },
+
+    win98ToggleTimeline() {
+      this.win98.timeline.visible = !this.win98.timeline.visible;
+      this.saveToLocalStorageDebounced();
+    },
+
+    win98AddToTimeline(iconId, startTime = null, slot = null) {
+      if (!this.win98.timeline.items) this.win98.timeline.items = [];
+      const existing = this.win98.timeline.items.find(i => i.iconId === iconId);
+      if (existing) return;
+      const newSlot = slot !== null ? slot : this.win98.timeline.items.length;
+      this.win98.timeline.items.push({
+        iconId,
+        startTime: startTime || '',
+        slot: newSlot
+      });
+      this.win98.timeline.items.sort((a, b) => a.slot - b.slot);
+      this.saveToLocalStorageDebounced();
+    },
+
+    win98RemoveFromTimeline(iconId) {
+      if (!this.win98.timeline.items) return;
+      this.win98.timeline.items = this.win98.timeline.items.filter(i => i.iconId !== iconId);
+      this.win98.timeline.items.forEach((item, idx) => { item.slot = idx; });
+      this.saveToLocalStorageDebounced();
+    },
+
+    win98ReorderTimeline(fromSlot, toSlot) {
+      const items = this.win98.timeline.items;
+      const item = items.find(i => i.slot === fromSlot);
+      if (!item) return;
+      items.forEach(i => {
+        if (fromSlot < toSlot) {
+          if (i.slot > fromSlot && i.slot <= toSlot) i.slot--;
+        } else {
+          if (i.slot >= toSlot && i.slot < fromSlot) i.slot++;
+        }
+      });
+      item.slot = toSlot;
+      items.sort((a, b) => a.slot - b.slot);
+      this.saveToLocalStorageDebounced();
+    },
+
+    win98UpdateTimelineItem(iconId, updates) {
+      const item = this.win98.timeline.items?.find(i => i.iconId === iconId);
+      if (item) {
+        Object.assign(item, updates);
+        this.saveToLocalStorageDebounced();
+      }
+    },
   },
 });

@@ -6,7 +6,7 @@
       class="flying-logo"
       :style="logo.style"
     >
-      <img :src="logoPath" alt="Logo" />
+      <img :src="logo.imageSrc" alt="Logo" />
     </div>
     <div class="screensaver-text">Click anywhere to continue...</div>
   </div>
@@ -22,12 +22,11 @@ export default {
     return {
       logos: [],
       animationFrame: null,
+      logoImages: [
+        getWin98AssetPath('win98/assets/insert_logo.png'),
+        getWin98AssetPath('gnome/assets/white gaw logo.PNG'),
+      ],
     };
-  },
-  computed: {
-    logoPath() {
-      return getWin98AssetPath('win98/assets/insert_logo.png');
-    },
   },
   mounted() {
     this.createLogos();
@@ -40,7 +39,7 @@ export default {
   },
   methods: {
     createLogos() {
-      for (let i = 0; i < 5; i++) {
+      for (let i = 0; i < 6; i++) {
         this.logos.push({
           id: i,
           x: Math.random() * (window.innerWidth - 100),
@@ -48,6 +47,7 @@ export default {
           vx: (Math.random() - 0.5) * 4,
           vy: (Math.random() - 0.5) * 4,
           style: {},
+          imageSrc: this.logoImages[i % this.logoImages.length],
         });
       }
     },

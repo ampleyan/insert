@@ -59,6 +59,35 @@ export const WIN98_IDLE_TIMEOUT = 30000;
 export const WIN98_ERROR_INTERVAL = 15000;
 export const WIN98_ERROR_PROBABILITY = 0.7;
 
+export const IMPORTANCE_LEVELS = {
+  headliner: { label: 'Headliner', scale: 5, color: '#ffd700' },
+  support: { label: 'Support', scale: 3, color: '#c0c0c0' },
+  opener: { label: 'Opener', scale: 2, color: '#cd7f32' },
+  info: { label: 'Info', scale: 1, color: '#808080' }
+};
+
+export const DEFAULT_ZONES = {
+  header: { y: 0, heightPercent: 15, label: 'Header', color: 'rgba(255,215,0,0.1)' },
+  lineup: { y: 15, heightPercent: 70, label: 'Lineup', color: 'rgba(100,149,237,0.1)' },
+  footer: { y: 85, heightPercent: 15, label: 'Footer', color: 'rgba(128,128,128,0.1)' }
+};
+
+export const DEFAULT_GRID = {
+  enabled: true,
+  visible: false,
+  cellWidth: 80,
+  cellHeight: 100,
+  style: 'dots',
+  snapOnRelease: true
+};
+
+export const DEFAULT_TIMELINE = {
+  visible: false,
+  height: 80,
+  items: [],
+  showOrder: false
+};
+
 export const WIN98_DEFAULT_STATE = {
   bootComplete: true,
   desktopActive: true,
@@ -137,5 +166,17 @@ export const WIN98_DEFAULT_STATE = {
   activeSkin: 'win98',
   backgroundLayers: [],
   backgroundColor: '#008080',
-  customBootLogo: null
+  customBootLogo: null,
+  folders: {},
+  iconImportance: {},
+  zones: { ...DEFAULT_ZONES },
+  zonesVisible: false,
+  grid: { ...DEFAULT_GRID },
+  alignmentGuides: {
+    enabled: true,
+    showEdges: true,
+    showCenters: true,
+    threshold: 5
+  },
+  timeline: { ...DEFAULT_TIMELINE }
 };

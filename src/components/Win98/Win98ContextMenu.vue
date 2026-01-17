@@ -40,6 +40,12 @@
     <div class="menu-item" @click="$emit('action', 'refresh')">
       Refresh
     </div>
+    <template v-if="selectedIcon && selectedIconType === 'folder'">
+      <div class="menu-separator"></div>
+      <div class="menu-item" @click="$emit('action', 'set-folder-thumbnail')">
+        Set Thumbnail...
+      </div>
+    </template>
     <div class="menu-separator"></div>
     <div
       class="menu-item has-submenu"
@@ -57,7 +63,7 @@
           Video
         </div>
         <div class="menu-separator"></div>
-        <div class="menu-item disabled">
+        <div class="menu-item" @click="$emit('action', 'new-folder')">
           Folder
         </div>
         <div class="menu-item disabled">
@@ -153,6 +159,30 @@
       Restore All Icons
     </div>
     <div class="menu-separator"></div>
+    <div
+      class="menu-item has-submenu"
+      @mouseenter="!isTouchDevice && (openSubmenu = 'view')"
+      @mouseleave="!isTouchDevice && (openSubmenu = null)"
+      @click.stop="toggleSubmenu('view')"
+    >
+      <span>View</span>
+      <span class="arrow">&#9654;</span>
+      <div v-if="openSubmenu === 'view'" class="submenu">
+        <div class="menu-item" @click="$emit('action', 'toggle-zones')">
+          <span class="check">{{ zonesVisible ? '&#10003;' : '' }}</span>
+          Show Zones
+        </div>
+        <div class="menu-item" @click="$emit('action', 'toggle-grid')">
+          <span class="check">{{ gridVisible ? '&#10003;' : '' }}</span>
+          Show Grid
+        </div>
+        <div class="menu-item" @click="$emit('action', 'toggle-timeline')">
+          <span class="check">{{ timelineVisible ? '&#10003;' : '' }}</span>
+          Show Timeline
+        </div>
+      </div>
+    </div>
+    <div class="menu-separator"></div>
     <div class="menu-item" @click="$emit('action', 'properties')">
       Properties
     </div>
@@ -169,6 +199,10 @@ export default {
     autoArrange: Boolean,
     hasDeletedIcons: Boolean,
     selectedIcon: String,
+    selectedIconType: String,
+    zonesVisible: Boolean,
+    gridVisible: Boolean,
+    timelineVisible: Boolean,
   },
   emits: ['action', 'close'],
   data() {
