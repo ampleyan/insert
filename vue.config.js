@@ -53,6 +53,13 @@ module.exports = {
               globOptions: {
                 ignore: ['**/.DS_Store']
               }
+            },
+            {
+              from: 'src/assets/mac/images',
+              to: 'mac/images',
+              globOptions: {
+                ignore: ['**/.DS_Store']
+              }
             }
           ]
         }
