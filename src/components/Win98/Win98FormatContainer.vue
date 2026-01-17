@@ -11,7 +11,7 @@
       :default-icon-scale="win98.iconScale"
     />
     <Win98DesktopIcons @play-sound="playSound" @context-menu="showContextMenu" @drag-update="onDragUpdate" />
-    <Win98Timeline @play-sound="playSound" />
+    <!-- <Win98Timeline @play-sound="playSound" /> -->
     <Win98Taskbar />
     <Win98Window
       v-for="windowId in win98.openWindows"
@@ -51,7 +51,7 @@ import Win98ContextMenu from './Win98ContextMenu.vue';
 import Win98ZonesOverlay from './Win98ZonesOverlay.vue';
 import Win98GridOverlay from './Win98GridOverlay.vue';
 import Win98AlignmentGuides from './Win98AlignmentGuides.vue';
-import Win98Timeline from './Win98Timeline.vue';
+// import Win98Timeline from './Win98Timeline.vue';
 
 export default {
   name: 'Win98FormatContainer',
@@ -64,7 +64,7 @@ export default {
     Win98ZonesOverlay,
     Win98GridOverlay,
     Win98AlignmentGuides,
-    Win98Timeline,
+    // Win98Timeline,
   },
   setup() {
     const settingsStore = useSettingsStore();
