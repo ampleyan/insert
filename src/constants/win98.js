@@ -60,8 +60,8 @@ export const WIN98_ERROR_INTERVAL = 15000;
 export const WIN98_ERROR_PROBABILITY = 0.7;
 
 export const WIN98_DEFAULT_STATE = {
-  bootComplete: false,
-  desktopActive: false,
+  bootComplete: true,
+  desktopActive: true,
   selectedIcon: null,
   deletedIcons: [],
   iconPositions: {

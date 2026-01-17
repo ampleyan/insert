@@ -5,12 +5,15 @@
     @contextmenu.prevent="onContextMenu"
     @touchstart="onDesktopTouchStart"
     @touchend="onDesktopTouchEnd"
+    @mousemove="onResizeMove"
+    @mouseup="onResizeEnd"
+    @mouseleave="onResizeEnd"
   >
     <div
       v-for="(icon, iconId) in visibleIcons"
       :key="iconId + '-' + win98.activeSkin"
       class="win98-icon"
-      :class="{ selected: selectedIcon === iconId, dragging: draggingIcon === iconId }"
+      :class="{ selected: selectedIcon === iconId, dragging: draggingIcon === iconId, resizing: resizingIcon === iconId }"
       :style="getIconStyle(iconId)"
       draggable="true"
       @click.stop="selectIcon(iconId)"
@@ -26,6 +29,12 @@
         <img v-else :src="getIconPath(iconId, icon)" :alt="icon.label" class="icon-image" :style="getIconImageStyle(iconId)" />
       </div>
       <span class="icon-label">{{ icon.label }}</span>
+      <div
+        v-if="selectedIcon === iconId"
+        class="resize-handle"
+        @mousedown.stop.prevent="onResizeStart($event, iconId)"
+        @touchstart.stop.prevent="onResizeTouchStart($event, iconId)"
+      ></div>
     </div>
 
     <Win98RecycleBin
@@ -42,7 +51,7 @@
 
 <script>
 import { useSettingsStore } from '../../stores/settings';
-import { WIN98_ICONS, getWin98AssetPath, getSkinIcon } from '../../constants/win98';
+import { WIN98_ICONS, WIN98_FORMATS, getWin98AssetPath, getSkinIcon } from '../../constants/win98';
 import { getSkin } from '../../constants/skins';
 import Win98RecycleBin from './Win98RecycleBin.vue';
 
@@ -65,6 +74,9 @@ export default {
       longPressTarget: null,
       touchStartPos: { x: 0, y: 0 },
       lastTap: 0,
+      resizingIcon: null,
+      resizeStartSize: 1,
+      resizeStartPos: { x: 0, y: 0 },
     };
   },
   computed: {
@@ -73,6 +85,13 @@ export default {
     },
     selectedIcon() {
       return this.win98.selectedIcon;
+    },
+    formatBounds() {
+      const format = WIN98_FORMATS[this.win98.format] || WIN98_FORMATS.portrait;
+      return {
+        width: format.width,
+        height: format.height - 36,
+      };
     },
     visibleIcons() {
       const visible = {};
@@ -102,6 +121,17 @@ export default {
     getIconSize(iconId) {
       const iconSizes = this.win98.iconSizes || {};
       return iconSizes[iconId] || this.win98.iconScale;
+    },
+    constrainPosition(x, y, iconId) {
+      const scale = this.getIconSize(iconId);
+      const iconWidth = 60 * scale;
+      const iconHeight = 80 * scale;
+      const maxX = this.formatBounds.width - iconWidth;
+      const maxY = this.formatBounds.height - iconHeight;
+      return {
+        x: Math.max(0, Math.min(x, maxX)),
+        y: Math.max(0, Math.min(y, maxY)),
+      };
     },
     getIconContainerStyle(iconId) {
       const scale = this.getIconSize(iconId);
@@ -163,11 +193,10 @@ export default {
     onDrag(e) {
       if (!this.draggingIcon || e.clientX === 0 || e.clientY === 0) return;
       const parent = this.$el.getBoundingClientRect();
-      const x = e.clientX - parent.left - this.dragOffset.x;
-      const y = e.clientY - parent.top - this.dragOffset.y;
-      if (x > 0 && y > 0) {
-        this.settingsStore.win98UpdateIconPosition(this.draggingIcon, x, y);
-      }
+      const rawX = e.clientX - parent.left - this.dragOffset.x;
+      const rawY = e.clientY - parent.top - this.dragOffset.y;
+      const { x, y } = this.constrainPosition(rawX, rawY, this.draggingIcon);
+      this.settingsStore.win98UpdateIconPosition(this.draggingIcon, x, y);
     },
     onDragEnd(e) {
       if (!this.draggingIcon) return;
@@ -176,11 +205,10 @@ export default {
         return;
       }
       const parent = this.$el.getBoundingClientRect();
-      const x = e.clientX - parent.left - this.dragOffset.x;
-      const y = e.clientY - parent.top - this.dragOffset.y;
-      if (x > 0 && y > 0) {
-        this.settingsStore.win98UpdateIconPosition(this.draggingIcon, x, y);
-      }
+      const rawX = e.clientX - parent.left - this.dragOffset.x;
+      const rawY = e.clientY - parent.top - this.dragOffset.y;
+      const { x, y } = this.constrainPosition(rawX, rawY, this.draggingIcon);
+      this.settingsStore.win98UpdateIconPosition(this.draggingIcon, x, y);
       this.draggingIcon = null;
     },
     onTrashDragOver() {
@@ -267,6 +295,55 @@ export default {
         this.lastTap = currentTime;
       }
     },
+    onResizeStart(e, iconId) {
+      this.resizingIcon = iconId;
+      this.resizeStartSize = this.getIconSize(iconId);
+      this.resizeStartPos = { x: e.clientX, y: e.clientY };
+    },
+    onResizeTouchStart(e, iconId) {
+      if (e.touches.length === 1) {
+        this.resizingIcon = iconId;
+        this.resizeStartSize = this.getIconSize(iconId);
+        this.resizeStartPos = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+        document.addEventListener('touchmove', this.onResizeTouchMove);
+        document.addEventListener('touchend', this.onResizeTouchEnd);
+      }
+    },
+    onResizeMove(e) {
+      if (!this.resizingIcon) return;
+      const deltaX = e.clientX - this.resizeStartPos.x;
+      const deltaY = e.clientY - this.resizeStartPos.y;
+      const delta = Math.max(deltaX, deltaY);
+      const scaleChange = delta / 48;
+      let newSize = Math.round(this.resizeStartSize + scaleChange);
+      newSize = Math.max(1, Math.min(newSize, 10));
+      this.settingsStore.win98SetIconSize(this.resizingIcon, newSize);
+    },
+    onResizeTouchMove(e) {
+      if (!this.resizingIcon || !e.touches.length) return;
+      const deltaX = e.touches[0].clientX - this.resizeStartPos.x;
+      const deltaY = e.touches[0].clientY - this.resizeStartPos.y;
+      const delta = Math.max(deltaX, deltaY);
+      const scaleChange = delta / 48;
+      let newSize = Math.round(this.resizeStartSize + scaleChange);
+      newSize = Math.max(1, Math.min(newSize, 10));
+      this.settingsStore.win98SetIconSize(this.resizingIcon, newSize);
+    },
+    onResizeEnd() {
+      if (this.resizingIcon) {
+        const pos = this.win98.iconPositions[this.resizingIcon];
+        if (pos) {
+          const { x, y } = this.constrainPosition(pos.x, pos.y, this.resizingIcon);
+          this.settingsStore.win98UpdateIconPosition(this.resizingIcon, x, y);
+        }
+      }
+      this.resizingIcon = null;
+    },
+    onResizeTouchEnd() {
+      document.removeEventListener('touchmove', this.onResizeTouchMove);
+      document.removeEventListener('touchend', this.onResizeTouchEnd);
+      this.onResizeEnd();
+    },
   },
 };
 </script>
@@ -304,6 +381,38 @@ export default {
 
 .win98-icon.dragging {
   opacity: 0.7;
+}
+
+.win98-icon.resizing {
+  transform: none !important;
+  z-index: 100;
+}
+
+.win98-icon.resizing:hover {
+  transform: none !important;
+}
+
+.resize-handle {
+  position: absolute;
+  right: -4px;
+  bottom: -4px;
+  width: 12px;
+  height: 12px;
+  background: #000080;
+  border: 1px solid #fff;
+  cursor: se-resize;
+  z-index: 10;
+}
+
+.resize-handle::after {
+  content: '';
+  position: absolute;
+  right: 2px;
+  bottom: 2px;
+  width: 6px;
+  height: 6px;
+  border-right: 2px solid #fff;
+  border-bottom: 2px solid #fff;
 }
 
 .icon-image-container {

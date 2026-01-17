@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import { debounce } from 'lodash-es';
-import { WIN98_DEFAULT_STATE } from '../constants/win98';
+import { WIN98_DEFAULT_STATE, WIN98_FORMATS } from '../constants/win98';
 
 export const useSettingsStore = defineStore('settings', {
   state: () => ({
@@ -753,6 +753,18 @@ export const useSettingsStore = defineStore('settings', {
       this.saveToLocalStorageDebounced();
     },
 
+    win98GetIconScale(iconId) {
+      return this.win98.iconSizes?.[iconId] || this.win98.iconScale || 3;
+    },
+
+    win98GetFormatBounds() {
+      const format = WIN98_FORMATS[this.win98.format] || WIN98_FORMATS.portrait;
+      return {
+        width: format.width,
+        height: format.height - 36,
+      };
+    },
+
     win98AlignIconsLeft() {
       const leftMargin = 20;
       Object.keys(this.win98.iconPositions).forEach(id => {
@@ -764,10 +776,13 @@ export const useSettingsStore = defineStore('settings', {
     },
 
     win98AlignIconsRight() {
-      const rightMargin = window.innerWidth - 100;
+      const margin = 20;
+      const bounds = this.win98GetFormatBounds();
       Object.keys(this.win98.iconPositions).forEach(id => {
         if (!this.win98.deletedIcons.includes(id)) {
-          this.win98.iconPositions[id].x = rightMargin;
+          const scale = this.win98GetIconScale(id);
+          const iconWidth = 60 * scale;
+          this.win98.iconPositions[id].x = bounds.width - iconWidth - margin;
         }
       });
       this.saveToLocalStorageDebounced();
@@ -784,18 +799,22 @@ export const useSettingsStore = defineStore('settings', {
     },
 
     win98AlignIconsBottom() {
-      const bottomMargin = window.innerHeight - 150;
+      const margin = 20;
+      const bounds = this.win98GetFormatBounds();
       Object.keys(this.win98.iconPositions).forEach(id => {
         if (!this.win98.deletedIcons.includes(id)) {
-          this.win98.iconPositions[id].y = bottomMargin;
+          const scale = this.win98GetIconScale(id);
+          const iconHeight = 80 * scale;
+          this.win98.iconPositions[id].y = bounds.height - iconHeight - margin;
         }
       });
       this.saveToLocalStorageDebounced();
     },
 
     win98AlignIconsCenter() {
-      const centerX = window.innerWidth / 2 - 30;
-      const centerY = window.innerHeight / 2 - 50;
+      const bounds = this.win98GetFormatBounds();
+      const centerX = bounds.width / 2 - 30;
+      const centerY = bounds.height / 2 - 50;
       const icons = Object.keys(this.win98.iconPositions).filter(
         id => !this.win98.deletedIcons.includes(id)
       );
@@ -850,13 +869,14 @@ export const useSettingsStore = defineStore('settings', {
     },
 
     win98DistributeIconsGrid() {
+      const bounds = this.win98GetFormatBounds();
       const icons = Object.keys(this.win98.iconPositions).filter(
         id => !this.win98.deletedIcons.includes(id)
       );
       const cols = Math.ceil(Math.sqrt(icons.length));
       const spacing = 150;
-      const centerX = window.innerWidth / 2;
-      const centerY = window.innerHeight / 2;
+      const centerX = bounds.width / 2;
+      const centerY = bounds.height / 2;
       const totalWidth = cols * spacing;
       const totalHeight = Math.ceil(icons.length / cols) * spacing;
 
@@ -872,11 +892,12 @@ export const useSettingsStore = defineStore('settings', {
     },
 
     win98DistributeIconsCircle() {
+      const bounds = this.win98GetFormatBounds();
       const icons = Object.keys(this.win98.iconPositions).filter(
         id => !this.win98.deletedIcons.includes(id)
       );
-      const centerX = window.innerWidth / 2;
-      const centerY = window.innerHeight / 2;
+      const centerX = bounds.width / 2;
+      const centerY = bounds.height / 2;
       const radius = Math.min(centerX, centerY) * 0.6;
       const angleStep = (2 * Math.PI) / icons.length;
 

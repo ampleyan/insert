@@ -124,64 +124,24 @@
     >
       <span>Icon Size</span>
       <span class="arrow">&#9654;</span>
-      <div v-if="openSubmenu === 'size'" class="submenu">
-        <div
-          v-if="selectedIcon"
-          class="menu-item has-submenu"
-          @mouseenter="!isTouchDevice && (openSubmenu = 'size-selected')"
-          @mouseleave="!isTouchDevice && (openSubmenu = 'size')"
-          @click.stop="toggleSubmenu('size-selected')"
-        >
-          <span>Selected Icon</span>
-          <span class="arrow">&#9654;</span>
-          <div v-if="openSubmenu === 'size-selected'" class="submenu">
-            <div class="menu-item" @click="$emit('action', 'size-selected-1')">
-              Small (1x)
-            </div>
-            <div class="menu-item" @click="$emit('action', 'size-selected-2')">
-              Medium (2x)
-            </div>
-            <div class="menu-item" @click="$emit('action', 'size-selected-3')">
-              Large (3x)
-            </div>
-            <div class="menu-item" @click="$emit('action', 'size-selected-4')">
-              Extra Large (4x)
-            </div>
-            <div class="menu-item" @click="$emit('action', 'size-selected-5')">
-              Huge (5x)
-            </div>
-          </div>
-        </div>
-        <div
-          class="menu-item has-submenu"
-          @mouseenter="!isTouchDevice && (openSubmenu = 'size-all')"
-          @mouseleave="!isTouchDevice && (openSubmenu = 'size')"
-          @click.stop="toggleSubmenu('size-all')"
-        >
-          <span>All Icons</span>
-          <span class="arrow">&#9654;</span>
-          <div v-if="openSubmenu === 'size-all'" class="submenu">
-            <div class="menu-item" @click="$emit('action', 'size-all-1')">
-              Small (1x)
-            </div>
-            <div class="menu-item" @click="$emit('action', 'size-all-2')">
-              Medium (2x)
-            </div>
-            <div class="menu-item" @click="$emit('action', 'size-all-3')">
-              Large (3x)
-            </div>
-            <div class="menu-item" @click="$emit('action', 'size-all-4')">
-              Extra Large (4x)
-            </div>
-            <div class="menu-item" @click="$emit('action', 'size-all-5')">
-              Huge (5x)
-            </div>
-          </div>
-        </div>
+      <div v-if="openSubmenu === 'size'" class="submenu size-submenu">
+        <template v-if="selectedIcon">
+          <div class="menu-header">Selected Icon</div>
+          <div class="menu-item" @click="$emit('action', 'size-selected-1')">1x</div>
+          <div class="menu-item" @click="$emit('action', 'size-selected-2')">2x</div>
+          <div class="menu-item" @click="$emit('action', 'size-selected-3')">3x</div>
+          <div class="menu-item" @click="$emit('action', 'size-selected-4')">4x</div>
+          <div class="menu-item" @click="$emit('action', 'size-selected-5')">5x</div>
+          <div class="menu-separator"></div>
+        </template>
+        <div class="menu-header">All Icons</div>
+        <div class="menu-item" @click="$emit('action', 'size-all-1')">1x</div>
+        <div class="menu-item" @click="$emit('action', 'size-all-2')">2x</div>
+        <div class="menu-item" @click="$emit('action', 'size-all-3')">3x</div>
+        <div class="menu-item" @click="$emit('action', 'size-all-4')">4x</div>
+        <div class="menu-item" @click="$emit('action', 'size-all-5')">5x</div>
         <div class="menu-separator"></div>
-        <div class="menu-item" @click="$emit('action', 'size-reset')">
-          Reset All Sizes
-        </div>
+        <div class="menu-item" @click="$emit('action', 'size-reset')">Reset All</div>
       </div>
     </div>
     <div class="menu-separator"></div>
@@ -338,6 +298,19 @@ export default {
   min-width: 150px;
 }
 
+.size-submenu {
+  min-width: 100px;
+}
+
+.menu-header {
+  padding: 4px 24px 2px 8px;
+  font-weight: bold;
+  color: #000080;
+  font-size: 10px;
+  text-transform: uppercase;
+  cursor: default;
+}
+
 @media (max-width: 768px) {
   .win98-context-menu {
     font-size: 14px;
@@ -369,6 +342,11 @@ export default {
     max-height: 80vh;
     overflow-y: auto;
     z-index: 10001;
+  }
+
+  .menu-header {
+    padding: 8px 24px 4px 12px;
+    font-size: 12px;
   }
 }
 
