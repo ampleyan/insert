@@ -178,5 +178,27 @@ export const WIN98_DEFAULT_STATE = {
     showCenters: true,
     threshold: 5
   },
-  timeline: { ...DEFAULT_TIMELINE }
+  timeline: { ...DEFAULT_TIMELINE },
+  showMacLoginScreen: false,
+  macLoginScreen: {
+    enabled: false,
+    title: 'Welcome to Mac OS',
+    userName: 'Martin',
+    userIcon: null,
+    showPasswordField: true,
+    passwordPlaceholder: 'Password',
+    showChangePassword: true,
+    shutdownText: 'Shutdown',
+    changePasswordText: 'Change Password',
+    loginButtonText: 'Log In',
+    backgroundColor: null,
+    patternColor: null,
+    showPattern: true,
+    dialogBgColor: null,
+    dialogBorderColor: null,
+    inputBgColor: null,
+    inputBorderColor: null,
+    buttonBgColor: null,
+    primaryButtonBgColor: null,
+  }
 };

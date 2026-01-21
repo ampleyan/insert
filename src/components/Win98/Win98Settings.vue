@@ -23,6 +23,11 @@
       >Effects</button>
       <button
         class="tab-btn"
+        :class="{ active: activeTab === 'login' }"
+        @click="activeTab = 'login'"
+      >Login</button>
+      <button
+        class="tab-btn"
         :class="{ active: activeTab === 'config' }"
         @click="activeTab = 'config'"
       >Config</button>
@@ -470,6 +475,177 @@
         </div>
       </template>
 
+      <template v-if="activeTab === 'login'">
+        <div class="setting-section">
+          <label class="win98-label section-title">Mac OS Login Screen</label>
+          <div class="setting-row">
+            <label class="win98-label">
+              <input
+                type="checkbox"
+                class="win98-checkbox"
+                :checked="win98.macLoginScreen.enabled"
+                @change="updateLoginSetting('enabled', $event.target.checked)"
+              />
+              Enable Login Screen
+            </label>
+          </div>
+          <div class="setting-row button-row">
+            <button class="win98-button" @click="toggleLoginScreen">
+              {{ win98.showMacLoginScreen ? 'Hide' : 'Show' }} Login Screen (L)
+            </button>
+          </div>
+        </div>
+
+        <div class="setting-section">
+          <label class="win98-label section-title">Login Screen Content</label>
+          <div class="setting-row">
+            <label class="win98-label">Title:</label>
+            <input
+              type="text"
+              class="win98-input"
+              :value="win98.macLoginScreen.title"
+              @input="updateLoginSetting('title', $event.target.value)"
+            />
+          </div>
+          <div class="setting-row">
+            <label class="win98-label">User Name:</label>
+            <input
+              type="text"
+              class="win98-input"
+              :value="win98.macLoginScreen.userName"
+              @input="updateLoginSetting('userName', $event.target.value)"
+            />
+          </div>
+          <div class="setting-row">
+            <label class="win98-label">
+              <input
+                type="checkbox"
+                class="win98-checkbox"
+                :checked="win98.macLoginScreen.showPasswordField"
+                @change="updateLoginSetting('showPasswordField', $event.target.checked)"
+              />
+              Show Password Field
+            </label>
+          </div>
+          <div class="setting-row">
+            <label class="win98-label">Password Placeholder:</label>
+            <input
+              type="text"
+              class="win98-input"
+              :value="win98.macLoginScreen.passwordPlaceholder"
+              @input="updateLoginSetting('passwordPlaceholder', $event.target.value)"
+            />
+          </div>
+        </div>
+
+        <div class="setting-section">
+          <label class="win98-label section-title">Button Text</label>
+          <div class="setting-row">
+            <label class="win98-label">Login Button:</label>
+            <input
+              type="text"
+              class="win98-input"
+              :value="win98.macLoginScreen.loginButtonText"
+              @input="updateLoginSetting('loginButtonText', $event.target.value)"
+            />
+          </div>
+          <div class="setting-row">
+            <label class="win98-label">
+              <input
+                type="checkbox"
+                class="win98-checkbox"
+                :checked="win98.macLoginScreen.showChangePassword"
+                @change="updateLoginSetting('showChangePassword', $event.target.checked)"
+              />
+              Show Change Password Button
+            </label>
+          </div>
+          <div class="setting-row">
+            <label class="win98-label">Change Password Button:</label>
+            <input
+              type="text"
+              class="win98-input"
+              :value="win98.macLoginScreen.changePasswordText"
+              @input="updateLoginSetting('changePasswordText', $event.target.value)"
+            />
+          </div>
+          <div class="setting-row">
+            <label class="win98-label">Shutdown Button:</label>
+            <input
+              type="text"
+              class="win98-input"
+              :value="win98.macLoginScreen.shutdownText"
+              @input="updateLoginSetting('shutdownText', $event.target.value)"
+            />
+          </div>
+        </div>
+
+        <div class="setting-section">
+          <label class="win98-label section-title">Colors</label>
+          <div class="setting-row">
+            <label class="win98-label">Background Color:</label>
+            <input
+              type="color"
+              class="win98-color-picker"
+              :value="win98.macLoginScreen.backgroundColor || '#6b7b9b'"
+              @input="updateLoginSetting('backgroundColor', $event.target.value)"
+            />
+            <button class="win98-button reset-btn" @click="updateLoginSetting('backgroundColor', null)">Reset</button>
+          </div>
+          <div class="setting-row">
+            <label class="win98-label">
+              <input
+                type="checkbox"
+                class="win98-checkbox"
+                :checked="win98.macLoginScreen.showPattern"
+                @change="updateLoginSetting('showPattern', $event.target.checked)"
+              />
+              Show Background Pattern
+            </label>
+          </div>
+          <div class="setting-row">
+            <label class="win98-label">Dialog Background:</label>
+            <input
+              type="color"
+              class="win98-color-picker"
+              :value="win98.macLoginScreen.dialogBgColor || '#f0f0f0'"
+              @input="updateLoginSetting('dialogBgColor', $event.target.value)"
+            />
+            <button class="win98-button reset-btn" @click="updateLoginSetting('dialogBgColor', null)">Reset</button>
+          </div>
+          <div class="setting-row">
+            <label class="win98-label">Dialog Border:</label>
+            <input
+              type="color"
+              class="win98-color-picker"
+              :value="win98.macLoginScreen.dialogBorderColor || '#555577'"
+              @input="updateLoginSetting('dialogBorderColor', $event.target.value)"
+            />
+            <button class="win98-button reset-btn" @click="updateLoginSetting('dialogBorderColor', null)">Reset</button>
+          </div>
+          <div class="setting-row">
+            <label class="win98-label">Input Background:</label>
+            <input
+              type="color"
+              class="win98-color-picker"
+              :value="win98.macLoginScreen.inputBgColor || '#ffffff'"
+              @input="updateLoginSetting('inputBgColor', $event.target.value)"
+            />
+            <button class="win98-button reset-btn" @click="updateLoginSetting('inputBgColor', null)">Reset</button>
+          </div>
+          <div class="setting-row">
+            <label class="win98-label">Button Color:</label>
+            <input
+              type="color"
+              class="win98-color-picker"
+              :value="win98.macLoginScreen.buttonBgColor || '#e0e0e0'"
+              @input="updateLoginSetting('buttonBgColor', $event.target.value)"
+            />
+            <button class="win98-button reset-btn" @click="updateLoginSetting('buttonBgColor', null)">Reset</button>
+          </div>
+        </div>
+      </template>
+
       <template v-if="activeTab === 'config'">
         <div class="setting-section">
           <label class="win98-label section-title">Export / Import</label>
@@ -648,6 +824,13 @@ export default {
     },
     updateSetting(key, value) {
       this.settingsStore.win98UpdateSettings({ [key]: value });
+    },
+    updateLoginSetting(key, value) {
+      const macLoginScreen = { ...this.win98.macLoginScreen, [key]: value };
+      this.settingsStore.win98UpdateSettings({ macLoginScreen });
+    },
+    toggleLoginScreen() {
+      this.settingsStore.win98UpdateSettings({ showMacLoginScreen: !this.win98.showMacLoginScreen });
     },
     updateErrorMessage(index, field, value) {
       const messages = [...this.win98.errorMessages];
@@ -1152,5 +1335,11 @@ export default {
   background: var(--win98-light-gray, #dfdfdf);
   border: 1px solid var(--win98-dark-gray);
   line-height: 1.4;
+}
+
+.reset-btn {
+  margin-left: 8px;
+  padding: 4px 12px;
+  font-size: 11px;
 }
 </style>

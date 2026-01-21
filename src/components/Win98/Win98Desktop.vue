@@ -1,18 +1,24 @@
 <template>
   <div class="win98-desktop-wrapper">
-    <Win98BootScreen v-if="!win98.bootComplete" @boot-complete="onBootComplete" />
+    <MacOSLoginScreen
+      v-if="win98.showMacLoginScreen"
+      @login="onMacLogin"
+      @shutdown="onMacShutdown"
+      @change-password="onMacChangePassword"
+    />
+    <Win98BootScreen v-if="!win98.bootComplete && !win98.showMacLoginScreen" @boot-complete="onBootComplete" />
     <Win98BSOD v-if="win98.bsodActive" @dismiss="onBsodDismiss" />
     <Win98Screensaver v-if="win98.screensaverActive" @dismiss="onScreensaverDismiss" />
-    <Win98FormatContainer v-show="win98.desktopActive" />
-    <Win98CursorTrail v-if="win98.cursorTrailEnabled && win98.desktopActive" />
+    <Win98FormatContainer v-show="win98.desktopActive && !win98.showMacLoginScreen" />
+    <Win98CursorTrail v-if="win98.cursorTrailEnabled && win98.desktopActive && !win98.showMacLoginScreen" />
     <Win98ErrorPopup
       v-for="error in win98.errorPopups"
       :key="error.id"
       :error="error"
       @dismiss="onErrorDismiss"
     />
-    <div class="hotkey-hint" v-if="win98.desktopActive && showHotkeyHint">
-      R: Reboot | E: Error | B: BSOD | S: Screensaver | P: Settings | F: Format | I: INSERT | H: Hide | Ctrl+Shift+X: Reset All
+    <div class="hotkey-hint" v-if="win98.desktopActive && showHotkeyHint && !win98.showMacLoginScreen">
+      R: Reboot | E: Error | B: BSOD | S: Screensaver | P: Settings | F: Format | I: INSERT | H: Hide | L: Login | Ctrl+Shift+X: Reset All
     </div>
   </div>
 </template>
@@ -22,6 +28,7 @@ import { useSettingsStore } from '../../stores/settings';
 import { WIN98_FORMATS } from '../../constants/win98';
 import win98AssetsService from '../../services/win98Assets';
 import { applySkinStyles, applyCustomBackgroundColor } from '../../utils/skinStyles';
+import MacOSLoginScreen from './MacOSLoginScreen.vue';
 import Win98BootScreen from './Win98BootScreen.vue';
 import Win98FormatContainer from './Win98FormatContainer.vue';
 import Win98Screensaver from './Win98Screensaver.vue';
@@ -32,6 +39,7 @@ import Win98CursorTrail from './Win98CursorTrail.vue';
 export default {
   name: 'Win98Desktop',
   components: {
+    MacOSLoginScreen,
     Win98BootScreen,
     Win98FormatContainer,
     Win98Screensaver,
@@ -97,6 +105,17 @@ export default {
   methods: {
     onBootComplete() {
       this.settingsStore.win98CompleteBoot();
+    },
+    onMacLogin(data) {
+      console.log('Mac OS Login:', data);
+      this.settingsStore.win98UpdateSettings({ showMacLoginScreen: false });
+    },
+    onMacShutdown() {
+      console.log('Mac OS Shutdown');
+      this.settingsStore.setAppMode('insert');
+    },
+    onMacChangePassword(data) {
+      console.log('Mac OS Change Password:', data);
     },
     async restoreCustomVideos() {
       await win98AssetsService.dbReady;
@@ -212,6 +231,9 @@ export default {
       } else if (key === 'h') {
         e.preventDefault();
         this.showHotkeyHint = !this.showHotkeyHint;
+      } else if (key === 'l') {
+        e.preventDefault();
+        this.settingsStore.win98UpdateSettings({ showMacLoginScreen: !this.win98.showMacLoginScreen });
       }
     },
     cycleFormat() {
