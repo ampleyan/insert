@@ -1,5 +1,6 @@
 <template>
   <div class="macos-login-screen" :style="loginScreenStyle">
+    <div v-if="hasBackgroundImage" class="macos-login-background" :style="backgroundImageStyle"></div>
     <div class="macos-login-menubar">
       <div class="macos-login-menu-left">
         <div class="macos-menu-item apple-menu">
@@ -29,14 +30,20 @@
             <span class="macos-user-name">{{ userName }}</span>
           </div>
           <div v-if="showPasswordField" class="macos-login-password-area">
-            <input
-              type="password"
-              v-model="password"
-              :placeholder="passwordPlaceholder"
-              class="macos-password-input"
-              :style="inputStyle"
-              @keyup.enter="handleLogin"
-            />
+            <div class="password-input-wrapper">
+              <input
+                :type="showPassword ? 'text' : 'password'"
+                v-model="password"
+                :placeholder="passwordPlaceholder"
+                class="macos-password-input"
+                :style="inputStyle"
+                @keyup.enter="handleLogin"
+              />
+              <button class="password-toggle-btn" @click="showPassword = !showPassword" type="button">
+                <img v-if="showPassword" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23666666'%3E%3Cpath d='M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z'/%3E%3C/svg%3E" alt="Hide" class="eye-icon">
+                <img v-else src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23666666'%3E%3Cpath d='M12 7c2.76 0 5 2.24 5 5 0 .65-.13 1.26-.36 1.83l2.92 2.92c1.51-1.26 2.7-2.89 3.43-4.75-1.73-4.39-6-7.5-11-7.5-1.4 0-2.74.25-3.98.7l2.16 2.16C10.74 7.13 11.35 7 12 7zM2 4.27l2.28 2.28.46.46C3.08 8.3 1.78 10.02 1 12c1.73 4.39 6 7.5 11 7.5 1.55 0 3.03-.3 4.38-.84l.42.42L19.73 22 21 20.73 3.27 3 2 4.27zM7.53 9.8l1.55 1.55c-.05.21-.08.43-.08.65 0 1.66 1.34 3 3 3 .22 0 .44-.03.65-.08l1.55 1.55c-.67.33-1.41.53-2.2.53-2.76 0-5-2.24-5-5 0-.79.2-1.53.53-2.2zm4.31-.78l3.15 3.15.02-.16c0-1.66-1.34-3-3-3l-.17.01z'/%3E%3C/svg%3E" alt="Show" class="eye-icon">
+              </button>
+            </div>
           </div>
         </div>
 
@@ -74,6 +81,8 @@ export default {
       password: '',
       currentTime: this.formatTime(),
       timeInterval: null,
+      showPassword: false,
+      isLoggingIn: false,
     };
   },
   computed: {
@@ -116,9 +125,27 @@ export default {
     loginScreenStyle() {
       const bgColor = this.loginConfig.backgroundColor || this.skin.colors.loginBg || '#6b7b9b';
       const patternColor = this.loginConfig.patternColor || this.skin.colors.loginBgPattern || '#5b6b8b';
-      return {
+
+      const styles = {
         background: `linear-gradient(135deg, ${bgColor} 0%, ${bgColor} 100%)`,
-        backgroundImage: this.loginConfig.showPattern !== false ? `
+      };
+
+      if (this.loginConfig.loginBackgroundImage) {
+        const opacity = (this.loginConfig.loginBackgroundOpacity || 100) / 100;
+        const blur = this.loginConfig.loginBackgroundBlur || 0;
+        const fit = this.loginConfig.loginBackgroundFit || 'cover';
+
+        styles.backgroundImage = `url(${this.loginConfig.loginBackgroundImage})`;
+        styles.backgroundSize = fit;
+        styles.backgroundPosition = 'center';
+        styles.backgroundRepeat = 'no-repeat';
+        styles.position = 'relative';
+
+        if (opacity < 1 || blur > 0) {
+          styles.backgroundImage = 'none';
+        }
+      } else if (this.loginConfig.showPattern !== false) {
+        styles.backgroundImage = `
           repeating-linear-gradient(
             45deg,
             transparent,
@@ -126,7 +153,28 @@ export default {
             ${patternColor}15 35px,
             ${patternColor}15 70px
           )
-        ` : 'none',
+        `;
+      }
+
+      return styles;
+    },
+    hasBackgroundImage() {
+      return !!this.loginConfig.loginBackgroundImage;
+    },
+    backgroundImageStyle() {
+      if (!this.loginConfig.loginBackgroundImage) return {};
+
+      const opacity = (this.loginConfig.loginBackgroundOpacity || 100) / 100;
+      const blur = this.loginConfig.loginBackgroundBlur || 0;
+      const fit = this.loginConfig.loginBackgroundFit || 'cover';
+
+      return {
+        backgroundImage: `url(${this.loginConfig.loginBackgroundImage})`,
+        backgroundSize: fit,
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
+        opacity: opacity,
+        filter: blur > 0 ? `blur(${blur}px)` : 'none',
       };
     },
     dialogStyle() {
@@ -187,11 +235,11 @@ export default {
       return `${hours}:${minutes} ${ampm}`;
     },
     handleLogin() {
+      this.isLoggingIn = true;
       this.$emit('login', {
         userName: this.userName,
         password: this.password,
       });
-      this.settingsStore.win98CompleteBoot();
     },
     handleShutdown() {
       this.$emit('shutdown');
@@ -213,6 +261,16 @@ export default {
   flex-direction: column;
   font-family: 'Charcoal', 'Geneva', 'Lucida Grande', 'Helvetica Neue', Helvetica, sans-serif;
   position: relative;
+  overflow: hidden;
+}
+
+.macos-login-background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
 }
 
 .macos-login-menubar {
@@ -224,7 +282,7 @@ export default {
   padding: 0 8px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
   position: relative;
-  z-index: 10;
+  z-index: 1;
 }
 
 .macos-login-menu-left,
@@ -275,6 +333,8 @@ export default {
   align-items: center;
   justify-content: center;
   padding: 40px;
+  position: relative;
+  z-index: 1;
 }
 
 .macos-login-dialog {
@@ -348,15 +408,44 @@ export default {
   padding: 8px 0;
 }
 
+.password-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
 .macos-password-input {
-  width: 100%;
-  padding: 8px 12px;
+  flex: 1;
+  padding: 8px 40px 8px 12px;
   border: 2px solid #555577;
   border-radius: 4px;
   font-size: 14px;
   font-family: inherit;
   background: white;
   outline: none;
+}
+
+.password-toggle-btn {
+  position: absolute;
+  right: 4px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 3px;
+  transition: background 0.15s;
+}
+
+.password-toggle-btn:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.eye-icon {
+  width: 20px;
+  height: 20px;
 }
 
 .macos-password-input:focus {

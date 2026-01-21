@@ -517,6 +517,17 @@
             />
           </div>
           <div class="setting-row">
+            <label class="win98-label">User Icon:</label>
+            <label class="win98-button upload-btn">
+              {{ win98.macLoginScreen.userIcon ? 'Change Icon' : 'Upload Icon' }}
+              <input type="file" accept=".png,.jpg,.jpeg,.svg" @change="uploadUserIcon" hidden />
+            </label>
+            <button v-if="win98.macLoginScreen.userIcon" class="win98-button reset-btn" @click="updateLoginSetting('userIcon', null)">Clear</button>
+          </div>
+          <div v-if="win98.macLoginScreen.userIcon" class="setting-row">
+            <img :src="win98.macLoginScreen.userIcon" class="user-icon-preview" alt="User Icon Preview" />
+          </div>
+          <div class="setting-row">
             <label class="win98-label">
               <input
                 type="checkbox"
@@ -576,6 +587,102 @@
               class="win98-input"
               :value="win98.macLoginScreen.shutdownText"
               @input="updateLoginSetting('shutdownText', $event.target.value)"
+            />
+          </div>
+        </div>
+
+        <div class="setting-section">
+          <label class="win98-label section-title">Login Screen Background</label>
+          <div class="setting-row">
+            <label class="win98-label">Background Image:</label>
+            <label class="win98-button upload-btn">
+              {{ win98.macLoginScreen.loginBackgroundImage ? 'Change Image' : 'Upload Image' }}
+              <input type="file" accept=".png,.jpg,.jpeg,.gif,.webp" @change="uploadLoginBackground" hidden />
+            </label>
+            <button v-if="win98.macLoginScreen.loginBackgroundImage" class="win98-button reset-btn" @click="updateLoginSetting('loginBackgroundImage', null)">Clear</button>
+          </div>
+          <div v-if="win98.macLoginScreen.loginBackgroundImage" class="setting-row">
+            <img :src="win98.macLoginScreen.loginBackgroundImage" class="background-preview" alt="Background Preview" />
+          </div>
+          <div v-if="win98.macLoginScreen.loginBackgroundImage" class="setting-row">
+            <label class="win98-label">Image Fit:</label>
+            <select class="win98-select" :value="win98.macLoginScreen.loginBackgroundFit" @change="updateLoginSetting('loginBackgroundFit', $event.target.value)">
+              <option value="cover">Cover</option>
+              <option value="contain">Contain</option>
+              <option value="fill">Fill</option>
+              <option value="none">Original Size</option>
+            </select>
+          </div>
+          <div v-if="win98.macLoginScreen.loginBackgroundImage" class="setting-row">
+            <label class="win98-label">Opacity: {{ win98.macLoginScreen.loginBackgroundOpacity }}%</label>
+            <input
+              type="range"
+              class="win98-slider"
+              min="0"
+              max="100"
+              step="5"
+              :value="win98.macLoginScreen.loginBackgroundOpacity"
+              @input="updateLoginSetting('loginBackgroundOpacity', parseInt($event.target.value))"
+            />
+          </div>
+          <div v-if="win98.macLoginScreen.loginBackgroundImage" class="setting-row">
+            <label class="win98-label">Blur: {{ win98.macLoginScreen.loginBackgroundBlur }}px</label>
+            <input
+              type="range"
+              class="win98-slider"
+              min="0"
+              max="20"
+              step="1"
+              :value="win98.macLoginScreen.loginBackgroundBlur"
+              @input="updateLoginSetting('loginBackgroundBlur', parseInt($event.target.value))"
+            />
+          </div>
+        </div>
+
+        <div class="setting-section">
+          <label class="win98-label section-title">Loading Screen Background</label>
+          <div class="setting-row">
+            <label class="win98-label">Background Image:</label>
+            <label class="win98-button upload-btn">
+              {{ win98.macLoginScreen.loadingBackgroundImage ? 'Change Image' : 'Upload Image' }}
+              <input type="file" accept=".png,.jpg,.jpeg,.gif,.webp" @change="uploadLoadingBackground" hidden />
+            </label>
+            <button v-if="win98.macLoginScreen.loadingBackgroundImage" class="win98-button reset-btn" @click="updateLoginSetting('loadingBackgroundImage', null)">Clear</button>
+          </div>
+          <div v-if="win98.macLoginScreen.loadingBackgroundImage" class="setting-row">
+            <img :src="win98.macLoginScreen.loadingBackgroundImage" class="background-preview" alt="Background Preview" />
+          </div>
+          <div v-if="win98.macLoginScreen.loadingBackgroundImage" class="setting-row">
+            <label class="win98-label">Image Fit:</label>
+            <select class="win98-select" :value="win98.macLoginScreen.loadingBackgroundFit" @change="updateLoginSetting('loadingBackgroundFit', $event.target.value)">
+              <option value="cover">Cover</option>
+              <option value="contain">Contain</option>
+              <option value="fill">Fill</option>
+              <option value="none">Original Size</option>
+            </select>
+          </div>
+          <div v-if="win98.macLoginScreen.loadingBackgroundImage" class="setting-row">
+            <label class="win98-label">Opacity: {{ win98.macLoginScreen.loadingBackgroundOpacity }}%</label>
+            <input
+              type="range"
+              class="win98-slider"
+              min="0"
+              max="100"
+              step="5"
+              :value="win98.macLoginScreen.loadingBackgroundOpacity"
+              @input="updateLoginSetting('loadingBackgroundOpacity', parseInt($event.target.value))"
+            />
+          </div>
+          <div v-if="win98.macLoginScreen.loadingBackgroundImage" class="setting-row">
+            <label class="win98-label">Blur: {{ win98.macLoginScreen.loadingBackgroundBlur }}px</label>
+            <input
+              type="range"
+              class="win98-slider"
+              min="0"
+              max="20"
+              step="1"
+              :value="win98.macLoginScreen.loadingBackgroundBlur"
+              @input="updateLoginSetting('loadingBackgroundBlur', parseInt($event.target.value))"
             />
           </div>
         </div>
@@ -660,7 +767,7 @@
               <input type="file" accept=".json" @change="importConfig" hidden />
             </label>
           </div>
-          <p class="config-note">Export includes all settings and background images as a portable JSON file.</p>
+          <p class="config-note">Export includes all settings, folders, zones, grid, timeline, login screen configuration, background images, custom icons, and videos as a portable JSON file.</p>
         </div>
 
         <div class="setting-section">
@@ -832,6 +939,35 @@ export default {
     toggleLoginScreen() {
       this.settingsStore.win98UpdateSettings({ showMacLoginScreen: !this.win98.showMacLoginScreen });
     },
+    uploadUserIcon(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        this.updateLoginSetting('userIcon', e.target.result);
+      };
+      reader.readAsDataURL(file);
+    },
+    uploadLoginBackground(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        this.updateLoginSetting('loginBackgroundImage', e.target.result);
+      };
+      reader.readAsDataURL(file);
+      event.target.value = '';
+    },
+    uploadLoadingBackground(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        this.updateLoginSetting('loadingBackgroundImage', e.target.result);
+      };
+      reader.readAsDataURL(file);
+      event.target.value = '';
+    },
     updateErrorMessage(index, field, value) {
       const messages = [...this.win98.errorMessages];
       messages[index] = { ...messages[index], [field]: value };
@@ -943,9 +1079,9 @@ export default {
     },
     exportConfig() {
       const config = {
-        version: 1,
+        version: 2,
         exportedAt: new Date().toISOString(),
-        win98: { ...this.win98 },
+        win98: JSON.parse(JSON.stringify(this.win98)),
       };
       delete config.win98.errorPopups;
       delete config.win98.bootComplete;
@@ -983,20 +1119,47 @@ export default {
           'errorsEnabled', 'errorInterval', 'errorProbability', 'maxErrors',
           'errorMessages', 'notebookContent', 'bsodContent', 'iconPositions',
           'deletedIcons', 'customIcons', 'customVideos', 'videoStates',
+          'folders', 'iconImportance', 'zones', 'zonesVisible', 'grid',
+          'alignmentGuides', 'timeline', 'autoArrange', 'iconSizes',
+          'windowPositions', 'showMacLoginScreen', 'macLoginScreen',
         ];
         const importData = {};
         safeKeys.forEach(key => {
           if (config.win98[key] !== undefined) {
-            importData[key] = config.win98[key];
+            importData[key] = JSON.parse(JSON.stringify(config.win98[key]));
           }
         });
         this.settingsStore.win98UpdateSettings(importData);
         if (importData.activeSkin) {
           applySkinStyles(importData.activeSkin);
         }
+        if (importData.backgroundLayers) {
+          await this.saveBackgroundLayersToDb(importData.backgroundLayers);
+        }
+        if (importData.customIcons) {
+          for (const icon of importData.customIcons) {
+            if (icon.image && !this.win98.customIcons?.find(i => i.id === icon.id)) {
+              await win98AssetsService.saveCustomIcon(icon);
+            }
+          }
+        }
+        if (importData.customVideos) {
+          for (const video of importData.customVideos) {
+            if (video.src && video.thumbnail && !this.win98.customVideos?.find(v => v.id === video.id)) {
+              await win98AssetsService.saveCustomVideo({
+                id: video.id,
+                label: video.label,
+                videoDataUrl: video.src,
+                thumbnailDataUrl: video.thumbnail,
+              });
+            }
+          }
+        }
         alert('Settings imported successfully!');
+        window.location.reload();
       } catch (error) {
         alert('Failed to import: ' + error.message);
+        console.error('Import error:', error);
       }
       event.target.value = '';
     },
@@ -1341,5 +1504,22 @@ export default {
   margin-left: 8px;
   padding: 4px 12px;
   font-size: 11px;
+}
+
+.user-icon-preview {
+  max-width: 64px;
+  max-height: 64px;
+  border: 2px solid var(--win98-dark-gray);
+  border-radius: 4px;
+  background: var(--win98-white);
+  padding: 4px;
+}
+
+.background-preview {
+  max-width: 200px;
+  max-height: 150px;
+  border: 2px solid var(--win98-dark-gray);
+  border-radius: 4px;
+  object-fit: cover;
 }
 </style>

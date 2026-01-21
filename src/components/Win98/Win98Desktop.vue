@@ -1,7 +1,12 @@
 <template>
   <div class="win98-desktop-wrapper">
+    <MacOSLoadingScreen
+      v-if="showMacLoadingScreen"
+      :userName="win98.macLoginScreen.userName"
+      @loading-complete="onLoadingComplete"
+    />
     <MacOSLoginScreen
-      v-if="win98.showMacLoginScreen"
+      v-else-if="win98.showMacLoginScreen"
       @login="onMacLogin"
       @shutdown="onMacShutdown"
       @change-password="onMacChangePassword"
@@ -18,7 +23,7 @@
       @dismiss="onErrorDismiss"
     />
     <div class="hotkey-hint" v-if="win98.desktopActive && showHotkeyHint && !win98.showMacLoginScreen">
-      R: Reboot | E: Error | B: BSOD | S: Screensaver | P: Settings | F: Format | I: INSERT | H: Hide | L: Login | Ctrl+Shift+X: Reset All
+      R: Reboot | E: Error | B: BSOD | S: Screensaver | P: Settings | F: Format | I: Back to INSERT | H: Hide | L: Login | Ctrl+Shift+X: Reset All
     </div>
   </div>
 </template>
@@ -29,6 +34,7 @@ import { WIN98_FORMATS } from '../../constants/win98';
 import win98AssetsService from '../../services/win98Assets';
 import { applySkinStyles, applyCustomBackgroundColor } from '../../utils/skinStyles';
 import MacOSLoginScreen from './MacOSLoginScreen.vue';
+import MacOSLoadingScreen from './MacOSLoadingScreen.vue';
 import Win98BootScreen from './Win98BootScreen.vue';
 import Win98FormatContainer from './Win98FormatContainer.vue';
 import Win98Screensaver from './Win98Screensaver.vue';
@@ -40,6 +46,7 @@ export default {
   name: 'Win98Desktop',
   components: {
     MacOSLoginScreen,
+    MacOSLoadingScreen,
     Win98BootScreen,
     Win98FormatContainer,
     Win98Screensaver,
@@ -57,6 +64,7 @@ export default {
       errorTimer: null,
       idleTime: 0,
       showHotkeyHint: true,
+      showMacLoadingScreen: false,
     };
   },
   computed: {
@@ -108,11 +116,16 @@ export default {
     },
     onMacLogin(data) {
       console.log('Mac OS Login:', data);
+      this.showMacLoadingScreen = true;
+    },
+    onLoadingComplete() {
+      this.showMacLoadingScreen = false;
       this.settingsStore.win98UpdateSettings({ showMacLoginScreen: false });
+      this.settingsStore.win98CompleteBoot();
     },
     onMacShutdown() {
       console.log('Mac OS Shutdown');
-      this.settingsStore.setAppMode('insert');
+      this.$router.push('/insert');
     },
     onMacChangePassword(data) {
       console.log('Mac OS Change Password:', data);
@@ -227,7 +240,7 @@ export default {
         this.cycleFormat();
       } else if (key === 'i') {
         e.preventDefault();
-        this.settingsStore.setAppMode('insert');
+        this.$router.push('/insert');
       } else if (key === 'h') {
         e.preventDefault();
         this.showHotkeyHint = !this.showHotkeyHint;

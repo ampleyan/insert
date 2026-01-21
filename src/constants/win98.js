@@ -183,7 +183,7 @@ export const WIN98_DEFAULT_STATE = {
   macLoginScreen: {
     enabled: false,
     title: 'Welcome to Mac OS',
-    userName: 'Martin',
+    userName: 'User',
     userIcon: null,
     showPasswordField: true,
     passwordPlaceholder: 'Password',
@@ -200,5 +200,13 @@ export const WIN98_DEFAULT_STATE = {
     inputBorderColor: null,
     buttonBgColor: null,
     primaryButtonBgColor: null,
+    loginBackgroundImage: null,
+    loginBackgroundFit: 'cover',
+    loginBackgroundOpacity: 100,
+    loginBackgroundBlur: 0,
+    loadingBackgroundImage: null,
+    loadingBackgroundFit: 'cover',
+    loadingBackgroundOpacity: 100,
+    loadingBackgroundBlur: 0,
   }
 };
