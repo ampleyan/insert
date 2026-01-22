@@ -15,6 +15,7 @@
 <script>
 import { getWin98AssetPath } from '../../constants/win98';
 import { useSettingsStore } from '../../stores/settings';
+import { getSkin } from '../../constants/skins';
 
 export default {
   name: 'Win98BootScreen',
@@ -26,6 +27,7 @@ export default {
   data() {
     return {
       progress: 0,
+      bootAudio: null,
     };
   },
   computed: {
@@ -37,9 +39,33 @@ export default {
     },
   },
   mounted() {
+    this.playBootSound();
     this.startBoot();
   },
+  beforeUnmount() {
+    if (this.bootAudio) {
+      this.bootAudio.pause();
+      this.bootAudio = null;
+    }
+  },
   methods: {
+    playBootSound() {
+      if (!this.win98.bootSoundEnabled || !this.win98.soundEnabled) return;
+
+      let bootSoundPath = this.win98.bootSound;
+      if (!bootSoundPath) {
+        const skin = getSkin(this.win98.activeSkin);
+        if (skin?.sounds?.boot) {
+          bootSoundPath = getWin98AssetPath(skin.sounds.boot);
+        }
+      }
+
+      if (bootSoundPath) {
+        this.bootAudio = new Audio(bootSoundPath);
+        this.bootAudio.volume = this.win98.volume || 0.5;
+        this.bootAudio.play().catch(() => {});
+      }
+    },
     startBoot() {
       const bootInterval = setInterval(() => {
         const increment = Math.random() * 8 + 2;

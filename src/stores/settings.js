@@ -479,10 +479,63 @@ export const useSettingsStore = defineStore('settings', {
       if (index > -1) {
         this.win98.openWindows.splice(index, 1);
       }
+      const minIndex = this.win98.minimizedWindows?.indexOf(windowId);
+      if (minIndex > -1) {
+        this.win98.minimizedWindows.splice(minIndex, 1);
+      }
       if (windowId.startsWith('video-')) {
         const videoId = windowId.replace('video-', '');
         this.win98.videoStates[videoId].playing = false;
       }
+      this.saveToLocalStorageDebounced();
+    },
+
+    win98MinimizeWindow(windowId) {
+      if (!this.win98.minimizedWindows) {
+        this.win98.minimizedWindows = [];
+      }
+      const index = this.win98.openWindows.indexOf(windowId);
+      if (index > -1) {
+        this.win98.openWindows.splice(index, 1);
+        if (!this.win98.minimizedWindows.includes(windowId)) {
+          this.win98.minimizedWindows.push(windowId);
+        }
+      }
+      if (windowId.startsWith('video-')) {
+        const videoId = windowId.replace('video-', '');
+        this.win98.videoStates[videoId].playing = false;
+      }
+      this.saveToLocalStorageDebounced();
+    },
+
+    win98RestoreWindow(windowId) {
+      if (!this.win98.minimizedWindows) return;
+      const index = this.win98.minimizedWindows.indexOf(windowId);
+      if (index > -1) {
+        this.win98.minimizedWindows.splice(index, 1);
+        if (!this.win98.openWindows.includes(windowId)) {
+          this.win98.openWindows.push(windowId);
+        }
+        this.win98BringToFront(windowId);
+      }
+      this.saveToLocalStorageDebounced();
+    },
+
+    win98CloseAllWindows() {
+      this.win98.openWindows.forEach(windowId => {
+        if (windowId.startsWith('video-')) {
+          const videoId = windowId.replace('video-', '');
+          this.win98.videoStates[videoId].playing = false;
+        }
+      });
+      this.win98.openWindows = [];
+      this.win98.minimizedWindows = [];
+      this.saveToLocalStorageDebounced();
+    },
+
+    win98ClearCustomIcons() {
+      this.win98.customIcons = [];
+      this.win98.customVideos = [];
       this.saveToLocalStorageDebounced();
     },
 

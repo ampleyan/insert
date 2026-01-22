@@ -37,13 +37,35 @@ export function getWin98AssetPath(relativePath) {
 
 const ICON_TYPE_MAP = {
   computer: 'computer',
-  notebook: 'textEditor',
+  notebook: 'notebook',
+  textEditor: 'textEditor',
   video: 'video',
   folder: 'folder',
+  folderOpen: 'folderOpen',
   trash: 'trash',
   floppy: 'floppy',
   settings: 'settings',
   home: 'home',
+  documents: 'documents',
+  music: 'music',
+  pictures: 'pictures',
+  downloads: 'downloads',
+  videos: 'videos',
+  applications: 'applications',
+  utilities: 'utilities',
+  harddisk: 'harddisk',
+  removable: 'removable',
+  optical: 'optical',
+  internet: 'internet',
+  multimedia: 'multimedia',
+  games: 'games',
+  graphics: 'graphics',
+  development: 'development',
+  bookmarks: 'bookmarks',
+  recent: 'recent',
+  search: 'search',
+  shared: 'shared',
+  desktop: 'desktop',
 };
 
 export function getSkinIcon(iconId, iconType, skin) {
@@ -103,6 +125,7 @@ export const WIN98_DEFAULT_STATE = {
     het_bos_vibe: { x: 20, y: 420 }
   },
   openWindows: [],
+  minimizedWindows: [],
   windowPositions: {
     notebook: { x: null, y: null },
     'video-constant': { x: 100, y: 100 },
@@ -129,6 +152,8 @@ export const WIN98_DEFAULT_STATE = {
   autoArrange: false,
   soundEnabled: true,
   volume: 0.5,
+  bootSoundEnabled: true,
+  bootSound: null,
   cursorTrailEnabled: true,
   format: 'portrait',
   showFormatInfo: true,

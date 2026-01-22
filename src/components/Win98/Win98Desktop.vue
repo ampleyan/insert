@@ -1,13 +1,16 @@
 <template>
   <div class="win98-desktop-wrapper" :style="wrapperStyle">
-    <div v-if="showMacLoadingScreen" class="fullscreen-container" :style="formatStyle">
+    <MacMenuBar v-if="isMacTheme" @action="handleMenuAction" />
+    <div v-if="showMacLoadingScreen" class="fullscreen-container" :class="{ 'with-menubar': isMacTheme }" :style="formatStyle">
       <MacOSLoadingScreen
         :userName="win98.macLoginScreen.userName"
+        :showMenuBar="false"
         @loading-complete="onLoadingComplete"
       />
     </div>
-    <div v-else-if="win98.showMacLoginScreen" class="fullscreen-container" :style="formatStyle">
+    <div v-else-if="win98.showMacLoginScreen" class="fullscreen-container" :class="{ 'with-menubar': isMacTheme }" :style="formatStyle">
       <MacOSLoginScreen
+        :showMenuBar="false"
         @login="onMacLogin"
         @shutdown="onMacShutdown"
         @change-password="onMacChangePassword"
@@ -22,7 +25,7 @@
     <div v-if="win98.screensaverActive" class="fullscreen-container" :style="formatStyle">
       <Win98Screensaver @dismiss="onScreensaverDismiss" />
     </div>
-    <Win98FormatContainer v-show="win98.desktopActive && !win98.showMacLoginScreen" />
+    <Win98FormatContainer v-show="win98.desktopActive && !win98.showMacLoginScreen" :hideTaskbar="isMacTheme" />
     <Win98CursorTrail v-if="win98.cursorTrailEnabled && win98.desktopActive && !win98.showMacLoginScreen" />
     <Win98ErrorPopup
       v-for="error in win98.errorPopups"
@@ -63,6 +66,7 @@ import { WIN98_FORMATS } from '../../constants/win98';
 import win98AssetsService from '../../services/win98Assets';
 import { applySkinStyles, applyCustomBackgroundColor } from '../../utils/skinStyles';
 import nativeRecorder from '../../services/nativeRecorder';
+import MacMenuBar from './MacMenuBar.vue';
 import MacOSLoginScreen from './MacOSLoginScreen.vue';
 import MacOSLoadingScreen from './MacOSLoadingScreen.vue';
 import Win98BootScreen from './Win98BootScreen.vue';
@@ -75,6 +79,7 @@ import Win98CursorTrail from './Win98CursorTrail.vue';
 export default {
   name: 'Win98Desktop',
   components: {
+    MacMenuBar,
     MacOSLoginScreen,
     MacOSLoadingScreen,
     Win98BootScreen,
@@ -104,6 +109,9 @@ export default {
   computed: {
     win98() {
       return this.settingsStore.win98;
+    },
+    isMacTheme() {
+      return this.win98.activeSkin === 'macOSX1' || this.win98.activeSkin === 'macOS9';
     },
     recordingTimeDisplay() {
       const mins = Math.floor(this.recordingTime / 60);
@@ -380,6 +388,11 @@ export default {
       this.isRecording = false;
       this.recordingTime = 0;
     },
+    handleMenuAction(action) {
+      if (action === 'reset-all') {
+        this.resetAllState();
+      }
+    },
   },
 };
 </script>
@@ -398,6 +411,11 @@ export default {
   overflow: hidden;
 }
 
+.fullscreen-container.with-menubar {
+  top: 20px;
+  height: calc(100% - 20px) !important;
+}
+
 .hotkey-hint {
   position: fixed;
   bottom: 40px;
@@ -413,7 +431,7 @@ export default {
 
 .recording-controls {
   position: fixed;
-  top: 10px;
+  top: 26px;
   right: 10px;
   display: flex;
   align-items: center;

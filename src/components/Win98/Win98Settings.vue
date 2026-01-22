@@ -265,6 +265,30 @@
               @input="updateSetting('volume', parseFloat($event.target.value))"
             />
           </div>
+
+          <div class="setting-row">
+            <label class="win98-label">
+              <input
+                type="checkbox"
+                class="win98-checkbox"
+                :checked="win98.bootSoundEnabled"
+                @change="updateSetting('bootSoundEnabled', $event.target.checked)"
+              />
+              Enable Boot Sound
+            </label>
+          </div>
+
+          <div class="setting-row">
+            <label class="win98-label">Custom Boot Sound:</label>
+            <div class="upload-row-inline">
+              <label class="win98-button upload-btn">
+                {{ win98.bootSound ? 'Change Sound' : 'Upload Sound' }}
+                <input type="file" accept="audio/*" @change="uploadBootSound" hidden />
+              </label>
+              <button v-if="win98.bootSound" class="win98-button" @click="removeBootSound">Remove</button>
+            </div>
+            <span v-if="win98.bootSound" class="sound-indicator">Custom sound set</span>
+          </div>
         </div>
       </template>
 
@@ -1149,6 +1173,19 @@ export default {
       await win98AssetsService.removeBootLogo();
       this.settingsStore.win98UpdateSettings({ customBootLogo: null });
     },
+    uploadBootSound(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        this.settingsStore.win98UpdateSettings({ bootSound: e.target.result });
+      };
+      reader.readAsDataURL(file);
+      event.target.value = '';
+    },
+    removeBootSound() {
+      this.settingsStore.win98UpdateSettings({ bootSound: null });
+    },
     exportConfig() {
       const config = {
         version: 2,
@@ -1187,7 +1224,8 @@ export default {
         const safeKeys = [
           'activeSkin', 'backgroundLayers', 'backgroundColor', 'customBootLogo',
           'iconScale', 'zoomScale', 'textScale', 'format', 'showFormatInfo',
-          'soundEnabled', 'volume', 'cursorTrailEnabled', 'screensaverTimeout',
+          'soundEnabled', 'volume', 'bootSoundEnabled', 'bootSound',
+          'cursorTrailEnabled', 'screensaverTimeout',
           'errorsEnabled', 'errorInterval', 'errorProbability', 'maxErrors',
           'errorMessages', 'notebookContent', 'bsodContent', 'iconPositions',
           'deletedIcons', 'customIcons', 'customVideos', 'videoStates',
@@ -1593,5 +1631,11 @@ export default {
   border: 2px solid var(--win98-dark-gray);
   border-radius: 4px;
   object-fit: cover;
+}
+
+.sound-indicator {
+  font-size: 10px;
+  color: var(--win98-dark-gray);
+  font-style: italic;
 }
 </style>

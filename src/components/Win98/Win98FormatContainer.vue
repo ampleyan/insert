@@ -1,5 +1,5 @@
 <template>
-  <div class="win98-format-container" :class="win98.format" :style="containerStyle">
+  <div class="win98-format-container" :class="[win98.format, { 'no-taskbar': hideTaskbar }]" :style="containerStyle">
     <Win98Background />
     <Win98GridOverlay />
     <Win98ZonesOverlay />
@@ -12,7 +12,7 @@
     />
     <Win98DesktopIcons @play-sound="playSound" @context-menu="showContextMenu" @drag-update="onDragUpdate" />
     <!-- <Win98Timeline @play-sound="playSound" /> -->
-    <Win98Taskbar />
+    <Win98Taskbar v-if="!hideTaskbar" />
     <Win98Window
       v-for="windowId in win98.openWindows"
       :key="windowId"
@@ -65,6 +65,12 @@ export default {
     Win98GridOverlay,
     Win98AlignmentGuides,
     // Win98Timeline,
+  },
+  props: {
+    hideTaskbar: {
+      type: Boolean,
+      default: false,
+    },
   },
   setup() {
     const settingsStore = useSettingsStore();

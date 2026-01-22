@@ -60,6 +60,13 @@ module.exports = {
               globOptions: {
                 ignore: ['**/.DS_Store']
               }
+            },
+            {
+              from: 'src/assets/mac/sounds',
+              to: 'mac/sounds',
+              globOptions: {
+                ignore: ['**/.DS_Store']
+              }
             }
           ]
         }

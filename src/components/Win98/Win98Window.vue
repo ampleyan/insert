@@ -1,16 +1,24 @@
 <template>
   <div
     class="win98-window win98-frame"
-    :class="{ 'is-resizing': isResizing }"
+    :class="{ 'is-resizing': isResizing, 'mac-window': isMacTheme }"
     :style="windowStyle"
     @mousedown="bringToFront"
   >
-    <div class="win98-titlebar" @mousedown.stop="startDrag">
-      <div class="win98-titlebar-title">
-        <img v-if="windowIcon" :src="windowIcon" class="win98-titlebar-icon" />
+    <div class="win98-titlebar" :class="{ 'mac-titlebar': isMacTheme }" @mousedown.stop="startDrag">
+      <div v-if="isMacTheme" class="mac-traffic-lights">
+        <button class="mac-btn mac-close" @click.stop="closeWindow" title="Close"></button>
+        <button class="mac-btn mac-minimize" @click.stop="minimizeWindow" title="Minimize"></button>
+        <button class="mac-btn mac-maximize" @click.stop="maximizeWindow" title="Maximize"></button>
+      </div>
+      <div class="win98-titlebar-title" :class="{ 'mac-title': isMacTheme }">
+        <img v-if="windowIcon && !isMacTheme" :src="windowIcon" class="win98-titlebar-icon" />
         <span>{{ windowTitle }}</span>
       </div>
-      <button class="win98-close" @click.stop="closeWindow">X</button>
+      <div v-if="!isMacTheme" class="win98-window-buttons">
+        <button class="win98-minimize" @click.stop="minimizeWindow">_</button>
+        <button class="win98-close" @click.stop="closeWindow">X</button>
+      </div>
     </div>
     <div class="win98-window-content">
       <Win98VideoPlayer v-if="isVideoWindow" :video-id="videoId" />
@@ -100,6 +108,9 @@ export default {
       }
       return null;
     },
+    isMacTheme() {
+      return this.win98.activeSkin === 'macOSX1' || this.win98.activeSkin === 'macOS9';
+    },
     windowStyle() {
       const savedPos = this.win98.windowPositions[this.windowId];
       const zIndex = this.win98.windowZIndex[this.windowId] || 1000;
@@ -157,6 +168,14 @@ export default {
     },
     closeWindow() {
       this.settingsStore.win98CloseWindow(this.windowId);
+    },
+    minimizeWindow() {
+      this.settingsStore.win98MinimizeWindow(this.windowId);
+    },
+    maximizeWindow() {
+      // Toggle maximize - for now just reset position
+      this.position = null;
+      this.size = null;
     },
     startDrag(e) {
       this.isDragging = true;
@@ -270,5 +289,92 @@ export default {
     transparent 90%,
     var(--win98-black) 90%
   );
+}
+
+.win98-window-buttons {
+  display: flex;
+  gap: 2px;
+}
+
+.win98-minimize {
+  width: 16px;
+  height: 14px;
+  font-size: 10px;
+  padding: 0;
+  border: 1px outset var(--win98-gray);
+  background: var(--win98-gray);
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.win98-minimize:active {
+  border-style: inset;
+}
+
+/* Mac OS X style window */
+.mac-window {
+  border-radius: 6px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  border: 1px solid #888;
+  background: #e8e8e8;
+}
+
+.mac-window .win98-frame {
+  border: none;
+}
+
+.mac-titlebar {
+  background: linear-gradient(180deg, #e8e8e8 0%, #c8c8c8 50%, #d8d8d8 100%);
+  border-bottom: 1px solid #999;
+  border-radius: 6px 6px 0 0;
+  padding: 6px 10px;
+  display: flex;
+  align-items: center;
+  min-height: 22px;
+}
+
+.mac-traffic-lights {
+  display: flex;
+  gap: 6px;
+  margin-right: 12px;
+}
+
+.mac-btn {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  padding: 0;
+}
+
+.mac-btn:hover {
+  filter: brightness(1.1);
+}
+
+.mac-close {
+  background: linear-gradient(180deg, #ff5f57 0%, #e0443e 100%);
+}
+
+.mac-minimize {
+  background: linear-gradient(180deg, #ffbd2e 0%, #dea123 100%);
+}
+
+.mac-maximize {
+  background: linear-gradient(180deg, #28c940 0%, #1aab29 100%);
+}
+
+.mac-title {
+  flex: 1;
+  text-align: center;
+  font-family: 'Lucida Grande', 'Helvetica Neue', sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  color: #333;
+}
+
+.mac-window .win98-window-content {
+  background: #f5f5f5;
+  border-radius: 0 0 6px 6px;
 }
 </style>
