@@ -1,45 +1,115 @@
 <template>
   <div class="control-group">
-    <h3>Tab Recording</h3>
+    <h3>Recording</h3>
     <div class="recording-controls">
-      <button @click="toggleRecording" :class="{ recording: isRecording }">
-        {{ isRecording ? 'Stop Recording' : 'Start Recording' }}
-        <span v-if="isRecording" class="record-indicator"></span>
-      </button>
-
-      <div class="recording-info" v-if="isRecording">
-        {{ formatTime(recordingTime) }}
+      <div class="recording-mode-toggle" v-if="!isRecording && !isNativeRecording">
+        <button
+          :class="{ active: recordingMode === 'tab' }"
+          @click="recordingMode = 'tab'"
+        >
+          Tab
+        </button>
+        <button
+          :class="{ active: recordingMode === 'native' }"
+          @click="recordingMode = 'native'"
+        >
+          Native
+        </button>
       </div>
 
-      <div class="recording-settings" v-if="!isRecording">
-        <label>
-          Quality:
-          <select v-model="settings.quality">
-            <option value="max">Maximum</option>
-            <option value="high">High</option>
-            <option value="medium">Medium</option>
-          </select>
-        </label>
+      <div v-if="recordingMode === 'tab'">
+        <button @click="toggleRecording" :class="{ recording: isRecording }">
+          {{ isRecording ? 'Stop Recording' : 'Start Recording' }}
+          <span v-if="isRecording" class="record-indicator"></span>
+        </button>
 
-        <label> <input type="checkbox" v-model="settings.captureAudio" /> Include Audio </label>
+        <div class="recording-info" v-if="isRecording">
+          {{ formatTime(recordingTime) }}
+        </div>
+
+        <div class="recording-settings" v-if="!isRecording">
+          <label>
+            Quality:
+            <select v-model="localSettings.quality">
+              <option value="max">Maximum</option>
+              <option value="high">High</option>
+              <option value="medium">Medium</option>
+            </select>
+          </label>
+
+          <label>
+            <input type="checkbox" v-model="localSettings.captureAudio" /> Include Audio
+          </label>
+        </div>
+      </div>
+
+      <div v-if="recordingMode === 'native'">
+        <button @click="toggleNativeRecording" :class="{ recording: isNativeRecording }">
+          {{ isNativeRecording ? 'Stop Recording' : 'Start Native Recording' }}
+          <span v-if="isNativeRecording" class="record-indicator"></span>
+        </button>
+
+        <div class="recording-info" v-if="isNativeRecording">
+          {{ formatTime(nativeRecordingTime) }}
+        </div>
+
+        <div class="recording-settings" v-if="!isNativeRecording">
+          <label>
+            Frame Rate:
+            <select v-model="nativeSettings.frameRate">
+              <option :value="15">15 fps</option>
+              <option :value="30">30 fps</option>
+              <option :value="60">60 fps</option>
+            </select>
+          </label>
+
+          <label>
+            Quality:
+            <select v-model="nativeSettings.quality">
+              <option value="high">High (8 Mbps)</option>
+              <option value="medium">Medium (5 Mbps)</option>
+              <option value="low">Low (2 Mbps)</option>
+            </select>
+          </label>
+        </div>
+
+        <div class="format-info" v-if="!isNativeRecording">
+          {{ formatWidth }}x{{ formatHeight }}
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script>
+  import nativeRecorder from '@/services/nativeRecorder';
+  import { FORMAT_PRESETS } from '@/constants/formatPresets';
+
   export default {
     name: 'RecordingControls',
+    props: {
+      settings: {
+        type: Object,
+        default: () => ({}),
+      },
+    },
     data() {
       return {
+        recordingMode: 'native',
         isRecording: false,
+        isNativeRecording: false,
         mediaRecorder: null,
         recordedChunks: [],
         recordingTime: 0,
+        nativeRecordingTime: 0,
         timer: null,
-        settings: {
+        localSettings: {
           quality: 'high',
           captureAudio: true,
+        },
+        nativeSettings: {
+          frameRate: 30,
+          quality: 'high',
         },
         qualityPresets: {
           max: {
@@ -55,12 +125,73 @@
             frameRate: 30,
           },
         },
+        nativeQualityPresets: {
+          high: 8000000,
+          medium: 5000000,
+          low: 2000000,
+        },
       };
     },
+    computed: {
+      formatWidth() {
+        const format = this.settings.videoFormat || 'vertical';
+        const preset = FORMAT_PRESETS.find((p) => p.value === format);
+        return preset ? preset.width : 1080;
+      },
+      formatHeight() {
+        const format = this.settings.videoFormat || 'vertical';
+        const preset = FORMAT_PRESETS.find((p) => p.value === format);
+        return preset ? preset.height : 1920;
+      },
+    },
     methods: {
+      async startNativeRecording() {
+        const targetElement = document.querySelector('.format-container');
+        if (!targetElement) {
+          alert('Could not find content area to record');
+          return;
+        }
+
+        try {
+          await nativeRecorder.startRecording(
+            targetElement,
+            this.formatWidth,
+            this.formatHeight,
+            {
+              frameRate: this.nativeSettings.frameRate,
+              videoBitsPerSecond: this.nativeQualityPresets[this.nativeSettings.quality],
+              onTimeUpdate: (time) => {
+                this.nativeRecordingTime = time;
+              },
+            }
+          );
+          this.isNativeRecording = true;
+          this.nativeRecordingTime = 0;
+        } catch (error) {
+          console.error('Error starting native recording:', error);
+          alert('Failed to start native recording: ' + error.message);
+        }
+      },
+
+      async stopNativeRecording() {
+        await nativeRecorder.stopRecording();
+        const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+        nativeRecorder.downloadRecording(`native-recording-${timestamp}.webm`);
+        this.isNativeRecording = false;
+        this.nativeRecordingTime = 0;
+      },
+
+      async toggleNativeRecording() {
+        if (!this.isNativeRecording) {
+          await this.startNativeRecording();
+        } else {
+          await this.stopNativeRecording();
+        }
+      },
+
       async startRecording() {
         try {
-          const config = this.qualityPresets[this.settings.quality];
+          const config = this.qualityPresets[this.localSettings.quality];
 
           const displayStream = await navigator.mediaDevices.getDisplayMedia({
             video: {
@@ -75,8 +206,7 @@
 
           let finalStream = displayStream;
 
-          // Add audio if needed
-          if (this.settings.captureAudio) {
+          if (this.localSettings.captureAudio) {
             try {
               const audioStream = await navigator.mediaDevices.getUserMedia({
                 audio: {
@@ -86,7 +216,6 @@
                 },
               });
 
-              // Combine video and audio streams
               const tracks = [...displayStream.getTracks(), ...audioStream.getTracks()];
               finalStream = new MediaStream(tracks);
             } catch (audioError) {
@@ -94,14 +223,12 @@
             }
           }
 
-          // Setup MediaRecorder with optimal settings
           const options = {
             mimeType: 'video/webm;codecs=vp9',
             videoBitsPerSecond: config.videoBitsPerSecond,
             audioBitsPerSecond: 256000,
           };
 
-          // Fallback codecs
           if (!MediaRecorder.isTypeSupported(options.mimeType)) {
             options.mimeType = 'video/webm;codecs=vp8';
             if (!MediaRecorder.isTypeSupported(options.mimeType)) {
@@ -138,7 +265,6 @@
             clearInterval(this.timer);
           };
 
-          // Start recording
           this.mediaRecorder.start(1000);
           this.isRecording = true;
 

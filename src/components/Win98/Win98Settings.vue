@@ -637,6 +637,42 @@
               @input="updateLoginSetting('loginBackgroundBlur', parseInt($event.target.value))"
             />
           </div>
+          <div v-if="win98.macLoginScreen.loginBackgroundImage" class="setting-row">
+            <label class="win98-label">Scale: {{ win98.macLoginScreen.loginBackgroundScale || 100 }}%</label>
+            <input
+              type="range"
+              class="win98-slider"
+              min="50"
+              max="200"
+              step="5"
+              :value="win98.macLoginScreen.loginBackgroundScale || 100"
+              @input="updateLoginSetting('loginBackgroundScale', parseInt($event.target.value))"
+            />
+          </div>
+          <div v-if="win98.macLoginScreen.loginBackgroundImage" class="setting-row">
+            <label class="win98-label">Position X: {{ win98.macLoginScreen.loginBackgroundPosX || 50 }}%</label>
+            <input
+              type="range"
+              class="win98-slider"
+              min="0"
+              max="100"
+              step="1"
+              :value="win98.macLoginScreen.loginBackgroundPosX || 50"
+              @input="updateLoginSetting('loginBackgroundPosX', parseInt($event.target.value))"
+            />
+          </div>
+          <div v-if="win98.macLoginScreen.loginBackgroundImage" class="setting-row">
+            <label class="win98-label">Position Y: {{ win98.macLoginScreen.loginBackgroundPosY || 50 }}%</label>
+            <input
+              type="range"
+              class="win98-slider"
+              min="0"
+              max="100"
+              step="1"
+              :value="win98.macLoginScreen.loginBackgroundPosY || 50"
+              @input="updateLoginSetting('loginBackgroundPosY', parseInt($event.target.value))"
+            />
+          </div>
         </div>
 
         <div class="setting-section">
@@ -683,6 +719,42 @@
               step="1"
               :value="win98.macLoginScreen.loadingBackgroundBlur"
               @input="updateLoginSetting('loadingBackgroundBlur', parseInt($event.target.value))"
+            />
+          </div>
+          <div v-if="win98.macLoginScreen.loadingBackgroundImage" class="setting-row">
+            <label class="win98-label">Scale: {{ win98.macLoginScreen.loadingBackgroundScale || 100 }}%</label>
+            <input
+              type="range"
+              class="win98-slider"
+              min="50"
+              max="200"
+              step="5"
+              :value="win98.macLoginScreen.loadingBackgroundScale || 100"
+              @input="updateLoginSetting('loadingBackgroundScale', parseInt($event.target.value))"
+            />
+          </div>
+          <div v-if="win98.macLoginScreen.loadingBackgroundImage" class="setting-row">
+            <label class="win98-label">Position X: {{ win98.macLoginScreen.loadingBackgroundPosX || 50 }}%</label>
+            <input
+              type="range"
+              class="win98-slider"
+              min="0"
+              max="100"
+              step="1"
+              :value="win98.macLoginScreen.loadingBackgroundPosX || 50"
+              @input="updateLoginSetting('loadingBackgroundPosX', parseInt($event.target.value))"
+            />
+          </div>
+          <div v-if="win98.macLoginScreen.loadingBackgroundImage" class="setting-row">
+            <label class="win98-label">Position Y: {{ win98.macLoginScreen.loadingBackgroundPosY || 50 }}%</label>
+            <input
+              type="range"
+              class="win98-slider"
+              min="0"
+              max="100"
+              step="1"
+              :value="win98.macLoginScreen.loadingBackgroundPosY || 50"
+              @input="updateLoginSetting('loadingBackgroundPosY', parseInt($event.target.value))"
             />
           </div>
         </div>

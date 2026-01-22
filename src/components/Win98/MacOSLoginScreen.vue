@@ -167,14 +167,18 @@ export default {
       const opacity = (this.loginConfig.loginBackgroundOpacity || 100) / 100;
       const blur = this.loginConfig.loginBackgroundBlur || 0;
       const fit = this.loginConfig.loginBackgroundFit || 'cover';
+      const scale = (this.loginConfig.loginBackgroundScale || 100) / 100;
+      const posX = this.loginConfig.loginBackgroundPosX ?? 50;
+      const posY = this.loginConfig.loginBackgroundPosY ?? 50;
 
       return {
         backgroundImage: `url(${this.loginConfig.loginBackgroundImage})`,
         backgroundSize: fit,
-        backgroundPosition: 'center',
+        backgroundPosition: `${posX}% ${posY}%`,
         backgroundRepeat: 'no-repeat',
         opacity: opacity,
         filter: blur > 0 ? `blur(${blur}px)` : 'none',
+        transform: scale !== 1 ? `scale(${scale})` : 'none',
       };
     },
     dialogStyle() {

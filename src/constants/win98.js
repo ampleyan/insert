@@ -204,9 +204,15 @@ export const WIN98_DEFAULT_STATE = {
     loginBackgroundFit: 'cover',
     loginBackgroundOpacity: 100,
     loginBackgroundBlur: 0,
+    loginBackgroundScale: 100,
+    loginBackgroundPosX: 50,
+    loginBackgroundPosY: 50,
     loadingBackgroundImage: null,
     loadingBackgroundFit: 'cover',
     loadingBackgroundOpacity: 100,
     loadingBackgroundBlur: 0,
+    loadingBackgroundScale: 100,
+    loadingBackgroundPosX: 50,
+    loadingBackgroundPosY: 50,
   }
 };
