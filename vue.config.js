@@ -64,6 +64,7 @@ module.exports = {
             {
               from: 'src/assets/mac/sounds',
               to: 'mac/sounds',
+              noErrorOnMissing: true,
               globOptions: {
                 ignore: ['**/.DS_Store']
               }
