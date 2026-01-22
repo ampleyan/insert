@@ -8,6 +8,7 @@ class NativeRecorder {
     this.canvas = null;
     this.canvasContext = null;
     this.stream = null;
+    this.audioStream = null;
     this.captureInterval = null;
     this.frameRate = 30;
     this.targetElement = null;
@@ -15,6 +16,7 @@ class NativeRecorder {
     this.height = 1920;
     this.onTimeUpdate = null;
     this.startTime = null;
+    this.captureAudio = true;
   }
 
   async startRecording(element, width, height, options = {}) {
@@ -27,13 +29,35 @@ class NativeRecorder {
     this.height = height;
     this.frameRate = options.frameRate || 30;
     this.onTimeUpdate = options.onTimeUpdate || null;
+    this.captureAudio = options.captureAudio !== false;
 
     this.canvas = document.createElement('canvas');
     this.canvas.width = this.width;
     this.canvas.height = this.height;
     this.canvasContext = this.canvas.getContext('2d', { alpha: false });
 
-    this.stream = this.canvas.captureStream(this.frameRate);
+    const videoStream = this.canvas.captureStream(this.frameRate);
+    let combinedStream = videoStream;
+
+    if (this.captureAudio) {
+      try {
+        this.audioStream = await navigator.mediaDevices.getUserMedia({
+          audio: {
+            echoCancellation: false,
+            noiseSuppression: false,
+            autoGainControl: false,
+          },
+        });
+        const audioTracks = this.audioStream.getAudioTracks();
+        const videoTracks = videoStream.getVideoTracks();
+        combinedStream = new MediaStream([...videoTracks, ...audioTracks]);
+      } catch (error) {
+        console.warn('Could not capture audio:', error.message);
+        combinedStream = videoStream;
+      }
+    }
+
+    this.stream = combinedStream;
 
     const mimeType = this.getSupportedMimeType();
     const videoBitsPerSecond = options.videoBitsPerSecond || 8000000;
@@ -41,6 +65,7 @@ class NativeRecorder {
     this.mediaRecorder = new MediaRecorder(this.stream, {
       mimeType,
       videoBitsPerSecond,
+      audioBitsPerSecond: 128000,
     });
 
     this.recordedChunks = [];
@@ -75,10 +100,10 @@ class NativeRecorder {
           scale: 1,
           useCORS: true,
           allowTaint: true,
-          backgroundColor: null,
+          backgroundColor: '#000000',
           logging: false,
-          windowWidth: this.width,
-          windowHeight: this.height,
+          windowWidth: this.targetElement.offsetWidth,
+          windowHeight: this.targetElement.offsetHeight,
         });
 
         this.canvasContext.drawImage(canvas, 0, 0, this.width, this.height);
@@ -132,6 +157,11 @@ class NativeRecorder {
       this.stream = null;
     }
 
+    if (this.audioStream) {
+      this.audioStream.getTracks().forEach((track) => track.stop());
+      this.audioStream = null;
+    }
+
     this.canvas = null;
     this.canvasContext = null;
     this.targetElement = null;
@@ -166,9 +196,10 @@ class NativeRecorder {
 
   getSupportedMimeType() {
     const types = [
+      'video/webm;codecs=vp9,opus',
+      'video/webm;codecs=vp8,opus',
       'video/webm;codecs=vp9',
       'video/webm;codecs=vp8',
-      'video/webm;codecs=h264',
       'video/webm',
     ];
 

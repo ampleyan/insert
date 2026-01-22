@@ -1,19 +1,27 @@
 <template>
-  <div class="win98-desktop-wrapper">
-    <MacOSLoadingScreen
-      v-if="showMacLoadingScreen"
-      :userName="win98.macLoginScreen.userName"
-      @loading-complete="onLoadingComplete"
-    />
-    <MacOSLoginScreen
-      v-else-if="win98.showMacLoginScreen"
-      @login="onMacLogin"
-      @shutdown="onMacShutdown"
-      @change-password="onMacChangePassword"
-    />
-    <Win98BootScreen v-if="!win98.bootComplete && !win98.showMacLoginScreen" @boot-complete="onBootComplete" />
-    <Win98BSOD v-if="win98.bsodActive" @dismiss="onBsodDismiss" />
-    <Win98Screensaver v-if="win98.screensaverActive" @dismiss="onScreensaverDismiss" />
+  <div class="win98-desktop-wrapper" :style="wrapperStyle">
+    <div v-if="showMacLoadingScreen" class="fullscreen-container" :style="formatStyle">
+      <MacOSLoadingScreen
+        :userName="win98.macLoginScreen.userName"
+        @loading-complete="onLoadingComplete"
+      />
+    </div>
+    <div v-else-if="win98.showMacLoginScreen" class="fullscreen-container" :style="formatStyle">
+      <MacOSLoginScreen
+        @login="onMacLogin"
+        @shutdown="onMacShutdown"
+        @change-password="onMacChangePassword"
+      />
+    </div>
+    <div v-if="!win98.bootComplete && !win98.showMacLoginScreen" class="fullscreen-container" :style="formatStyle">
+      <Win98BootScreen @boot-complete="onBootComplete" />
+    </div>
+    <div v-if="win98.bsodActive" class="fullscreen-container" :style="formatStyle">
+      <Win98BSOD @dismiss="onBsodDismiss" />
+    </div>
+    <div v-if="win98.screensaverActive" class="fullscreen-container" :style="formatStyle">
+      <Win98Screensaver @dismiss="onScreensaverDismiss" />
+    </div>
     <Win98FormatContainer v-show="win98.desktopActive && !win98.showMacLoginScreen" />
     <Win98CursorTrail v-if="win98.cursorTrailEnabled && win98.desktopActive && !win98.showMacLoginScreen" />
     <Win98ErrorPopup
@@ -23,7 +31,28 @@
       @dismiss="onErrorDismiss"
     />
     <div class="hotkey-hint" v-if="win98.desktopActive && showHotkeyHint && !win98.showMacLoginScreen">
-      R: Reboot | E: Error | B: BSOD | S: Screensaver | P: Settings | F: Format | I: Back to INSERT | H: Hide | L: Login | Ctrl+Shift+X: Reset All
+      R: Reboot | E: Error | B: BSOD | S: Screensaver | P: Settings | F: Format | I: Back to INSERT | H: Hide | L: Login | Ctrl+R: Record | Ctrl+Shift+X: Reset All
+    </div>
+    <div class="recording-controls">
+      <button
+        class="record-btn"
+        :class="{ recording: isRecording }"
+        @click="toggleRecording"
+        :title="isRecording ? 'Stop Recording' : 'Start Recording (Ctrl+R)'"
+      >
+        <span class="record-icon"></span>
+        <span class="record-text">{{ isRecording ? recordingTimeDisplay : 'REC' }}</span>
+      </button>
+      <div class="record-settings" v-if="!isRecording">
+        <select v-model="recordingFrameRate" class="record-select" title="Frame rate">
+          <option :value="15">15fps</option>
+          <option :value="30">30fps</option>
+        </select>
+        <label class="record-audio-toggle" title="Record audio (microphone)">
+          <input type="checkbox" v-model="recordingWithAudio" />
+          <span class="audio-icon">{{ recordingWithAudio ? '🔊' : '🔇' }}</span>
+        </label>
+      </div>
     </div>
   </div>
 </template>
@@ -33,6 +62,7 @@ import { useSettingsStore } from '../../stores/settings';
 import { WIN98_FORMATS } from '../../constants/win98';
 import win98AssetsService from '../../services/win98Assets';
 import { applySkinStyles, applyCustomBackgroundColor } from '../../utils/skinStyles';
+import nativeRecorder from '../../services/nativeRecorder';
 import MacOSLoginScreen from './MacOSLoginScreen.vue';
 import MacOSLoadingScreen from './MacOSLoadingScreen.vue';
 import Win98BootScreen from './Win98BootScreen.vue';
@@ -65,11 +95,41 @@ export default {
       idleTime: 0,
       showHotkeyHint: true,
       showMacLoadingScreen: false,
+      isRecording: false,
+      recordingTime: 0,
+      recordingFrameRate: 30,
+      recordingWithAudio: true,
     };
   },
   computed: {
     win98() {
       return this.settingsStore.win98;
+    },
+    recordingTimeDisplay() {
+      const mins = Math.floor(this.recordingTime / 60);
+      const secs = this.recordingTime % 60;
+      return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    },
+    formatDimensions() {
+      const formats = {
+        square: { width: 1080, height: 1080 },
+        portrait: { width: 1080, height: 1350 },
+        landscape: { width: 1080, height: 566 },
+        reels: { width: 1080, height: 1920 }
+      };
+      return formats[this.win98.format] || formats.reels;
+    },
+    wrapperStyle() {
+      return {
+        width: this.formatDimensions.width + 'px',
+        height: this.formatDimensions.height + 'px',
+      };
+    },
+    formatStyle() {
+      return {
+        width: this.formatDimensions.width + 'px',
+        height: this.formatDimensions.height + 'px',
+      };
     },
   },
   watch: {
@@ -201,10 +261,17 @@ export default {
       this.settingsStore.win98ShowError(randomError);
     },
     handleKeydown(e) {
-      if (!this.win98.desktopActive && !this.win98.bsodActive && !this.win98.screensaverActive) return;
       if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.isContentEditable) return;
 
       const key = e.key.toLowerCase();
+
+      if (e.ctrlKey && key === 'r') {
+        e.preventDefault();
+        this.toggleRecording();
+        return;
+      }
+
+      if (!this.win98.desktopActive && !this.win98.bsodActive && !this.win98.screensaverActive && !this.win98.showMacLoginScreen) return;
 
       if (e.ctrlKey && e.shiftKey && key === 'x') {
         e.preventDefault();
@@ -266,17 +333,69 @@ export default {
       applySkinStyles('win98');
       window.location.reload();
     },
+    async toggleRecording() {
+      if (this.isRecording) {
+        await this.stopRecording();
+      } else {
+        await this.startRecording();
+      }
+    },
+    async startRecording() {
+      const targetElement = document.querySelector('.win98-view');
+      if (!targetElement) {
+        console.error('Could not find .win98-view element');
+        return;
+      }
+
+      try {
+        await nativeRecorder.startRecording(
+          targetElement,
+          this.formatDimensions.width,
+          this.formatDimensions.height,
+          {
+            frameRate: this.recordingFrameRate,
+            videoBitsPerSecond: 8000000,
+            captureAudio: this.recordingWithAudio,
+            onTimeUpdate: (time) => {
+              this.recordingTime = time;
+            },
+          }
+        );
+        this.isRecording = true;
+        this.recordingTime = 0;
+      } catch (error) {
+        console.error('Failed to start recording:', error);
+        alert('Failed to start recording: ' + error.message);
+      }
+    },
+    async stopRecording() {
+      try {
+        await nativeRecorder.stopRecording();
+        const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+        const format = this.win98.format || 'reels';
+        nativeRecorder.downloadRecording(`studio-${format}-${timestamp}.webm`);
+      } catch (error) {
+        console.error('Failed to stop recording:', error);
+      }
+      this.isRecording = false;
+      this.recordingTime = 0;
+    },
   },
 };
 </script>
 
 <style scoped>
 .win98-desktop-wrapper {
-  width: 100%;
-  height: 100%;
   position: relative;
   background: #000;
-  overflow: auto;
+  overflow: hidden;
+}
+
+.fullscreen-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  overflow: hidden;
 }
 
 .hotkey-hint {
@@ -290,5 +409,103 @@ export default {
   font-size: 10px;
   z-index: 50;
   pointer-events: none;
+}
+
+.recording-controls {
+  position: fixed;
+  top: 10px;
+  right: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  z-index: 9999;
+}
+
+.record-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  background: rgba(0, 0, 0, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+  color: white;
+  cursor: pointer;
+  font-family: monospace;
+  font-size: 12px;
+  transition: all 0.2s;
+}
+
+.record-btn:hover {
+  background: rgba(0, 0, 0, 0.9);
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+.record-btn.recording {
+  background: rgba(180, 0, 0, 0.9);
+  border-color: rgba(255, 100, 100, 0.5);
+}
+
+.record-icon {
+  width: 12px;
+  height: 12px;
+  background: #ff3333;
+  border-radius: 50%;
+}
+
+.record-btn.recording .record-icon {
+  animation: pulse-record 1s ease-in-out infinite;
+}
+
+@keyframes pulse-record {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+.record-text {
+  min-width: 36px;
+  text-align: center;
+}
+
+.record-settings {
+  display: flex;
+  gap: 4px;
+}
+
+.record-select {
+  background: rgba(0, 0, 0, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+  color: white;
+  padding: 6px 8px;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.record-select:hover {
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+.record-audio-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+  padding: 4px 8px;
+  cursor: pointer;
+}
+
+.record-audio-toggle:hover {
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+.record-audio-toggle input {
+  display: none;
+}
+
+.audio-icon {
+  font-size: 14px;
 }
 </style>
