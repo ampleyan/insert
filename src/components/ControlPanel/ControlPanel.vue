@@ -86,6 +86,8 @@
 
       <template #text>
         <div class="tab-section">
+          <BrandPresetControls @update="onUpdate" />
+
           <FontControls
             :fontFamily="settings.fontFamily?.[0] || 'Arial'"
             :fontWeight="settings.fontWeight?.[0] || '900'"
@@ -352,6 +354,7 @@
   import EffectSpecificControls from './EffectSpecificControls.vue';
   import TextPathControls from './TextPathControls.vue';
   import AudioControls from './AudioControls.vue';
+  import BrandPresetControls from './BrandPresetControls.vue';
   import { useSettingsStore } from '@/stores/settings';
   import { exportConfig, importConfig } from '@/services/configExport';
 
@@ -376,6 +379,7 @@
       EffectSpecificControls,
       TextPathControls,
       AudioControls,
+      BrandPresetControls,
     },
     emits: [
       'update',

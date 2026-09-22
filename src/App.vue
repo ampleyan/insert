@@ -7,19 +7,23 @@
 <script>
 import { useSettingsStore } from './stores/settings';
 import { usePresetsStore } from './stores/presets';
+import { useBrandStore } from './stores/brand';
 
 export default {
   name: 'App',
   setup() {
     const settingsStore = useSettingsStore();
     const presetsStore = usePresetsStore();
+    const brandStore = useBrandStore();
 
     settingsStore.loadFromLocalStorage();
     presetsStore.loadFromLocalStorage();
+    brandStore.loadFromLocalStorage();
 
     return {
       settingsStore,
       presetsStore,
+      brandStore,
     };
   },
 };
@@ -36,9 +40,13 @@ export default {
 }
 
 body {
-  background: #1a1a1a;
+  background: var(--identity-paper);
+  color: var(--identity-ink);
+  font-family: var(--font-ui);
   margin: 0;
   padding: 20px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 .fade-enter-active,

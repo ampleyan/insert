@@ -48,6 +48,26 @@
   --font-size-lg: 16px;
   --font-size-xl: 18px;
 
+  --font-ui: 'Inter', Helvetica, Arial, sans-serif;
+  --font-display: 'Bebas Neue', 'Arial Narrow', Arial, sans-serif;
+  --font-mono: 'IBM Plex Mono', 'Courier New', monospace;
+  --type-caption: 0.6875rem;
+  --type-ui: 0.8125rem;
+  --type-body: 1rem;
+  --type-display-lg: clamp(4rem, 12vw, 10rem);
+  --leading-display: 0.9;
+  --leading-ui: 1.2;
+  --leading-body: 1.5;
+  --tracking-display: -0.04em;
+  --tracking-label: 0.06em;
+
+  --identity-ink: #ffffff;
+  --identity-paper: #050505;
+  --identity-acid: #dfff00;
+  --identity-cyan: #00f0ff;
+  --identity-magenta: #ff00d4;
+  --identity-red: #ff3b30;
+
   --font-weight-normal: 400;
   --font-weight-medium: 500;
   --font-weight-bold: 700;
