@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia';
 import { debounce } from 'lodash-es';
 import { WIN98_DEFAULT_STATE, WIN98_FORMATS } from '../constants/win98';
+import websocketBridge from '../services/websocket';
 
 export const useSettingsStore = defineStore('settings', {
   state: () => ({
@@ -268,6 +269,17 @@ export const useSettingsStore = defineStore('settings', {
       applyTo: 'intensity',
       volume: 1,
     },
+    performance: {
+      scene: 'xerox-pulse',
+      energy: 0.7,
+      beat: 0.5,
+      kick: 0.9,
+      warp: 0.35,
+      feedback: 0.28,
+      chromatic: 0.05,
+      seed: 0.12,
+      freeze: false,
+    },
 
     appMode: 'insert',
     win98: { ...WIN98_DEFAULT_STATE },
@@ -289,6 +301,20 @@ export const useSettingsStore = defineStore('settings', {
     updateSettings(settings) {
       Object.assign(this.$state, settings);
       this.saveToLocalStorageDebounced();
+    },
+
+    updatePerformance(settings) {
+      this.performance = { ...this.performance, ...settings };
+      this.saveToLocalStorageDebounced();
+      this.sendPerformance();
+    },
+
+    sendPerformance() {
+      if (!websocketBridge.isConnected()) return;
+      websocketBridge.send({
+        type: 'performance',
+        ...this.performance,
+      });
     },
 
     saveToLocalStorageDebounced: debounce(function () {

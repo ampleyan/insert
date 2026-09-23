@@ -87,6 +87,7 @@
       <template #text>
         <div class="tab-section">
           <BrandPresetControls @update="onUpdate" />
+          <TemplateControls :format="settings.videoFormat" @update="onUpdate" />
 
           <FontControls
             :fontFamily="settings.fontFamily?.[0] || 'Arial'"
@@ -321,6 +322,7 @@
             @stop="$emit('audioStop')"
             @audioFile="$emit('audioFile', $event)"
           />
+          <PerformanceControls />
           <FormatControls @update="onUpdate" />
           <GridControls @update="onUpdate" />
           <ImageOverlayControls :images="settings.imageOverlays || []" @update="onUpdate" />
@@ -354,7 +356,9 @@
   import EffectSpecificControls from './EffectSpecificControls.vue';
   import TextPathControls from './TextPathControls.vue';
   import AudioControls from './AudioControls.vue';
+  import PerformanceControls from './PerformanceControls.vue';
   import BrandPresetControls from './BrandPresetControls.vue';
+  import TemplateControls from './TemplateControls.vue';
   import { useSettingsStore } from '@/stores/settings';
   import { exportConfig, importConfig } from '@/services/configExport';
 
@@ -379,7 +383,9 @@
       EffectSpecificControls,
       TextPathControls,
       AudioControls,
+      PerformanceControls,
       BrandPresetControls,
+      TemplateControls,
     },
     emits: [
       'update',

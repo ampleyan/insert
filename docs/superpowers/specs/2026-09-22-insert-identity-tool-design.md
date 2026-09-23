@@ -49,6 +49,12 @@ Expose normalized channels such as `/insert/energy`, `/insert/beat`, `/insert/ki
 
 The useful live workflow is: select a template in INSERT, choose a performance preset, connect the bridge, map the normalized channels in TouchDesigner, and trigger scenes from MIDI, OSC, or audio analysis. Include a freeze/hold control and a maximum-feedback safeguard to prevent runaway loops.
 
+## Reference Fit
+
+Motion's example library is useful for interaction patterns, especially split-text reveals, staggered character motion, scramble text, tickers, wavy text, and spring-based transitions. These should inform lightweight browser previews and preset transitions, but the identity's exported motion should stay driven by the existing canvas and TouchDesigner pipeline rather than adding a second animation system. The Vue examples are the relevant subset for this repository. [Motion examples](https://motion.dev/examples)
+
+The `jakubkrehel/skills` collection is useful as a review checklist rather than a dependency. Apply `better-ui` for optical alignment and restrained motion, `better-layout` for grouping and shared edges, and `better-colors` for role-based identity tokens. Keep `better-typography` as the authority for type scale, wrapping, and tracking. Do not install the full skills pack into the product or introduce a second token system. [Skills collection](https://www.skills.sh/jakubkrehel/skills)
+
 ## Acceptance Criteria
 
 - A new user can create an event graphic without manually combining five separate effects.

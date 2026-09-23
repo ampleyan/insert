@@ -32,12 +32,15 @@ wss.on('connection', (ws) => {
     try {
       const data = JSON.parse(message);
       let messageCount = 0;
+      const addressPrefix = data.type === 'performance' ? '/insert/' : '/text/';
 
       for (const [key, value] of Object.entries(data)) {
+        if (data.type === 'performance' && key === 'type') continue;
+
         if (Array.isArray(value)) {
           value.forEach((item, index) => {
             udpPort.send({
-              address: `/text/${key}${index}`,
+              address: `${addressPrefix}${key}${index}`,
               args: [
                 {
                   type: typeof item === 'number' ? 'f' : 's',
@@ -49,7 +52,7 @@ wss.on('connection', (ws) => {
           });
         } else {
           udpPort.send({
-            address: `/text/${key}`,
+            address: `${addressPrefix}${key}`,
             args: [
               {
                 type: typeof value === 'number' ? 'f' : 's',
